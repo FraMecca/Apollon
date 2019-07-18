@@ -3,7 +3,7 @@
               android:layout_height="match_parent"
               android:paddingLeft="16dp"
               android:paddingRight="16dp"
-              android:orientation="horizontal"
+              android:orientation="vertical"
               android:gravity="center">
 
 
@@ -13,10 +13,17 @@
 
 
     >
-        <Button
+        <LinearLayout
+                android:orientation="horizontal"
+                android:id="@+id/bar"
+                android:layout_width="match_parent"
                 android:layout_gravity="bottom"
-                android:text="Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/button2"/>
+                android:layout_height="49dp">
+            <Button
+                    android:text="None"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_height="wrap_content" android:id="@+id/button2" android:layout_weight="1"/>
+        </LinearLayout>
     </FrameLayout>
 </LinearLayout>

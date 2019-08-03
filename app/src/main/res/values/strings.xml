@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Apollon</string>
+    <string name="action_add_favourite">Add to favourites</string>
+    <string name="action_play_next">Play next</string>
+    <string name="user">User</string>
+    <string name="password">Password</string>
+    <string name="ip">IP</string>
+    <string name="port">Port</string>
+	<string name="login">Login</string>
+	<string name="playlists">Playlists</string>
+	<string name="all">All</string>
+	<string name="favourites">Favourites</string>
+	<string name="added_to_favourites">added to favourites</string>
+	<string name="added_to_queue">added to queue</string>
+	<string name="default_timer">0:00</string>
 </resources>

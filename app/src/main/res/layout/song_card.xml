@@ -9,8 +9,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_margin="@dimen/card_margin"
-        android:elevation="3dp"
-        card_view:cardCornerRadius="@dimen/card_album_radius">
+        android:elevation="@dimen/card_elevation"
+        card_view:cardCornerRadius="@dimen/card_corner_radius">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -20,7 +20,7 @@
             <ImageView
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/album_cover_height"
+                android:layout_height="@dimen/card_image_height"
                 android:scaleType="centerCrop"/>
 
             <TextView
@@ -28,28 +28,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/thumbnail"
-                android:paddingLeft="@dimen/album_title_padding"
-                android:paddingRight="@dimen/album_title_padding"
-                android:paddingTop="@dimen/album_title_padding"
-                android:textSize="@dimen/album_title"/>
+                android:paddingHorizontal="@dimen/card_title_padding"
+                android:paddingTop="@dimen/card_title_padding"
+                android:textSize="@dimen/song_title"/>
 
             <TextView
                 android:id="@+id/artist"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/title"
-                android:paddingBottom="@dimen/songs_count_padding_bottom"
-                android:paddingLeft="@dimen/album_title_padding"
-                android:paddingRight="@dimen/album_title_padding"
-                android:textSize="@dimen/songs_count"/>
+                android:paddingBottom="@dimen/song_artist_padding_bottom"
+                android:paddingHorizontal="@dimen/card_title_padding"
+                android:textSize="@dimen/song_artist"/>
 
             <ImageView
                 android:id="@+id/menu"
-                android:layout_width="@dimen/ic_album_overflow_width"
-                android:layout_height="@dimen/ic_album_overflow_height"
+                android:layout_width="@dimen/menu_width"
+                android:layout_height="@dimen/menu_height"
                 android:layout_alignParentRight="true"
                 android:layout_below="@id/thumbnail"
-                android:layout_marginTop="@dimen/ic_album_overflow_margin_top"
+                android:layout_marginTop="@dimen/menu_margin_top"
                 android:scaleType="centerCrop"
                 android:src="@drawable/dots"/>
 

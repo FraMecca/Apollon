@@ -9,14 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp"
-        android:paddingTop="56dp">
+        android:paddingHorizontal="@dimen/login_padding_horizontal"
+        android:paddingTop="@dimen/login_margin_top">
 
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="250dp"
+            android:layout_height="@dimen/logo_height"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="@dimen/logo_margin_bottom"
             android:src="@drawable/logo"/>
 
         <LinearLayout
@@ -44,7 +44,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
+                android:layout_marginVertical="@dimen/login_margin_vertical"
                 android:layout_weight="2">
 
                 <EditText
@@ -61,7 +61,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp">
+            android:layout_marginVertical="@dimen/login_margin_vertical">
 
             <EditText
                 android:id="@+id/input_username"
@@ -75,7 +75,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp">
+            android:layout_marginVertical="@dimen/login_margin_vertical">
 
             <EditText
                 android:id="@+id/input_password"
@@ -89,8 +89,8 @@
             android:id="@+id/login_btn"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="24dp"
-            android:padding="12dp"
+            android:layout_marginVertical="@dimen/login_button_margin_vertical"
+            android:padding="@dimen/login_button_padding"
             android:text="@string/login" />
     </LinearLayout>
 </ScrollView>

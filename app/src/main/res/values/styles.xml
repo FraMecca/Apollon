@@ -30,6 +30,6 @@
 
     <style name="ToolbarStyle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:background">@color/black</item>
-        <item name="android:textSize">21dp</item>
+        <item name="android:textSize">@dimen/toolbar_text_size</item>
     </style>
 </resources>

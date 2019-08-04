@@ -3,6 +3,7 @@ package com.apollon.fragments
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,13 +16,15 @@ import com.apollon.MainActivity
 import com.apollon.R
 import com.apollon.classes.Song
 import com.squareup.picasso.Picasso
+import com.squareup.otto.Subscribe
+import com.apollon.classes.NewSongEvent
 
 
 class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
-    val REPEAT_NOT = 0
-    val REPEAT_ALL = 1
-    val REPEAT_SONG = 2
+    private val REPEAT_NOT = 0
+    private val REPEAT_ALL = 1
+    private val REPEAT_SONG = 2
 
     lateinit var mView: View
     lateinit var albumArt: ImageView
@@ -51,17 +54,22 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         currentTime = mView.findViewById(R.id.current_position)
         duration = mView.findViewById(R.id.duration)
         playButton = mView.findViewById(R.id.button_play)
-        playButton.setOnClickListener(this)
         repeatButton = mView.findViewById(R.id.button_repeat)
-        repeatButton.setOnClickListener(this)
         mView.findViewById<View>(R.id.button_previous).setOnClickListener(this)
         mView.findViewById<View>(R.id.button_next).setOnClickListener(this)
+
+        playButton.setOnClickListener(this)
+        repeatButton.setOnClickListener(this)
         seekBar.setOnSeekBarChangeListener(this)
         title.text = song.title
         artist.text = song.artist
         duration.text = song.millisToString(song.duration)
         Picasso.get().load(song.img_url).into(albumArt)
-        (activity as MainActivity).initSong(song.audio_url)
+
+        //Registers to service bus
+        (activity as MainActivity).bus.register(this)
+
+        (activity as MainActivity).play(song.audio_url)
         updateSeekBar()
         return mView
     }
@@ -103,9 +111,8 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 if (!isPlaying) {
                     isPlaying = true
                     playButton.setBackgroundResource(R.drawable.pause_button_selector)
+                    (activity as MainActivity).play(song.audio_url)
                     updateSeekBar()
-                    (activity as MainActivity).play()
-
                 } else {
                     isPlaying = false
                     playButton.setBackgroundResource(R.drawable.play_button_selector)
@@ -131,6 +138,13 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                     }
                 }
         }
+    }
+
+    @Subscribe
+    fun answerAvailable(event: NewSongEvent) {
+        isPlaying = false
+        playButton.setBackgroundResource(R.drawable.play_button_selector)
+        seekBarHandler.removeCallbacksAndMessages(null)
     }
 
     companion object {

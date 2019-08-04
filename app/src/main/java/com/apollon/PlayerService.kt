@@ -8,6 +8,8 @@ import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import com.apollon.classes.NewSongEvent
+import com.squareup.otto.Bus
 import java.io.IOException
 
 
@@ -20,6 +22,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     private val binder = LocalBinder()
 
     private var mediaPlayer: MediaPlayer? = null
+
+    lateinit var bus: Bus
+
+    private var currentSong: String = ""
 
 
     //The system calls this method when an activity, requests the service be started
@@ -50,9 +56,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     override fun onCompletion(mp: MediaPlayer) {
         //Invoked when playback of a media source has completed.
+        bus.post(NewSongEvent())
         mediaPlayer?.stop()
-        //stop the service
-        stopSelf()
+        mediaPlayer?.release()
+        mediaPlayer = null
+        currentSong = ""
     }
 
     //Handle errors
@@ -84,7 +92,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         //Invoked when the audio focus of the system is updated.
     }
 
-    fun initMediaPlayer(url: String) {
+    private fun initMediaPlayer(url: String) {
         mediaPlayer?.release()
         mediaPlayer = MediaPlayer()
         //Set up MediaPlayer event listeners
@@ -100,6 +108,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         try {
             // Set the data source to the mediaFile location
             mediaPlayer?.setDataSource(url)
+            currentSong = url
         } catch (e: IOException) {
             e.printStackTrace()
             stopSelf()
@@ -108,8 +117,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         mediaPlayer?.prepareAsync()
     }
 
-    fun playMedia() {
-        if (!mediaPlayer!!.isPlaying) {
+    fun playMedia(url: String) {
+        if (url != (currentSong)) {
+            initMediaPlayer(url)
+        } else if (!mediaPlayer!!.isPlaying) {
             mediaPlayer?.start()
         }
     }
@@ -129,7 +140,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     fun getCurrentPosition(): Int {
-        return mediaPlayer?.currentPosition ?: 0
+        val res = mediaPlayer?.currentPosition ?: 0
+        return res
     }
 
     inner class LocalBinder : Binder() {

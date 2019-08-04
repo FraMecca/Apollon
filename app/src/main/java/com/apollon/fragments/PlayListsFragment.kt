@@ -19,7 +19,6 @@ import com.apollon.classes.Playlist
 class PlayListsFragment : Fragment() {
 
     lateinit var mView: View
-    lateinit var loginButton: Button
     private val playlists : ArrayList<Playlist> = ArrayList()
 
 
@@ -28,7 +27,6 @@ class PlayListsFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View? {
         mView = inflater.inflate(R.layout.playlists, container, false)
-        val toolbar = mView.findViewById<Toolbar>(R.id.playlists_toolbar)
         val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
         //setSupportActionBar(toolbar)
         //supportActionBar?.setDisplayHomeAsUpEnabled(true)

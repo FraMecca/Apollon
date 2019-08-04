@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Apollon</string>
+    <string name="action_add_favourite">Aggiungi ai preferiti</string>
+    <string name="action_play_next">Riproduci come prossima</string>
+    <string name="user">Utente</string>
+    <string name="password">Password</string>
+    <string name="ip">IP</string>
+    <string name="port">Porta</string>
+	<string name="login">Accedi</string>
+	<string name="playlists">Playlist</string>
+	<string name="all">Tutto</string>
+	<string name="favourites">Preferiti</string>
+	<string name="added_to_favourites">aggiunta ai preferiti</string>
+	<string name="added_to_queue">aggiunta alla coda</string>
+    <string name="default_timer">0:00</string>
+
+</resources>

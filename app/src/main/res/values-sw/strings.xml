@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Apollon</string>
+    <string name="action_add_favourite">Ongeza kwenye vipendwa</string>
+    <string name="action_play_next">Cheza ijayo</string>
+    <string name="user">Mtumiaji</string>
+    <string name="password">Nywila</string>
+    <string name="ip">IP</string>
+    <string name="port">Bandari</string>
+	<string name="login">Ingia</string>
+	<string name="playlists">Orodha za kucheza</string>
+	<string name="all">Wote</string>
+	<string name="favourites">Vipendwa</string>
+	<string name="added_to_favourites">imeongezwa kwa vipendwa</string>
+	<string name="added_to_queue">imeongezwa kwenye foleni</string>
+    <string name="default_timer">0:00</string>
+</resources>

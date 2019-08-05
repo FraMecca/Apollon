@@ -45,6 +45,11 @@ class MainActivity : AppCompatActivity(){
         replaceFragment(LoginFragment(), false)
     }
 
+    override fun onDestroy() {
+        unbindService(serviceConnection)
+        super.onDestroy()
+    }
+
     fun replaceFragment(frag: Fragment, addToStack: Boolean = true) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.main, frag)
@@ -53,25 +58,5 @@ class MainActivity : AppCompatActivity(){
             transaction.addToBackStack("ApollonStack")
         transaction.commit()
         supportFragmentManager.executePendingTransactions()
-    }
-
-    fun play(url: String){
-        player.playMedia(url)
-    }
-
-    fun pause(){
-        player.pauseMedia()
-    }
-
-    fun loop(loop: Boolean){
-        player.loopMedia(loop)
-    }
-
-    fun seekTo(position: Int){
-        player.seekTo(position)
-    }
-
-    fun getCurrentPosition(): Int{
-        return player.getCurrentPosition()
     }
 }

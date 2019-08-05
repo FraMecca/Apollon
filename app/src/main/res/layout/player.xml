@@ -79,7 +79,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/shuffle"
+                android:id="@+id/button_random"
                 android:layout_width="@dimen/player_control_dimension"
                 android:layout_height="@dimen/player_control_dimension"
                 android:background="@drawable/shuffle_not_button_selector" />

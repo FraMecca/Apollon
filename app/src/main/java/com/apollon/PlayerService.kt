@@ -8,9 +8,12 @@ import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import com.apollon.classes.NewSongEvent
+import com.apollon.classes.Song
 import com.squareup.otto.Bus
 import java.io.IOException
+import kotlin.random.Random
 
 
 class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
@@ -25,16 +28,22 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     lateinit var bus: Bus
 
-    private var currentSong: String = ""
+    private var loopPlaylist = false
 
+    var randomSelection = false
+
+    var playlist = ArrayList<Song>()
+
+    var songIndex = 0
+
+    private var stopped = false
+
+    private var paused = false
 
     //The system calls this method when an activity, requests the service be started
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        try {
-            Log.e("PlayerService", "onStartCommand")
-        } catch (e: NullPointerException) {
-            stopSelf()
-        }
+        Log.e("PlayerService", "onStartCommand")
+        initMediaPlayer()
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -56,11 +65,15 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     override fun onCompletion(mp: MediaPlayer) {
         //Invoked when playback of a media source has completed.
-        bus.post(NewSongEvent())
-        mediaPlayer?.stop()
-        mediaPlayer?.release()
-        mediaPlayer = null
-        currentSong = ""
+        if (songIndex == playlist.size - 1 && !loopPlaylist && !randomSelection) {
+            bus.post(NewSongEvent(null))
+            mediaPlayer?.stop()
+            mediaPlayer?.release()
+            mediaPlayer = null
+            stopped = true
+        } else {
+            nextMedia()
+        }
     }
 
     //Handle errors
@@ -71,7 +84,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             MediaPlayer.MEDIA_ERROR_SERVER_DIED -> Log.d("MediaPlayer Error", "MEDIA ERROR SERVER DIED $extra")
             MediaPlayer.MEDIA_ERROR_UNKNOWN -> Log.d("MediaPlayer Error", "MEDIA ERROR UNKNOWN $extra")
         }
-        return false
+        return true
     }
 
     override fun onInfo(mp: MediaPlayer, what: Int, extra: Int): Boolean {
@@ -92,7 +105,27 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         //Invoked when the audio focus of the system is updated.
     }
 
-    private fun initMediaPlayer(url: String) {
+    fun initMedia(playlist: ArrayList<Song>, songIndex: Int) {
+        if (mediaPlayer == null)
+            initMediaPlayer()
+        if (this.playlist != playlist || this.songIndex != songIndex || stopped) {
+            stopped = false
+            this.playlist = playlist
+            this.songIndex = songIndex
+            mediaPlayer?.reset()
+            try {
+                mediaPlayer?.setDataSource(playlist[songIndex].audio_url)
+                mediaPlayer?.prepareAsync()
+                bus.post(NewSongEvent(playlist[songIndex]))
+            } catch (ex: IOException) {
+                Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT)
+            }
+        } else {
+            bus.post(NewSongEvent(playlist[songIndex]))
+        }
+    }
+
+    fun initMediaPlayer() {
         mediaPlayer?.release()
         mediaPlayer = MediaPlayer()
         //Set up MediaPlayer event listeners
@@ -102,37 +135,71 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         mediaPlayer?.setOnBufferingUpdateListener(this)
         mediaPlayer?.setOnSeekCompleteListener(this)
         mediaPlayer?.setOnInfoListener(this)
-        //Reset so that the MediaPlayer is not pointing to another data source
-        mediaPlayer?.reset()
         mediaPlayer?.setAudioAttributes(AudioAttributes.Builder().setLegacyStreamType(AudioManager.STREAM_MUSIC).build())
-        try {
-            // Set the data source to the mediaFile location
-            mediaPlayer?.setDataSource(url)
-            currentSong = url
-        } catch (e: IOException) {
-            e.printStackTrace()
-            stopSelf()
-        }
-
-        mediaPlayer?.prepareAsync()
     }
 
-    fun playMedia(url: String) {
-        if (url != (currentSong)) {
-            initMediaPlayer(url)
-        } else if (!mediaPlayer!!.isPlaying) {
+    fun playMedia() {
+        paused = false
+        if (mediaPlayer == null) {
+            initMedia(playlist, songIndex)
+        } else if (mediaPlayer?.isPlaying == false) {
             mediaPlayer?.start()
         }
     }
 
     fun pauseMedia() {
-        if (mediaPlayer!!.isPlaying) {
+        // Equality check (==) handles null case too
+        if (mediaPlayer?.isPlaying == true) {
             mediaPlayer?.pause()
+            paused = true
         }
     }
 
-    fun loopMedia(loop: Boolean) {
-        mediaPlayer?.isLooping = loop
+    fun isPaused(): Boolean {
+        return paused
+    }
+
+    fun previousMedia() {
+        //If mediaPlayer is null nothing happens
+        when {
+            mediaPlayer?.currentPosition ?: 1001 > 1000 -> mediaPlayer?.seekTo(0)
+            randomSelection -> {
+                var ran = songIndex
+                while (ran == songIndex) ran = Random.nextInt(0, playlist.size - 1)
+                initMedia(playlist, ran)
+            }
+            loopPlaylist -> initMedia(playlist, (playlist.size + songIndex - 1) % playlist.size) //Kotlin module returns -1 instead of (size - 1)
+            else -> initMedia(playlist, maxOf(songIndex - 1, 0))
+        }
+    }
+
+    fun nextMedia() {
+        when {
+            randomSelection -> {
+                var ran = songIndex
+                while (ran == songIndex) ran = Random.nextInt(0, playlist.size - 1)
+                initMedia(playlist, ran)
+            }
+            loopPlaylist -> initMedia(playlist, (songIndex + 1) % playlist.size)
+            else -> initMedia(playlist, minOf(songIndex + 1, playlist.size - 1))
+        }
+    }
+
+    fun loopSong() {
+        mediaPlayer?.isLooping = true
+    }
+
+    fun loopPlaylist(loop: Boolean) {
+        mediaPlayer?.isLooping = false
+        loopPlaylist = loop
+    }
+
+    fun isLoopingSong(): Boolean {
+        return mediaPlayer?.isLooping ?: false
+    }
+
+    fun isLoopingPlaylist(): Boolean {
+        return loopPlaylist
     }
 
     fun seekTo(position: Int) {
@@ -140,13 +207,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     fun getCurrentPosition(): Int {
-        val res = mediaPlayer?.currentPosition ?: 0
-        return res
+        return mediaPlayer?.currentPosition ?: 0
     }
 
     inner class LocalBinder : Binder() {
         val service: PlayerService
             get() = this@PlayerService
     }
-
 }

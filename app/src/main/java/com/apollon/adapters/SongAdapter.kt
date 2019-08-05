@@ -42,7 +42,8 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
         //CardView listener
         holder.itemView.setOnClickListener{
             Toast.makeText(context, "Song ${song.id} selected", Toast.LENGTH_SHORT).show()
-            (context as MainActivity).replaceFragment(PlayerFragment.newInstance(song))
+            (context as MainActivity).replaceFragment(PlayerFragment())
+            context.player.initMedia(songs, position)
         }
     }
 
@@ -58,7 +59,7 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
                     Toast.makeText(context, "Song $songId added to favourites", Toast.LENGTH_SHORT).show()
                 }
                 R.id.action_play_next -> {
-                            Toast.makeText(context, "Song $songId added to queue", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Song $songId added to queue", Toast.LENGTH_SHORT).show()
                 }
             }
             true

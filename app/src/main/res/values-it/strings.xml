@@ -13,5 +13,5 @@
 	<string name="added_to_favourites">aggiunta ai preferiti</string>
 	<string name="added_to_queue">aggiunta alla coda</string>
     <string name="default_timer">0:00</string>
-
+    <string name="unsupported_format">Formato non supportato</string>
 </resources>

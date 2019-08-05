@@ -3,7 +3,6 @@ package com.apollon.fragments
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,11 +21,10 @@ import com.apollon.classes.NewSongEvent
 
 class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
-    private val REPEAT_NOT = 0
-    private val REPEAT_ALL = 1
-    private val REPEAT_SONG = 2
+    private val NOT = 0
+    private val PLAYLIST = 1
+    private val SONG = 2
 
-    lateinit var mView: View
     lateinit var albumArt: ImageView
     lateinit var title: TextView
     lateinit var artist: TextView
@@ -35,18 +33,21 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     lateinit var duration: TextView
     lateinit var song: Song
     lateinit var playButton: Button
-    lateinit var repeatButton: Button
+    lateinit var previousButton: Button
+    lateinit var nextButton: Button
+    lateinit var loopButton: Button
+    lateinit var randomButton: Button
     private var seekBarHandler = Handler()
     private var isPlaying = true
-    private var repeat = REPEAT_NOT
+    private var loopType = NOT
+    private var randomSelection = false
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        mView = inflater.inflate(R.layout.player, container, false)
-        song = arguments?.getSerializable("song") as Song
+        var mView = inflater.inflate(R.layout.player, container, false)
         title = mView.findViewById(R.id.song_title)
         artist = mView.findViewById(R.id.song_artist)
         albumArt = mView.findViewById(R.id.album_art)
@@ -54,29 +55,30 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         currentTime = mView.findViewById(R.id.current_position)
         duration = mView.findViewById(R.id.duration)
         playButton = mView.findViewById(R.id.button_play)
-        repeatButton = mView.findViewById(R.id.button_repeat)
+        previousButton = mView.findViewById(R.id.button_previous)
+        nextButton = mView.findViewById(R.id.button_next)
+        loopButton = mView.findViewById(R.id.button_repeat)
+        randomButton = mView.findViewById(R.id.button_random)
         mView.findViewById<View>(R.id.button_previous).setOnClickListener(this)
         mView.findViewById<View>(R.id.button_next).setOnClickListener(this)
 
         playButton.setOnClickListener(this)
-        repeatButton.setOnClickListener(this)
+        previousButton.setOnClickListener(this)
+        nextButton.setOnClickListener(this)
+        loopButton.setOnClickListener(this)
+        randomButton.setOnClickListener(this)
         seekBar.setOnSeekBarChangeListener(this)
-        title.text = song.title
-        artist.text = song.artist
-        duration.text = song.millisToString(song.duration)
-        Picasso.get().load(song.img_url).into(albumArt)
 
         //Registers to service bus
         (activity as MainActivity).bus.register(this)
 
-        (activity as MainActivity).play(song.audio_url)
-        updateSeekBar()
         return mView
     }
 
     override fun onDestroyView() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         seekBarHandler.removeCallbacksAndMessages(null)
+        (activity as MainActivity).bus.unregister(this)
         super.onDestroyView()
     }
 
@@ -89,17 +91,22 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     }
 
     override fun onStopTrackingTouch(seekbar: SeekBar?) {
-        (activity as MainActivity).seekTo(song.duration * seekbar!!.progress / 1000)
-        if(isPlaying)
-            updateSeekBar()
+        (activity as MainActivity).player.seekTo(song.duration * seekbar!!.progress / 1000)
+        if (isPlaying)
+            startSeekBarHandler()
     }
 
-    private fun updateSeekBar() {
+    private fun updateSeekBar(){
+        val currentPosition = (activity as MainActivity).player.getCurrentPosition()
+        seekBar.progress = currentPosition * 1000 / song.duration
+        currentTime.text = song.millisToString(currentPosition)
+    }
+
+    private fun startSeekBarHandler() {
+        seekBarHandler.removeCallbacksAndMessages(null)
         activity?.runOnUiThread(object : Runnable {
             override fun run() {
-                val currentPosition = (activity as MainActivity).getCurrentPosition()
-                seekBar.progress = currentPosition * 1000 / song.duration
-                currentTime.text = song.millisToString(currentPosition)
+                updateSeekBar()
                 seekBarHandler.postDelayed(this, 1000)
             }
         })
@@ -111,49 +118,103 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 if (!isPlaying) {
                     isPlaying = true
                     playButton.setBackgroundResource(R.drawable.pause_button_selector)
-                    (activity as MainActivity).play(song.audio_url)
-                    updateSeekBar()
+                    (activity as MainActivity).player.playMedia()
+                    startSeekBarHandler()
                 } else {
                     isPlaying = false
                     playButton.setBackgroundResource(R.drawable.play_button_selector)
                     seekBarHandler.removeCallbacksAndMessages(null)
-                    (activity as MainActivity).pause()
+                    (activity as MainActivity).player.pauseMedia()
                 }
+
+            R.id.button_previous ->
+                (activity as MainActivity).player.previousMedia()
+
+            R.id.button_next ->
+                (activity as MainActivity).player.nextMedia()
+
             R.id.button_repeat ->
-                when(repeat){
-                    REPEAT_NOT -> {
-                        repeat = REPEAT_ALL
-                        repeatButton.setBackgroundResource(R.drawable.repeat_all_button_selector)
-                        (activity as MainActivity).loop(true)
+                when (loopType) {
+                    //Loops playlist
+                    NOT -> {
+                        loopType = PLAYLIST
+                        loopButton.setBackgroundResource(R.drawable.repeat_all_button_selector)
+                        (activity as MainActivity).player.loopPlaylist(true)
                     }
-                    REPEAT_ALL -> {
-                        repeat = REPEAT_SONG
-                        repeatButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
-                        (activity as MainActivity).loop(true)
+                    //Loops song
+                    PLAYLIST -> {
+                        loopType = SONG
+                        loopButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
+                        (activity as MainActivity).player.loopSong()
                     }
-                    REPEAT_SONG -> {
-                        repeat = REPEAT_NOT
-                        repeatButton.setBackgroundResource(R.drawable.repeat_not_button_selector)
-                        (activity as MainActivity).loop(false)
+                    //Doesn't loop
+                    SONG -> {
+                        loopType = NOT
+                        loopButton.setBackgroundResource(R.drawable.repeat_not_button_selector)
+                        (activity as MainActivity).player.loopPlaylist(false)
                     }
+                }
+
+            R.id.button_random ->
+                if (randomSelection) {
+                    randomSelection = false
+                    randomButton.setBackgroundResource(R.drawable.shuffle_not_button_selector)
+                    (activity as MainActivity).player.randomSelection = false
+                } else {
+                    randomSelection = true
+                    randomButton.setBackgroundResource(R.drawable.shuffle_button_selector)
+                    (activity as MainActivity).player.randomSelection = true
                 }
         }
     }
 
+    //Handles newSong event posted on bus by PlayerService
     @Subscribe
     fun answerAvailable(event: NewSongEvent) {
-        isPlaying = false
-        playButton.setBackgroundResource(R.drawable.play_button_selector)
-        seekBarHandler.removeCallbacksAndMessages(null)
-    }
+        if (event.song == null) {   //No songs to play
+            isPlaying = false
+            playButton.setBackgroundResource(R.drawable.play_button_selector)
+            seekBarHandler.removeCallbacksAndMessages(null)
+        } else {    //New or same song
+            song = event.song
+            title.text = song.title
+            artist.text = song.artist
+            duration.text = song.millisToString(song.duration)
+            Picasso.get().load(song.img_url).into(albumArt)
 
-    companion object {
-        fun newInstance(song: Song): PlayerFragment {
-            val args = Bundle()
-            args.putSerializable("song", song)
-            val fragment = PlayerFragment()
-            fragment.arguments = args
-            return fragment
+            //Starts song if it was paused
+            if((activity as MainActivity).player.isPaused()) {
+                isPlaying = false
+                playButton.setBackgroundResource(R.drawable.play_button_selector)
+                updateSeekBar()
+            }
+
+            startSeekBarHandler()
+
+            //Updates loop button and variables
+            when {
+                (activity as MainActivity).player.isLoopingSong() -> {
+                    loopType = SONG
+                    loopButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
+                }
+                (activity as MainActivity).player.isLoopingPlaylist() -> {
+                    loopType = PLAYLIST
+                    loopButton.setBackgroundResource(R.drawable.repeat_all_button_selector)
+                }
+                else -> {
+                    loopType = NOT
+                    loopButton.setBackgroundResource(R.drawable.repeat_not_button_selector)
+                }
+            }
+
+            //Updates random button and variables
+            if ((activity as MainActivity).player.randomSelection) {
+                randomSelection = true
+                randomButton.setBackgroundResource(R.drawable.shuffle_button_selector)
+            } else {
+                randomSelection = false
+                randomButton.setBackgroundResource(R.drawable.shuffle_not_button_selector)
+            }
         }
     }
 }

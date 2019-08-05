@@ -13,4 +13,10 @@ class Song(val id: Int, val title: String, val artist: String, val img_url: Stri
         val seconds = millis/1000
         return "" + seconds/60 + ":" + String.format("%02d", seconds%60) // 2 digits precision - 0 for padding
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is Song)
+            return false
+        return this.id == other.id
+    }
 }

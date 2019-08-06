@@ -14,11 +14,17 @@ import com.apollon.MainActivity
 import com.apollon.R
 import com.apollon.adapters.PlaylistAdapter
 import com.apollon.classes.Playlist
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
-class PlayListsFragment : Fragment() {
+class PlayListsFragment : Fragment(), View.OnClickListener {
+
+    override fun onClick(p0: View?) {
+        (activity as MainActivity).miniPlayer.visibility = View.GONE
+    }
 
     lateinit var mView: View
+    //lateinit var newPlaylistButton: FloatingActionButton
     private val playlists : ArrayList<Playlist> = ArrayList()
 
 
@@ -28,8 +34,8 @@ class PlayListsFragment : Fragment() {
     ): View? {
         mView = inflater.inflate(R.layout.playlists, container, false)
         val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
-        //setSupportActionBar(toolbar)
-        //supportActionBar?.setDisplayHomeAsUpEnabled(true)
+       // newPlaylistButton = mView.findViewById(R.id.fab)
+        //newPlaylistButton.setOnClickListener(this)
         // Loads elements into the ArrayList
         addPlaylists()
         // Creates a Grid Layout Manager

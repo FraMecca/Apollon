@@ -38,8 +38,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private var stopped = false
 
-    private var paused = false
-
     //The system calls this method when an activity, requests the service be started
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.e("PlayerService", "onStartCommand")
@@ -112,6 +110,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             stopped = false
             this.playlist = playlist
             this.songIndex = songIndex
+            mediaPlayer?.stop()
             mediaPlayer?.reset()
             try {
                 mediaPlayer?.setDataSource(playlist[songIndex].audio_url)
@@ -139,7 +138,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     fun playMedia() {
-        paused = false
         if (mediaPlayer == null) {
             initMedia(playlist, songIndex)
         } else if (mediaPlayer?.isPlaying == false) {
@@ -151,12 +149,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         // Equality check (==) handles null case too
         if (mediaPlayer?.isPlaying == true) {
             mediaPlayer?.pause()
-            paused = true
         }
-    }
-
-    fun isPaused(): Boolean {
-        return paused
     }
 
     fun previousMedia() {

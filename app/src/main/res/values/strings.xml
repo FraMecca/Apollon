@@ -7,7 +7,6 @@
     <string name="ip">IP</string>
     <string name="port">Port</string>
 	<string name="login">Login</string>
-	<string name="playlists">Playlists</string>
 	<string name="all">All</string>
 	<string name="favourites">Favourites</string>
 	<string name="added_to_favourites">added to favourites</string>

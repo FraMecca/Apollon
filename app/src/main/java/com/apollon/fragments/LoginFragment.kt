@@ -1,6 +1,5 @@
 package com.apollon.fragments
 
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +8,6 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.apollon.MainActivity
 import com.apollon.R
-
 
 
 class LoginFragment : Fragment() {
@@ -24,9 +22,13 @@ class LoginFragment : Fragment() {
         mView = inflater.inflate(R.layout.login, container, false)
         loginButton = mView.findViewById(R.id.login_btn)
         loginButton.setOnClickListener {
-            (activity as MainActivity).replaceFragment(PlayListsFragment())
+            (activity as MainActivity).replaceFragment(PlayListsFragment(), false)
         }
         return mView
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 
 

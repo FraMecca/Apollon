@@ -1,4 +1,78 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"></FrameLayout>
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/mini_player">
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/mini_player"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/black"
+        android:elevation="4dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/album_art"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@color/grey"/>
+
+        <LinearLayout
+            android:id="@+id/text_container"
+            android:layout_width="160dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/song_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+            <TextView
+                android:id="@+id/song_artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="@dimen/player_control_dimension"
+            android:layout_height="@dimen/player_control_dimension"
+            android:background="@drawable/back_button_selector" />
+
+        <Button
+            android:id="@+id/play_button"
+            android:layout_width="@dimen/player_control_dimension"
+            android:layout_height="@dimen/player_control_dimension"
+            android:background="@drawable/pause_button_selector" />
+
+        <Button
+            android:id="@+id/next_button"
+            android:layout_width="@dimen/player_control_dimension"
+            android:layout_height="@dimen/player_control_dimension"
+            android:background="@drawable/forward_button_selector" />
+    </LinearLayout>
+</RelativeLayout>
+

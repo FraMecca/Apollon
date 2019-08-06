@@ -27,7 +27,7 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
         return SongViewHolder(LayoutInflater.from(context).inflate(R.layout.song_card, parent, false))
     }
 
-    // Binds each song in the ArrayList to a view
+    // Binds each `(activity as MainActivity).currentSong` in the ArrayList to a view
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
         val song = songs[position]
         holder.title.text = song.title
@@ -41,7 +41,6 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
 
         //CardView listener
         holder.itemView.setOnClickListener{
-            Toast.makeText(context, "Song ${song.id} selected", Toast.LENGTH_SHORT).show()
             (context as MainActivity).replaceFragment(PlayerFragment())
             context.player.initMedia(songs, position)
         }

@@ -13,4 +13,6 @@
 	<string name="added_to_queue">imeongezwa kwenye foleni</string>
     <string name="default_timer">0:00</string>
     <string name="unsupported_format">Umbizo halijatekelezwa</string>
+    <string name ="share_message_start">Ninasikiliza</string>
+    <string name ="share_message_end">juu ya Apollon</string>
 </resources>

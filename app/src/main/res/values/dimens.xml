@@ -8,18 +8,18 @@
     <dimen name="logo_margin_bottom">24dp</dimen>
     <dimen name="login_button_margin_vertical">24dp</dimen>
     <dimen name="login_button_padding">12dp</dimen>
-    <dimen name="button_text_size">20dp</dimen>
-    <dimen name="toolbar_text_size">21dp</dimen>
+    <dimen name="button_text_size">20sp</dimen>
+    <dimen name="toolbar_text_size">21sp</dimen>
     <dimen name="floating_button_margin">16dp</dimen>
     <dimen name="card_margin">5dp</dimen>
     <dimen name="card_elevation">3dp</dimen>
     <dimen name="card_corner_radius">0dp</dimen>
     <dimen name="card_image_height">160dp</dimen>
     <dimen name="card_title_padding">10dp</dimen>
-    <dimen name="playlist_title">25dp</dimen>
-    <dimen name="song_title">15dp</dimen>
+    <dimen name="playlist_title">25sp</dimen>
+    <dimen name="song_title">15sp</dimen>
     <dimen name="song_artist_padding_bottom">5dp</dimen>
-    <dimen name="song_artist">12dp</dimen>
+    <dimen name="song_artist">12sp</dimen>
     <dimen name="menu_width">20dp</dimen>
     <dimen name="menu_height">30dp</dimen>
     <dimen name="menu_margin_top">10dp</dimen>
@@ -36,4 +36,7 @@
     <dimen name="player_control_dimension">50dp</dimen>
     <dimen name="player_play_button_dimension">70dp</dimen>
     <dimen name="player_control_margin_horizontal">16dp</dimen>
+    <dimen name="mini_player_height">60dp</dimen>
+    <dimen name="mini_player_text_width">130dp</dimen>
+    <dimen name="mini_player_text_margin">8dp</dimen>
 </resources>

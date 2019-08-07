@@ -37,7 +37,7 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
         Picasso.get().load(song.img_url).into(holder.thumbnail)
 
         //Menu listener
-        holder.menu.setOnClickListener{showPopUpMenu(it, song.id)}
+        holder.menu.setOnClickListener{showPopUpMenu(it, song)}
 
         //CardView listener
         holder.itemView.setOnClickListener{
@@ -46,7 +46,7 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
         }
     }
 
-    private fun showPopUpMenu(view : View, songId : Int){
+    private fun showPopUpMenu(view : View, song : Song){
         val popupMenu = PopupMenu(context, view)
         val inflater = popupMenu.menuInflater
         inflater.inflate(R.menu.song_menu, popupMenu.menu)
@@ -55,10 +55,10 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
         popupMenu.setOnMenuItemClickListener {
             when(it.itemId) {
                 R.id.action_add_favourite -> {
-                    Toast.makeText(context, "Song $songId added to favourites", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Song ${song.id} added to favourites", Toast.LENGTH_SHORT).show()
                 }
                 R.id.action_play_next -> {
-                    Toast.makeText(context, "Song $songId added to queue", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Song ${song.id} added to queue", Toast.LENGTH_SHORT).show()
                 }
             }
             true

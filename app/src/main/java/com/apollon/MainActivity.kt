@@ -13,10 +13,12 @@ import android.view.View.OnClickListener
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.apollon.classes.NewSongEvent
 import com.apollon.classes.Song
 import com.apollon.fragments.LoginFragment
+import com.apollon.fragments.PlayerFragment
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import com.squareup.picasso.Picasso
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         title = findViewById(R.id.song_title)
         artist = findViewById(R.id.song_artist)
         playButton = findViewById(R.id.play_button)
+        miniPlayer.setOnClickListener(this)
         playButton.setOnClickListener(this)
         findViewById<Button>(R.id.back_button).setOnClickListener(this)
         findViewById<Button>(R.id.next_button).setOnClickListener(this)
@@ -112,6 +115,12 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
             R.id.next_button ->
                 player.nextMedia()
+
+            R.id.mini_player ->{
+                replaceFragment(PlayerFragment())
+                player.echoCurrentSong()
+            }
+
         }
     }
 

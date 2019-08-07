@@ -37,6 +37,27 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/button_favourite"
+                android:layout_width="@dimen/player_control_dimension"
+                android:layout_height="@dimen/player_control_dimension"
+                android:background="@drawable/favourite_not_button_selector"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <Button
+                android:id="@+id/button_share"
+                android:layout_width="@dimen/player_control_dimension"
+                android:layout_height="@dimen/player_control_dimension"
+                android:background="@drawable/share_button_selector"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <SeekBar

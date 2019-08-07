@@ -48,7 +48,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.stop()
+        //mediaPlayer?.stop()
         mediaPlayer?.release()
     }
 
@@ -110,7 +110,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             stopped = false
             this.playlist = playlist
             this.songIndex = songIndex
-            mediaPlayer?.stop()
+            //mediaPlayer?.stop()
             mediaPlayer?.reset()
             try {
                 mediaPlayer?.setDataSource(playlist[songIndex].audio_url)
@@ -145,11 +145,13 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    fun pauseMedia() {
+    fun pauseMedia(): Boolean {
         // Equality check (==) handles null case too
         if (mediaPlayer?.isPlaying == true) {
             mediaPlayer?.pause()
+            return true
         }
+        return false
     }
 
     fun previousMedia() {
@@ -201,6 +203,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     fun getCurrentPosition(): Int {
         return mediaPlayer?.currentPosition ?: 0
+    }
+
+    fun echoCurrentSong(){
+        bus.post(NewSongEvent(playlist[songIndex]))
     }
 
     inner class LocalBinder : Binder() {

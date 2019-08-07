@@ -1,5 +1,6 @@
 package com.apollon.fragments
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
@@ -35,6 +36,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     lateinit var nextButton: Button
     lateinit var loopButton: Button
     lateinit var randomButton: Button
+    lateinit var favouriteButton: Button
     private var seekBarHandler = Handler()
     private var loopType = NOT
     private var randomSelection = false
@@ -57,8 +59,11 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         nextButton = mView.findViewById(R.id.button_next)
         loopButton = mView.findViewById(R.id.button_repeat)
         randomButton = mView.findViewById(R.id.button_random)
-        mView.findViewById<View>(R.id.button_previous).setOnClickListener(this)
-        mView.findViewById<View>(R.id.button_next).setOnClickListener(this)
+        favouriteButton = mView.findViewById(R.id.button_favourite)
+
+        mView.findViewById<Button>(R.id.button_previous).setOnClickListener(this)
+        mView.findViewById<Button>(R.id.button_next).setOnClickListener(this)
+        mView.findViewById<Button>(R.id.button_share).setOnClickListener(this)
 
         playButton.setOnClickListener(this)
         previousButton.setOnClickListener(this)
@@ -66,6 +71,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         loopButton.setOnClickListener(this)
         randomButton.setOnClickListener(this)
         seekBar.setOnSeekBarChangeListener(this)
+        favouriteButton.setOnClickListener(this)
 
         //Registers to service bus
         (activity as MainActivity).bus.register(this)
@@ -120,10 +126,11 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                     (activity as MainActivity).player.playMedia()
                     startSeekBarHandler()
                 } else {
-                    (activity as MainActivity).setIsPlaying(false)
-                    playButton.setBackgroundResource(R.drawable.play_button_selector)
-                    seekBarHandler.removeCallbacksAndMessages(null)
-                    (activity as MainActivity).player.pauseMedia()
+                    if ((activity as MainActivity).player.pauseMedia()) {
+                        (activity as MainActivity).setIsPlaying(false)
+                        playButton.setBackgroundResource(R.drawable.play_button_selector)
+                        seekBarHandler.removeCallbacksAndMessages(null)
+                    }
                 }
 
             R.id.button_previous ->
@@ -164,6 +171,17 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                     randomButton.setBackgroundResource(R.drawable.shuffle_button_selector)
                     (activity as MainActivity).player.randomSelection = true
                 }
+            R.id.button_favourite ->
+                favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
+
+            R.id.button_share -> {
+                val sendIntent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, getString(R.string.share_message_start) + " ${(activity as MainActivity).currentSong.artist} - ${(activity as MainActivity).currentSong.title} " + getString(R.string.share_message_end))
+                    type = "text/plain"
+                }
+                startActivity(sendIntent)
+            }
         }
     }
 

@@ -13,27 +13,26 @@
     <LinearLayout
         android:id="@+id/mini_player"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/mini_player_height"
         android:layout_alignParentBottom="true"
         android:background="@color/black"
-        android:elevation="4dp"
         android:orientation="horizontal"
         android:gravity="center"
         android:visibility="gone">
 
         <ImageView
             android:id="@+id/album_art"
-            android:layout_width="60dp"
+            android:layout_width="@dimen/mini_player_height"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:background="@color/grey"/>
 
         <LinearLayout
             android:id="@+id/text_container"
-            android:layout_width="160dp"
+            android:layout_width="@dimen/mini_player_text_width"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginStart="@dimen/mini_player_text_margin"
             android:gravity="center_vertical">
 
             <TextView
@@ -43,7 +42,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:gravity="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textSize="@dimen/song_title"/>
 
             <TextView
                 android:id="@+id/song_artist"
@@ -52,7 +51,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:gravity="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                android:textSize="@dimen/song_artist"/>
 
         </LinearLayout>
 

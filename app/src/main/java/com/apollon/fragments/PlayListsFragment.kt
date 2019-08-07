@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
@@ -19,23 +20,17 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class PlayListsFragment : Fragment(), View.OnClickListener {
 
-    override fun onClick(p0: View?) {
-        (activity as MainActivity).miniPlayer.visibility = View.GONE
-    }
-
-    lateinit var mView: View
-    //lateinit var newPlaylistButton: FloatingActionButton
-    private val playlists : ArrayList<Playlist> = ArrayList()
+    private val playlists: ArrayList<Playlist> = ArrayList()
 
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        mView = inflater.inflate(R.layout.playlists, container, false)
+        val mView = inflater.inflate(R.layout.playlists, container, false)
         val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
-       // newPlaylistButton = mView.findViewById(R.id.fab)
-        //newPlaylistButton.setOnClickListener(this)
+        mView.findViewById<Button>(R.id.new_playlist_button).setOnClickListener(this)
+
         // Loads elements into the ArrayList
         addPlaylists()
         // Creates a Grid Layout Manager
@@ -44,6 +39,14 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
         // Access the RecyclerView Adapter and load the data into it
         recyclerView.adapter = PlaylistAdapter(playlists, requireContext())
         return mView
+    }
+
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.new_playlist_button ->
+                Toast.makeText(context, "New Playlist",Toast.LENGTH_SHORT).show()
+        }
     }
 
     // Adds playlists to the empty ArrayList

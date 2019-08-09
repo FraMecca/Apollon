@@ -172,7 +172,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                     (activity as MainActivity).player.randomSelection = true
                 }
             R.id.button_favourite ->
-                favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
+                favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
 
             R.id.button_share -> {
                 val sendIntent = Intent().apply {

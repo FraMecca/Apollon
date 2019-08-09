@@ -23,14 +23,48 @@
                 android:layout_height="@dimen/card_image_height"
                 android:scaleType="centerCrop" />
 
-            <TextView
-                android:id="@+id/title"
+            <Button
+                android:id="@+id/button_delete"
+                android:layout_width="@dimen/floating_button_playlist_size"
+                android:layout_height="@dimen/floating_button_playlist_size"
+                android:layout_margin="@dimen/floating_button_playlist_margin"
+                android:layout_alignParentRight="true"
+            android:background="@drawable/delete_button_selector"/>
+
+            <Button
+                android:id="@+id/button_edit"
+                android:layout_width="@dimen/floating_button_playlist_size"
+                android:layout_height="@dimen/floating_button_playlist_size"
+                android:layout_margin="@dimen/floating_button_playlist_margin"
+                android:layout_toLeftOf="@+id/button_delete"
+                android:background="@drawable/edit_button_selector"/>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/card_title_padding"
-                android:paddingBottom="@dimen/card_title_padding"
-                android:textSize="@dimen/playlist_title"
-                android:layout_alignParentBottom="true" />
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal"
+                android:background="@drawable/gradient">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/card_title_padding"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:textSize="@dimen/playlist_title"/>
+
+                <TextView
+                    android:id="@+id/songs_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:paddingHorizontal="@dimen/card_title_padding"
+                    android:text="15 tracce"
+                    android:textSize="@dimen/songs_number"/>
+            </LinearLayout>
 
         </RelativeLayout>
 

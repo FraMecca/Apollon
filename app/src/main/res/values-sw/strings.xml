@@ -15,4 +15,14 @@
     <string name="unsupported_format">Umbizo halijatekelezwa</string>
     <string name ="share_message_start">Ninasikiliza</string>
     <string name ="share_message_end">juu ya Apollon</string>
+    <string name="title">Kichwa</string>
+    <string name="cancel">ghairi</string>
+    <string name="delete_message">Una uhakika unataka kufuta orodha ya kucheza:</string>
+    <string name="new_playlist">Orodha mpya ya kucheza</string>
+    <string name="edit_playlist_message">Chagua kichwa</string>
+    <string name="delete">futa</string>
+    <string name="create">tengeneza</string>
+    <string name="delete_title">Futa orodha ya kucheza</string>
+    <string name="edit_title">Badilisha jina la kucheza</string>
+    <string name="edit">Ipe jina tena</string>
 </resources>

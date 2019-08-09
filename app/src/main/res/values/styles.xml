@@ -32,4 +32,12 @@
         <item name="android:background">@color/black</item>
         <item name="android:textSize">@dimen/toolbar_text_size</item>
     </style>
+
+    <style name="AlertStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:colorAccent">@color/gold</item>
+        <item name="android:textColorPrimary">@color/gold</item>
+        <item name="android:textColorHint">@color/gold</item>
+        <item name="editTextStyle">@style/EditTextStyle</item>
+    </style>
 </resources>

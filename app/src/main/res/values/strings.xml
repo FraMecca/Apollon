@@ -15,4 +15,14 @@
     <string name="unsupported_format">Unsupported format</string>
     <string name ="share_message_start">I\'m listening to</string>
     <string name ="share_message_end">on Apollon</string>
+    <string name="title">Title</string>
+    <string name="delete">delete</string>
+    <string name="cancel">cancel</string>
+    <string name="delete_message">Are you sure you want to delete playlist:</string>
+    <string name="new_playlist">New playlist</string>
+    <string name="edit_playlist_message">Choose a title</string>
+    <string name="create">create</string>
+    <string name="delete_title">Delete playlist</string>
+    <string name="edit_title">Rename playlist</string>
+    <string name="edit">Rename</string>
 </resources>

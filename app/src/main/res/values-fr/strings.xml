@@ -15,4 +15,14 @@
     <string name="unsupported_format">Fromage non supporté</string>
     <string name ="share_message_start">J\'écoute</string>
     <string name ="share_message_end">sur Apollon</string>
+    <string name="title">Titre</string>
+    <string name="cancel">annuler</string>
+    <string name="delete_message">Êtes-vous sûr de vouloir supprimer la playlist:</string>
+    <string name="new_playlist">Nouvelle playlist</string>
+    <string name="edit_playlist_message">Choisissez un titre</string>
+    <string name="delete">"effacer "</string>
+    <string name="create">créer</string>
+    <string name="delete_title">Supprimer la playlist</string>
+    <string name="edit_title">Renommer la playlist</string>
+    <string name="edit">Rename</string>
 </resources>

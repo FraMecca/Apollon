@@ -56,19 +56,19 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/back_button"
+            android:id="@+id/button_previous"
             android:layout_width="@dimen/player_control_dimension"
             android:layout_height="@dimen/player_control_dimension"
             android:background="@drawable/back_button_selector" />
 
         <Button
-            android:id="@+id/play_button"
+            android:id="@+id/button_play"
             android:layout_width="@dimen/player_control_dimension"
             android:layout_height="@dimen/player_control_dimension"
             android:background="@drawable/pause_button_selector" />
 
         <Button
-            android:id="@+id/next_button"
+            android:id="@+id/button_next"
             android:layout_width="@dimen/player_control_dimension"
             android:layout_height="@dimen/player_control_dimension"
             android:background="@drawable/forward_button_selector" />

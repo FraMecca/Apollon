@@ -1,9 +1,13 @@
 package com.apollon.fragments
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +29,8 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     private val PLAYLIST = 1
     private val SONG = 2
 
+    lateinit var callback: Callback
+    private var seekBarHandler = Handler()
     lateinit var albumArt: ImageView
     lateinit var title: TextView
     lateinit var artist: TextView
@@ -32,12 +38,9 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     lateinit var currentTime: TextView
     lateinit var duration: TextView
     lateinit var playButton: Button
-    lateinit var previousButton: Button
-    lateinit var nextButton: Button
     lateinit var loopButton: Button
     lateinit var randomButton: Button
     lateinit var favouriteButton: Button
-    private var seekBarHandler = Handler()
     private var loopType = NOT
     private var randomSelection = false
 
@@ -55,19 +58,15 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         currentTime = mView.findViewById(R.id.current_position)
         duration = mView.findViewById(R.id.duration)
         playButton = mView.findViewById(R.id.button_play)
-        previousButton = mView.findViewById(R.id.button_previous)
-        nextButton = mView.findViewById(R.id.button_next)
         loopButton = mView.findViewById(R.id.button_repeat)
         randomButton = mView.findViewById(R.id.button_random)
         favouriteButton = mView.findViewById(R.id.button_favourite)
 
-        mView.findViewById<Button>(R.id.button_previous).setOnClickListener(this)
-        mView.findViewById<Button>(R.id.button_next).setOnClickListener(this)
+        mView.findViewById<Button>(R.id.button_previous).setOnClickListener(activity as MainActivity)
+        mView.findViewById<Button>(R.id.button_next).setOnClickListener(activity as MainActivity)
         mView.findViewById<Button>(R.id.button_share).setOnClickListener(this)
 
-        playButton.setOnClickListener(this)
-        previousButton.setOnClickListener(this)
-        nextButton.setOnClickListener(this)
+        playButton.setOnClickListener(activity as MainActivity)
         loopButton.setOnClickListener(this)
         randomButton.setOnClickListener(this)
         seekBar.setOnSeekBarChangeListener(this)
@@ -75,6 +74,8 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
         //Registers to service bus
         (activity as MainActivity).bus.register(this)
+        callback = Callback()
+        (activity as MainActivity).mediaController.registerCallback(callback)
 
         return mView
     }
@@ -82,6 +83,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     override fun onDestroyView() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         seekBarHandler.removeCallbacksAndMessages(null)
+        (activity as MainActivity).mediaController.unregisterCallback(callback)
         (activity as MainActivity).bus.unregister(this)
         (activity as MainActivity).miniPlayer.visibility = View.VISIBLE
         super.onDestroyView()
@@ -97,8 +99,8 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
     override fun onStopTrackingTouch(seekbar: SeekBar?) {
         (activity as MainActivity).player.seekTo((activity as MainActivity).currentSong.duration * seekbar!!.progress / 1000)
-        if ((activity as MainActivity).isPlaying)
-            startSeekBarHandler()
+        //if ((activity as MainActivity).isPlaying)
+        startSeekBarHandler()
     }
 
     private fun updateSeekBar() {
@@ -119,58 +121,41 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.button_play ->
-                if (!(activity as MainActivity).isPlaying) {
-                    (activity as MainActivity).setIsPlaying(true)
-                    playButton.setBackgroundResource(R.drawable.pause_button_selector)
-                    (activity as MainActivity).player.playMedia()
-                    startSeekBarHandler()
-                } else {
-                    if ((activity as MainActivity).player.pauseMedia()) {
-                        (activity as MainActivity).setIsPlaying(false)
-                        playButton.setBackgroundResource(R.drawable.play_button_selector)
-                        seekBarHandler.removeCallbacksAndMessages(null)
-                    }
-                }
+            /* R.id.button_play ->
+                 if ((activity as MainActivity).mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
+                     playButton.setBackgroundResource(R.drawable.pause_button_selector)
+                     (activity as MainActivity).mediaController.transportControls.play()
+                     startSeekBarHandler()
+                 } else {
+                         (activity as MainActivity).mediaController.transportControls.pause()
+                         playButton.setBackgroundResource(R.drawable.play_button_selector)
+                         seekBarHandler.removeCallbacksAndMessages(null)
 
-            R.id.button_previous ->
-                (activity as MainActivity).player.previousMedia()
-
-            R.id.button_next ->
-                (activity as MainActivity).player.nextMedia()
+                 }*/
 
             R.id.button_repeat ->
-                when (loopType) {
+                when ((activity as MainActivity).mediaController.repeatMode) {
                     //Loops playlist
-                    NOT -> {
-                        loopType = PLAYLIST
-                        loopButton.setBackgroundResource(R.drawable.repeat_all_button_selector)
-                        (activity as MainActivity).player.loopPlaylist(true)
+                    PlaybackStateCompat.REPEAT_MODE_NONE -> {
+                        (activity as MainActivity).mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
                     }
-                    //Loops `(activity as MainActivity).currentSong`
-                    PLAYLIST -> {
-                        loopType = SONG
-                        loopButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
-                        (activity as MainActivity).player.loopSong()
+                    //Loops current song
+                    PlaybackStateCompat.REPEAT_MODE_ALL -> {
+                        (activity as MainActivity).mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE)
                     }
                     //Doesn't loop
-                    SONG -> {
-                        loopType = NOT
-                        loopButton.setBackgroundResource(R.drawable.repeat_not_button_selector)
-                        (activity as MainActivity).player.loopPlaylist(false)
+                    PlaybackStateCompat.REPEAT_MODE_ONE -> {
+                        (activity as MainActivity).mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)
                     }
                 }
 
             R.id.button_random ->
-                if (randomSelection) {
-                    randomSelection = false
-                    randomButton.setBackgroundResource(R.drawable.shuffle_not_button_selector)
-                    (activity as MainActivity).player.randomSelection = false
+                if ((activity as MainActivity).mediaController.shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL) {
+                    (activity as MainActivity).mediaController.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
                 } else {
-                    randomSelection = true
-                    randomButton.setBackgroundResource(R.drawable.shuffle_button_selector)
-                    (activity as MainActivity).player.randomSelection = true
+                    (activity as MainActivity).mediaController.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
                 }
+
             R.id.button_favourite ->
                 favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
 
@@ -189,7 +174,6 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     @Subscribe
     fun answerAvailable(event: NewSongEvent) {
         if (event.song == null) {   //No songs to play
-            (activity as MainActivity).setIsPlaying(false)
             playButton.setBackgroundResource(R.drawable.play_button_selector)
             seekBarHandler.removeCallbacksAndMessages(null)
         } else {    //New or same currentSong
@@ -200,21 +184,21 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         }
 
         //Starts currentSong if it was paused
-        if ((activity as MainActivity).isPlaying) {
+        /*if ((activity as MainActivity).) {
             playButton.setBackgroundResource(R.drawable.pause_button_selector)
             startSeekBarHandler()
         } else {
             playButton.setBackgroundResource(R.drawable.play_button_selector)
             updateSeekBar()
-        }
+        }*/
 
         //Updates loop button and variables
-        when {
-            (activity as MainActivity).player.isLoopingSong() -> {
+        when((activity as MainActivity).mediaController.repeatMode) {
+            PlaybackStateCompat.REPEAT_MODE_ONE -> {
                 loopType = SONG
                 loopButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
             }
-            (activity as MainActivity).player.isLoopingPlaylist() -> {
+            PlaybackStateCompat.REPEAT_MODE_ALL -> {
                 loopType = PLAYLIST
                 loopButton.setBackgroundResource(R.drawable.repeat_all_button_selector)
             }
@@ -231,6 +215,45 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         } else {
             randomSelection = false
             randomButton.setBackgroundResource(R.drawable.shuffle_not_button_selector)
+        }
+    }
+
+    inner class Callback : MediaControllerCompat.Callback() {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            super.onPlaybackStateChanged(state)
+            when (state?.state) {
+                PlaybackStateCompat.STATE_PLAYING -> {
+                    playButton.setBackgroundResource(R.drawable.pause_button_selector)
+                    startSeekBarHandler()
+                }
+
+                PlaybackStateCompat.STATE_PAUSED -> {
+                    playButton.setBackgroundResource(R.drawable.play_button_selector)
+                    seekBarHandler.removeCallbacksAndMessages(null)
+                }
+            }
+        }
+
+        @SuppressLint("SwitchIntDef")
+        override fun onShuffleModeChanged(shuffleMode: Int) {
+            super.onShuffleModeChanged(shuffleMode)
+            when(shuffleMode){
+                PlaybackStateCompat.SHUFFLE_MODE_ALL -> randomButton.setBackgroundResource(R.drawable.shuffle_button_selector)
+
+                PlaybackStateCompat.SHUFFLE_MODE_NONE -> randomButton.setBackgroundResource(R.drawable.shuffle_not_button_selector)
+            }
+        }
+
+        @SuppressLint("SwitchIntDef")
+        override fun onRepeatModeChanged(repeatMode: Int) {
+            super.onRepeatModeChanged(repeatMode)
+            when(repeatMode){
+                PlaybackStateCompat.REPEAT_MODE_ALL -> loopButton.setBackgroundResource(R.drawable.repeat_all_button_selector)
+
+                PlaybackStateCompat.REPEAT_MODE_ONE -> loopButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
+
+                PlaybackStateCompat.REPEAT_MODE_NONE -> loopButton.setBackgroundResource(R.drawable.repeat_not_button_selector)
+            }
         }
     }
 }

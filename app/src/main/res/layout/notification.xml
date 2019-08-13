@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentBottom="true"
+    android:background="@color/black"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/album_art"
+        android:layout_width="@dimen/mini_player_height"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:background="@color/grey"/>
+
+    <LinearLayout
+        android:id="@+id/text_container"
+        android:layout_width="@dimen/mini_player_text_width"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginStart="@dimen/mini_player_text_margin"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/song_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:gravity="center"
+            android:textSize="@dimen/song_title"/>
+
+        <TextView
+            android:id="@+id/song_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:gravity="center"
+            android:textSize="@dimen/song_artist"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="@dimen/player_control_dimension"
+        android:layout_height="@dimen/player_control_dimension"
+        android:background="@drawable/back_button_selector" />
+
+    <Button
+        android:id="@+id/play_button"
+        android:layout_width="@dimen/player_control_dimension"
+        android:layout_height="@dimen/player_control_dimension"
+        android:background="@drawable/pause_button_selector" />
+
+    <Button
+        android:id="@+id/next_button"
+        android:layout_width="@dimen/player_control_dimension"
+        android:layout_height="@dimen/player_control_dimension"
+        android:background="@drawable/forward_button_selector" />
+</LinearLayout>

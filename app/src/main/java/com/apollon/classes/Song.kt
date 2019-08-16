@@ -1,5 +1,6 @@
 package com.apollon.classes
 
+import android.support.v4.media.MediaMetadataCompat
 import java.io.Serializable
 
 class Song(val id: Int, val title: String, val artist: String, val img_url: String, val audio_url: String, val duration: Int) : Serializable {

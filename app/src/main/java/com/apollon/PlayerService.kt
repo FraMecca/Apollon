@@ -10,20 +10,19 @@ import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import com.apollon.classes.NewSongEvent
 import com.apollon.classes.Song
-import com.squareup.otto.Bus
 import java.io.IOException
 import kotlin.random.Random
 import android.app.NotificationManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.view.LayoutInflater
 import android.widget.*
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.drawToBitmap
 import com.squareup.picasso.Picasso
 
 
@@ -39,13 +38,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private var mediaPlayer: MediaPlayer? = null
 
-    private var stopped = false
-
     private lateinit var mediaSession: MediaSessionCompat
 
     private lateinit var stateBuilder: PlaybackStateCompat.Builder
 
-    lateinit var bus: Bus
+    private lateinit var metaDataBuilder: MediaMetadataCompat.Builder
 
     private var loopPlaylist = false
 
@@ -58,11 +55,15 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onCreate() {
         super.onCreate()
 
+        stateBuilder = PlaybackStateCompat.Builder()
+
+        metaDataBuilder = MediaMetadataCompat.Builder()
+
         //Media session
         mediaSession = MediaSessionCompat(baseContext, "MediaSession").apply {
 
             // Set an initial PlaybackState with ACTION_PLAY, so media buttons can start the player
-            stateBuilder = PlaybackStateCompat.Builder()
+
             setPlaybackState(stateBuilder.build())
 
             // MySessionCallback() has methods that handle callbacks from a media controller
@@ -92,6 +93,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onDestroy() {
         super.onDestroy()
         //mediaPlayer?.stop()
+        mediaSession.release()
         mediaPlayer?.release()
     }
 
@@ -107,11 +109,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onCompletion(mp: MediaPlayer) {
         //Invoked when playback of a media source has completed.
         if (songIndex == playlist.size - 1 && !loopPlaylist && !randomSelection) {
-            bus.post(NewSongEvent(null))
+            mediaSession.setMetadata(null)
+            mediaSession.setPlaybackState(stateBuilder.build())
             mediaPlayer?.stop()
             mediaPlayer?.release()
             mediaPlayer = null
-            stopped = true
         } else {
             nextMedia()
         }
@@ -150,8 +152,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     fun initMedia(playlist: ArrayList<Song>, songIndex: Int) {
         if (mediaPlayer == null)
             initMediaPlayer()
-        if (this.playlist != playlist || this.songIndex != songIndex || stopped) {
-            stopped = false
+        if (this.playlist != playlist || this.songIndex != songIndex) {
             this.playlist = playlist
             this.songIndex = songIndex
             //mediaPlayer?.stop()
@@ -161,14 +162,12 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             try {
                 mediaPlayer?.setDataSource(playlist[songIndex].audio_url)
                 mediaPlayer?.prepareAsync()
-                bus.post(NewSongEvent(playlist[songIndex]))
                 sendNotification()
             } catch (ex: IOException) {
                 Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT)
             }
-        } else {
-            bus.post(NewSongEvent(playlist[songIndex]))
         }
+        mediaSession.setMetadata(songToMetaData(playlist[songIndex]))
     }
 
     private fun initMediaPlayer() {
@@ -198,10 +197,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    fun seekTo(position: Int) {
-        mediaPlayer?.seekTo(position)
-    }
-
     fun getCurrentPosition(): Int {
         return mediaPlayer?.currentPosition ?: 0
     }
@@ -211,10 +206,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     fun echoCurrentSong() {
-        bus.post(NewSongEvent(playlist[songIndex]))
+        mediaSession.setMetadata(songToMetaData(playlist[songIndex]))
     }
 
-    fun sendNotification() {
+    private fun sendNotification() {/*
         //Get an instance of NotificationManager//
         val view = RemoteViews(packageName, R.layout.notification)
         Log.e("NOTI", playlist[songIndex].title)
@@ -234,8 +229,21 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         with(NotificationManagerCompat.from(this)) {
             // notificationId is a unique int for each notification that you must define
             notify(10, builder.build())
-        }
+        }*/
 
+        var noti = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentTitle(playlist[songIndex].title)
+                .setContentText(playlist[songIndex].title)
+                .build()
+    }
+
+    fun songToMetaData(song: Song): MediaMetadataCompat {
+        metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
+        metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
+        metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.img_url)
+        metaDataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration.toLong())
+        return metaDataBuilder.build()
     }
 
     inner class LocalBinder : Binder() {
@@ -288,6 +296,12 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             }
         }
 
+        override fun onSeekTo(pos: Long) {
+            super.onSeekTo(pos)
+            mediaPlayer?.seekTo(pos.toInt())
+            mediaSession.sendSessionEvent("PositionChanged", null)
+        }
+
         @SuppressLint("SwitchIntDef")
         override fun onSetShuffleMode(shuffleMode: Int) {
             super.onSetShuffleMode(shuffleMode)
@@ -307,20 +321,20 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         @SuppressLint("SwitchIntDef")
         override fun onSetRepeatMode(repeatMode: Int) {
             super.onSetRepeatMode(repeatMode)
-            when(repeatMode){
-                PlaybackStateCompat.REPEAT_MODE_ALL ->{
+            when (repeatMode) {
+                PlaybackStateCompat.REPEAT_MODE_ALL -> {
                     mediaPlayer?.isLooping = false
                     loopPlaylist = true
                     mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
                 }
 
-                PlaybackStateCompat.REPEAT_MODE_ONE ->{
+                PlaybackStateCompat.REPEAT_MODE_ONE -> {
                     loopPlaylist = false
                     mediaPlayer?.isLooping = true
                     mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE)
                 }
 
-                PlaybackStateCompat.REPEAT_MODE_NONE ->{
+                PlaybackStateCompat.REPEAT_MODE_NONE -> {
                     mediaPlayer?.isLooping = false
                     loopPlaylist = false
                     mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)

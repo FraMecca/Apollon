@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
@@ -35,15 +36,11 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     lateinit var playButton: Button
     lateinit var title: TextView
     lateinit var artist: TextView
-    lateinit var currentSong: Song
-
-    lateinit var bus: Bus
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as PlayerService.LocalBinder
             player = binder.service
-            player.bus = bus
             mediaController = player.getSessionController()
             callback = Callback()
             mediaController.registerCallback(callback)
@@ -61,8 +58,6 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
         //volumeControlStream = AudioManager.STREAM_MUSIC
 
-        bus = Bus()
-        bus.register(this)
 
         val intent = Intent(this, PlayerService::class.java)
         startService(intent)
@@ -83,7 +78,6 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
     override fun onDestroy() {
         unbindService(serviceConnection)
-        bus.unregister(this)
         mediaController.unregisterCallback(callback)
         super.onDestroy()
     }
@@ -101,9 +95,9 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.button_play ->
-                if (mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING)
+                if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PAUSED)
                     mediaController.transportControls.play()
-                else
+                else if(mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
                     mediaController.transportControls.pause()
 
             R.id.button_previous ->
@@ -119,6 +113,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         }
     }
 
+    /*
     //Handles newSong event posted on bus by PlayerService
     @Subscribe
     fun answerAvailable(event: NewSongEvent) {
@@ -133,7 +128,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
                 Picasso.get().load(currentSong.img_url).into(albumArt)
             }
         }
-    }
+    } */
 
     inner class Callback : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -142,6 +137,21 @@ class MainActivity : AppCompatActivity(), OnClickListener {
                 playButton.setBackgroundResource(R.drawable.pause_button_selector)
             else if (state?.state == PlaybackStateCompat.STATE_PAUSED)
                 playButton.setBackgroundResource(R.drawable.play_button_selector)
+
+        }
+
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            super.onMetadataChanged(metadata)
+
+            if (metadata == null) {   //No songs to play
+                //setIsPlaying(false)
+            } else {    //New or same currentSong
+
+                    // setIsPlaying(true)
+                    title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
+                    artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
+                    Picasso.get().load(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)).into(albumArt)
+            }
 
         }
     }

@@ -61,6 +61,7 @@ class SongsFragment : Fragment() {
         songs.add(Song(7, "Hey Jude", "The Beatles", "https://www.popsike.com/pix/20170507/322507905430.jpg", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"))
         songs.add(Song(8, "Sweet Child O'Mine", "Guns N' Roses", "https://img.discogs.com/MRplvxFAbLGEUWn9dAH3G-X-HiA=/fit-in/600x600/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-6808907-1466725043-6016.jpeg.jpg", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"))
         songs.add(Song(9, "Lose Yourself", "Eminem", "https://www.significatocanzoni.it/wp-content/uploads/2013/01/lose_yourself.jpg", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"))
+        songs.add(Song(10, "Bohemian Rhapsody", "Queen", "https://i.ytimg.com/vi/fJ9rUzIMcZQ/hqdefault.jpg", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"))
     }
 
     companion object {

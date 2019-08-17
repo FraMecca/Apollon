@@ -15,15 +15,14 @@ import java.io.IOException
 import kotlin.random.Random
 import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Bitmap
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.*
 import androidx.core.app.NotificationCompat
-import androidx.core.view.drawToBitmap
-import com.squareup.picasso.Picasso
+import androidx.core.app.NotificationManagerCompat
+import androidx.media.session.MediaButtonReceiver
 
 
 class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
@@ -46,11 +45,13 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private var loopPlaylist = false
 
-    var randomSelection = false
+    private var randomSelection = false
 
-    var playlist = ArrayList<Song>()
+    private var playlist = ArrayList<Song>()
 
-    var songIndex = 0
+    private var songIndex = 0
+
+    private var ready = false
 
     override fun onCreate() {
         super.onCreate()
@@ -59,10 +60,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         metaDataBuilder = MediaMetadataCompat.Builder()
 
+        stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE)
+
         //Media session
         mediaSession = MediaSessionCompat(baseContext, "MediaSession").apply {
-
-            // Set an initial PlaybackState with ACTION_PLAY, so media buttons can start the player
 
             setPlaybackState(stateBuilder.build())
 
@@ -92,7 +93,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     override fun onDestroy() {
         super.onDestroy()
-        //mediaPlayer?.stop()
         mediaSession.release()
         mediaPlayer?.release()
     }
@@ -110,10 +110,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         //Invoked when playback of a media source has completed.
         if (songIndex == playlist.size - 1 && !loopPlaylist && !randomSelection) {
             mediaSession.setMetadata(null)
-            mediaSession.setPlaybackState(stateBuilder.build())
             mediaPlayer?.stop()
             mediaPlayer?.release()
+            mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 0F).build())
             mediaPlayer = null
+            ready = false
         } else {
             nextMedia()
         }
@@ -137,6 +138,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     override fun onPrepared(mp: MediaPlayer) {
         //Invoked when the media source is ready for playback.
+        ready = true
         mediaPlayer?.start()
         mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition().toLong(), 1f).build())
     }
@@ -152,10 +154,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     fun initMedia(playlist: ArrayList<Song>, songIndex: Int) {
         if (mediaPlayer == null)
             initMediaPlayer()
-        if (this.playlist != playlist || this.songIndex != songIndex) {
+        if (this.playlist != playlist || this.songIndex != songIndex || !ready) {
+            ready = false
             this.playlist = playlist
             this.songIndex = songIndex
-            //mediaPlayer?.stop()
             if (mediaPlayer?.isLooping == true)
                 mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
             mediaPlayer?.reset()
@@ -231,14 +233,31 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             notify(10, builder.build())
         }*/
 
-        var noti = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentTitle(playlist[songIndex].title)
-                .setContentText(playlist[songIndex].title)
-                .build()
+        var builder = NotificationCompat.Builder(this, CHANNEL_ID).apply {
+            setSmallIcon(R.mipmap.ic_launcher)
+            setContentTitle(playlist[songIndex].title)
+            setContentText(playlist[songIndex].artist)
+            setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediaSession.sessionToken).setShowActionsInCompactView(0))
+
+            // Add a pause button
+            addAction(
+                    NotificationCompat.Action(
+                            R.drawable.pause,
+                            "pause",
+                            MediaButtonReceiver.buildMediaButtonPendingIntent(
+                                    applicationContext,
+                                    PlaybackStateCompat.ACTION_PLAY_PAUSE
+                            )
+                    )
+            )
+        }
+
+        with(NotificationManagerCompat.from(this)) {
+            notify(1, builder.build())
+        }
     }
 
-    fun songToMetaData(song: Song): MediaMetadataCompat {
+    private fun songToMetaData(song: Song): MediaMetadataCompat {
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.img_url)
@@ -297,9 +316,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
 
         override fun onSeekTo(pos: Long) {
-            super.onSeekTo(pos)
-            mediaPlayer?.seekTo(pos.toInt())
-            mediaSession.sendSessionEvent("PositionChanged", null)
+            if (ready) {
+                super.onSeekTo(pos)
+                mediaPlayer?.seekTo(pos.toInt())
+                mediaSession.sendSessionEvent("PositionChanged", null)
+            }
         }
 
         @SuppressLint("SwitchIntDef")

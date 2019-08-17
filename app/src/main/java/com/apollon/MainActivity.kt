@@ -16,14 +16,9 @@ import android.view.View.OnClickListener
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.apollon.classes.NewSongEvent
-import com.apollon.classes.Song
 import com.apollon.fragments.LoginFragment
 import com.apollon.fragments.PlayerFragment
-import com.squareup.otto.Bus
-import com.squareup.otto.Subscribe
 import com.squareup.picasso.Picasso
 
 class MainActivity : AppCompatActivity(), OnClickListener {

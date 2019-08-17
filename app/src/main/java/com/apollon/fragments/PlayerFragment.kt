@@ -8,7 +8,6 @@ import android.os.Handler
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,8 +16,6 @@ import androidx.fragment.app.Fragment
 import com.apollon.MainActivity
 import com.apollon.R
 import com.squareup.picasso.Picasso
-import com.squareup.otto.Subscribe
-import com.apollon.classes.NewSongEvent
 
 
 class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClickListener {
@@ -115,17 +112,6 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
     override fun onClick(v: View?) {
         when (v?.id) {
-            /* R.id.button_play ->
-                 if ((activity as MainActivity).mediaController.playbackState.state != PlaybackStateCompat.STATE_PLAYING) {
-                     playButton.setBackgroundResource(R.drawable.pause_button_selector)
-                     (activity as MainActivity).mediaController.transportControls.play()
-                     startSeekBarHandler()
-                 } else {
-                         (activity as MainActivity).mediaController.transportControls.pause()
-                         playButton.setBackgroundResource(R.drawable.play_button_selector)
-                         seekBarHandler.removeCallbacksAndMessages(null)
-
-                 }*/
 
             R.id.button_repeat ->
                 when ((activity as MainActivity).mediaController.repeatMode) {
@@ -238,10 +224,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             super.onMetadataChanged(metadata)
 
-            if (metadata == null) {   //No songs to play
-                playButton.setBackgroundResource(R.drawable.play_button_selector)
-                seekBarHandler.removeCallbacksAndMessages(null)
-            } else {    //New or same currentSong
+            if (metadata != null) { //New or same currentSong
                 title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
                 artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
                 songDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
@@ -272,7 +255,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
             }
 
             //Updates random button
-            if ((activity as MainActivity).player.randomSelection) {
+            if ((activity as MainActivity).mediaController.shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL) {
                 randomButton.setBackgroundResource(R.drawable.shuffle_button_selector)
             } else {
                 randomButton.setBackgroundResource(R.drawable.shuffle_not_button_selector)

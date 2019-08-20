@@ -1,8 +1,7 @@
 package com.apollon
 
 import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.Service
+import android.app.*
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioManager
@@ -13,8 +12,9 @@ import android.util.Log
 import com.apollon.classes.Song
 import java.io.IOException
 import kotlin.random.Random
-import android.app.NotificationManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -22,16 +22,23 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.*
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.media.session.MediaButtonReceiver
-
+import com.squareup.picasso.Picasso
+import java.lang.Exception
 
 class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,
         MediaPlayer.OnBufferingUpdateListener, AudioManager.OnAudioFocusChangeListener {
 
-
     // Binder given to clients
     private val CHANNEL_ID = "101010"
+
+    private val PAUSE_ACTION = "PAUSE"
+
+    private val PLAY_ACTION = "PLAY"
+
+    private val PREVIOUS_ACTION = "PREVIOUS"
+
+    private val NEXT_ACTION = "NEXT"
 
     private val binder = LocalBinder()
 
@@ -39,9 +46,13 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private lateinit var mediaSession: MediaSessionCompat
 
+    private lateinit var mediaController: MediaControllerCompat
+
     private lateinit var stateBuilder: PlaybackStateCompat.Builder
 
     private lateinit var metaDataBuilder: MediaMetadataCompat.Builder
+
+    private lateinit var notificationManager: NotificationManagerCompat
 
     private var loopPlaylist = false
 
@@ -58,10 +69,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         stateBuilder = PlaybackStateCompat.Builder()
 
-        metaDataBuilder = MediaMetadataCompat.Builder()
-
-        stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE)
-
         //Media session
         mediaSession = MediaSessionCompat(baseContext, "MediaSession").apply {
 
@@ -69,32 +76,55 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             // MySessionCallback() has methods that handle callbacks from a media controller
             setCallback(Callback())
-
         }
 
+        stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE)
+
+        mediaController = mediaSession.controller
+
+        metaDataBuilder = MediaMetadataCompat.Builder()
+
+        notificationManager = NotificationManagerCompat.from(this)
+
+        mediaController.registerCallback(NotificationCallback())
+
+
         //Notification channel
-        val name = "Player Notifications"
+        val name = getString(R.string.player_notifications_channel)
         val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = NotificationChannel(CHANNEL_ID, name, importance)
 
         // Register the channel with the system
-        val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 
     //The system calls this method when an activity, requests the service be started
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.e("PlayerService", "onStartCommand")
-        initMediaPlayer()
+        Log.e("PlayerService", this.toString())
+        if (mediaPlayer == null)
+            initMediaPlayer()
+        when (intent.action) {
+            PLAY_ACTION -> mediaSession.controller.transportControls.play()
+            PAUSE_ACTION -> mediaSession.controller.transportControls.pause()
+            NEXT_ACTION -> mediaSession.controller.transportControls.skipToNext()
+            PREVIOUS_ACTION -> mediaSession.controller.transportControls.skipToPrevious()
+        }
         return super.onStartCommand(intent, flags, startId)
     }
 
+    override fun onUnbind(intent: Intent?): Boolean {
+        stopSelf()
+        //allow rebind
+        return false
+    }
 
     override fun onDestroy() {
-        super.onDestroy()
+        Log.e("DESTROY", "destroyed")
+        notificationManager.cancelAll()
         mediaSession.release()
         mediaPlayer?.release()
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -115,6 +145,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 0F).build())
             mediaPlayer = null
             ready = false
+            notificationManager.cancelAll()
         } else {
             nextMedia()
         }
@@ -164,12 +195,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             try {
                 mediaPlayer?.setDataSource(playlist[songIndex].audio_url)
                 mediaPlayer?.prepareAsync()
-                sendNotification()
+                mediaSession.setMetadata(songToMetaData(playlist[songIndex]))
             } catch (ex: IOException) {
-                Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT)
+                Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT).show()
             }
         }
-        mediaSession.setMetadata(songToMetaData(playlist[songIndex]))
     }
 
     private fun initMediaPlayer() {
@@ -211,50 +241,42 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         mediaSession.setMetadata(songToMetaData(playlist[songIndex]))
     }
 
-    private fun sendNotification() {/*
-        //Get an instance of NotificationManager//
-        val view = RemoteViews(packageName, R.layout.notification)
-        Log.e("NOTI", playlist[songIndex].title)
+    private fun sendNotification() {
 
-        var builder = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.logo)
-                .setContent(view)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        //Picasso.get().load(playlist[songIndex].img_url).into(view.findViewById<ImageView>(R.id.album_art))
-        view.setTextViewText(R.id.song_title, playlist[songIndex].title)
-        view.setTextViewText(R.id.song_artist, playlist[songIndex].artist)
-        /*view.findViewById<Button>(R.id.back_button)
-        view.findViewById<Button>(R.id.play_button)
-        view.findViewById<Button>(R.id.next_button)*/
-        // Gets an instance of the NotificationManager service//
-
-        with(NotificationManagerCompat.from(this)) {
-            // notificationId is a unique int for each notification that you must define
-            notify(10, builder.build())
-        }*/
-
-        var builder = NotificationCompat.Builder(this, CHANNEL_ID).apply {
-            setSmallIcon(R.mipmap.ic_launcher)
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID).apply {
+            setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediaSession.sessionToken).setShowActionsInCompactView(0, 1, 2))
+            setSmallIcon(R.drawable.icon)
             setContentTitle(playlist[songIndex].title)
             setContentText(playlist[songIndex].artist)
-            setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediaSession.sessionToken).setShowActionsInCompactView(0))
+            setLargeIcon(mediaSession.controller.metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
+            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            // Adds transport controls
+            addAction(createAction(PREVIOUS_ACTION, R.drawable.back_noti, getString(R.string.previous)))
 
-            // Add a pause button
-            addAction(
-                    NotificationCompat.Action(
-                            R.drawable.pause,
-                            "pause",
-                            MediaButtonReceiver.buildMediaButtonPendingIntent(
-                                    applicationContext,
-                                    PlaybackStateCompat.ACTION_PLAY_PAUSE
-                            )
-                    )
-            )
-        }
+            if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PAUSED)
+                addAction(createAction(PLAY_ACTION, R.drawable.play_noti, getString(R.string.play)))
+            else
+                addAction(createAction(PAUSE_ACTION, R.drawable.pause_noti, getString(R.string.pause)))
 
-        with(NotificationManagerCompat.from(this)) {
-            notify(1, builder.build())
+            addAction(createAction(NEXT_ACTION, R.drawable.forward_noti, getString(R.string.next)))
+
+            //creates the same kind of intent android creates to start the application so that the activity is resumed instead of recreated
+            val notificationIntent = Intent(applicationContext, MainActivity::class.java)
+            notificationIntent.action = Intent.ACTION_MAIN
+            notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            setContentIntent(PendingIntent.getActivity(applicationContext, 2, notificationIntent, 0))
+            //prevents notification from being cancelled
+            setOngoing(true)
         }
+        notificationManager.notify(1, builder.build())
+    }
+
+    private fun createAction(action: String, drawable: Int, title: String): NotificationCompat.Action {
+        val i = Intent(applicationContext, PlayerService::class.java)
+        i.action = action
+        val pi = PendingIntent.getService(applicationContext, 1, i, 0)
+        return NotificationCompat.Action.Builder(drawable, title, pi).build()
     }
 
     private fun songToMetaData(song: Song): MediaMetadataCompat {
@@ -262,6 +284,20 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.img_url)
         metaDataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration.toLong())
+
+        Picasso.get().load(playlist[songIndex].img_url).into(object : com.squareup.picasso.Target {
+            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                Log.e("Picasso", e?.message)
+            }
+
+            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                // loaded bitmap is here (bitmap)
+                metaDataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
+            }
+
+            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+
+        })
         return metaDataBuilder.build()
     }
 
@@ -299,7 +335,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             super.onSkipToPrevious()
             //If mediaPlayer is null nothing happens
             when {
-                mediaPlayer?.currentPosition ?: 1001 > 1000 -> mediaPlayer?.seekTo(0)
+                mediaPlayer?.currentPosition ?: 4001 > 4000 -> mediaPlayer?.seekTo(0)
 
                 randomSelection -> {
                     var ran = songIndex
@@ -361,6 +397,18 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                     mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)
                 }
             }
+        }
+    }
+
+    inner class NotificationCallback : MediaControllerCompat.Callback() {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            super.onPlaybackStateChanged(state)
+            sendNotification()
+        }
+
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            super.onMetadataChanged(metadata)
+            sendNotification()
         }
     }
 }

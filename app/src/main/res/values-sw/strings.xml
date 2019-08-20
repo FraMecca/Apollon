@@ -25,4 +25,9 @@
     <string name="delete_title">Futa orodha ya kucheza</string>
     <string name="edit_title">Badilisha jina la kucheza</string>
     <string name="edit">Ipe jina tena</string>
+    <string name="player_notifications_channel">Arifa za Player</string>
+    <string name="previous">ULIOPITA</string>
+    <string name="pause">PAUSE</string>
+    <string name="play">KUCHEZA</string>
+    <string name="next">IJAYO</string>
 </resources>

@@ -25,4 +25,9 @@
     <string name="delete_title">Delete playlist</string>
     <string name="edit_title">Rename playlist</string>
     <string name="edit">Rename</string>
+    <string name="player_notifications_channel">Player Notifications</string>
+    <string name="previous">PREVIOUS</string>
+    <string name="pause">PAUSE</string>
+    <string name="play">PLAY</string>
+    <string name="next">NEXT</string>
 </resources>

@@ -49,10 +49,8 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.e("ACTIVITY", "created" + this)
         setContentView(R.layout.activity_main)
-
-        //volumeControlStream = AudioManager.STREAM_MUSIC
-
 
         val intent = Intent(this, PlayerService::class.java)
         startService(intent)
@@ -108,23 +106,6 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         }
     }
 
-    /*
-    //Handles newSong event posted on bus by PlayerService
-    @Subscribe
-    fun answerAvailable(event: NewSongEvent) {
-        if (event.song == null) {   //No songs to play
-            //setIsPlaying(false)
-        } else {    //New or same currentSong
-            if (!::currentSong.isInitialized || currentSong != event.song) {
-                // setIsPlaying(true)
-                currentSong = event.song
-                title.text = currentSong.title
-                artist.text = currentSong.artist
-                Picasso.get().load(currentSong.img_url).into(albumArt)
-            }
-        }
-    } */
-
     inner class Callback : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             super.onPlaybackStateChanged(state)
@@ -142,7 +123,6 @@ class MainActivity : AppCompatActivity(), OnClickListener {
                 //setIsPlaying(false)
             } else {    //New or same currentSong
 
-                    // setIsPlaying(true)
                     title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
                     artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
                     Picasso.get().load(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)).into(albumArt)

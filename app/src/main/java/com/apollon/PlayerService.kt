@@ -15,6 +15,8 @@ import kotlin.random.Random
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.icu.util.ULocale
+import android.media.RingtoneManager
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -24,6 +26,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.squareup.picasso.Picasso
 import java.lang.Exception
+import java.util.*
+import kotlin.collections.ArrayList
 
 class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,
@@ -90,10 +94,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
 
         //Notification channel
-        val name = getString(R.string.player_notifications_channel)
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance)
-
+        val channel = NotificationChannel(CHANNEL_ID, getString(R.string.player_notifications_channel), NotificationManager.IMPORTANCE_LOW)
         // Register the channel with the system
         val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)

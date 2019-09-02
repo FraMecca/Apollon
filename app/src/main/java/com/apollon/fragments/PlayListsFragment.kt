@@ -2,6 +2,7 @@ package com.apollon.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.apollon.classes.Playlist
 import android.widget.EditText
 import android.widget.Toast
 import com.apollon.AllAlbums
+import com.apollon.AllGenre
 
 
 class PlayListsFragment : Fragment(), View.OnClickListener {
@@ -65,16 +67,17 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
 
     // Adds playlists to the empty ArrayList
     private fun addPlaylists() {
-        val server = AllAlbums(context!!)
-        server.execute()
         playlists.clear()
+        val allAlbums = AllAlbums(context!!)
+        allAlbums.execute()
+        Log.e("Playlist", "server.execute")
 
-        playlists.add(Playlist(0, getString(R.string.all), "https://wallpapercave.com/wp/hjSB3oT.jpg"))
-        playlists.add(Playlist(1, getString(R.string.favourites), "https://shaunvislearningportfolio.files.wordpress.com/2014/11/record.jpeg"))
-        playlists.add(Playlist(2, "Rock", "https://markmanson.net/wp-content/uploads/2018/04/on-rock-music-and-writing-cover.jpg"))
-        playlists.add(Playlist(3, "Classical", "https://wallpaper-gallery.net/images/classical-music-wallpapers/classical-music-wallpapers-19.jpg"))
-        playlists.add(Playlist(4, "Techno", "https://i.pinimg.com/originals/01/48/c5/0148c5ffb5de127dd9569b19dec288cb.jpg"))
-        playlists.add(Playlist(5, "Reggae", "https://wallpapercave.com/wp/NOiaz6s.jpg"))
-        playlists.add(Playlist(6, "Prova", "https://img.discogs.com/LUE7GmvTK-dCLpvZxVSYPY2L0s8=/fit-in/300x300/filters:strip_icc():format(jpeg):mode_rgb():quality(40)/discogs-images/R-7192711-1477636938-5046.jpeg.jpg"))
+        while(allAlbums.result.size == 0){
+            // Log.e("Playlist", "Waiting") TODO: animation
+        }
+        allAlbums.result.forEach {
+            playlists.add(it)
+        }
+
     }
 }

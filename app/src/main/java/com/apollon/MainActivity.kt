@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
             R.id.mini_player -> {
                 replaceFragment(PlayerFragment())
-                player.echoCurrentSong()
+                //player.echoCurrentSong()
             }
         }
     }
@@ -131,3 +131,4 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         }
     }
 }
+// TODO: error if server down

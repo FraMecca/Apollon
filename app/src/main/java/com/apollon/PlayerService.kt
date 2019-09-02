@@ -17,6 +17,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.icu.util.ULocale
 import android.media.RingtoneManager
+import android.os.AsyncTask
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -24,8 +25,11 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.*
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.apollon.classes.StreamingSong
 import com.squareup.picasso.Picasso
 import java.lang.Exception
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.collections.ArrayList
 
 class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
@@ -192,15 +196,27 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             if (mediaPlayer?.isLooping == true)
                 mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
             mediaPlayer?.reset()
+
+            val s = SingleSong(applicationContext, playlist[songIndex].id)
+            s.execute()
+            while(true) {
+                try {
+                    s.get(50, TimeUnit.MILLISECONDS)
+                    break
+                } catch (e: TimeoutException){}
+            }
+            val str: StreamingSong = s.get()
             try {
-                mediaPlayer?.setDataSource(playlist[songIndex].audio_url)
+                mediaPlayer?.setDataSource(str.url)
                 mediaPlayer?.prepareAsync()
-                mediaSession.setMetadata(songToMetaData(playlist[songIndex]))
+                mediaSession.setMetadata(songToMetaData(str))
             } catch (ex: IOException) {
-                Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
+
 
     private fun initMediaPlayer() {
         mediaPlayer?.release()
@@ -237,9 +253,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         return mediaSession.controller
     }
 
+    /*
     fun echoCurrentSong() {
         mediaSession.setMetadata(songToMetaData(playlist[songIndex]))
     }
+   */
 
     private fun sendNotification() {
 
@@ -248,7 +266,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             setSmallIcon(R.drawable.icon)
             setContentTitle(playlist[songIndex].title)
             setContentText(playlist[songIndex].artist)
-            setLargeIcon(mediaSession.controller.metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
+           // setLargeIcon(mediaSession.controller.metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             // Adds transport controls
             addAction(createAction(PREVIOUS_ACTION, R.drawable.back_noti, getString(R.string.previous)))
@@ -279,7 +297,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         return NotificationCompat.Action.Builder(drawable, title, pi).build()
     }
 
-    private fun songToMetaData(song: Song): MediaMetadataCompat {
+    private fun songToMetaData(song: StreamingSong): MediaMetadataCompat {
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.img_url)

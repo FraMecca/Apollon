@@ -14,6 +14,7 @@ import com.apollon.adapters.PlaylistAdapter
 import com.apollon.classes.Playlist
 import android.widget.EditText
 import android.widget.Toast
+import com.apollon.AllAlbums
 
 
 class PlayListsFragment : Fragment(), View.OnClickListener {
@@ -64,7 +65,10 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
 
     // Adds playlists to the empty ArrayList
     private fun addPlaylists() {
+        val server = AllAlbums(context!!)
+        server.execute()
         playlists.clear()
+
         playlists.add(Playlist(0, getString(R.string.all), "https://wallpapercave.com/wp/hjSB3oT.jpg"))
         playlists.add(Playlist(1, getString(R.string.favourites), "https://shaunvislearningportfolio.files.wordpress.com/2014/11/record.jpeg"))
         playlists.add(Playlist(2, "Rock", "https://markmanson.net/wp-content/uploads/2018/04/on-rock-music-and-writing-cover.jpg"))

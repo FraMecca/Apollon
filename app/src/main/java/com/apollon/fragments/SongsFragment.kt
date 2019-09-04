@@ -12,9 +12,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.apollon.MainActivity
-import com.apollon.R
-import com.apollon.SingleAlbum
+import com.apollon.*
 import com.apollon.adapters.SongAdapter
 import com.apollon.classes.Playlist
 import com.apollon.classes.Song
@@ -55,10 +53,13 @@ class SongsFragment : Fragment() {
     private fun addSongs(playlist: Playlist.Album) {
         val uri = playlist.id
         songs.clear()
-        val req = SingleAlbum(context!!, uri)
-        req.execute()
-        while(req.result.size == 0){} // TODO : animation for waiting
-        req.result.forEach { songs.add(it) }
+        val req = Server.getAlbum(context!!, uri)
+        if (req is ServerSongsResult.Future) {
+            req.async.execute()
+            while (req.get().size == 0) {
+            } // TODO : animation for waiting
+        }
+        req.get().forEach { songs.add(it) }
 
     }
 

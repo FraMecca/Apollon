@@ -79,20 +79,22 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 playlists.add(Playlist.AllGenres())
                 return // break
             }
-            is Playlist.Artist -> SingleArtist(context!!, playlist.id)
-            is Playlist.Album -> {assert(false); AllAlbums(context!!)} // this should have been forwarded to SongsFragments
-            is Playlist.Genre -> SingleGenre(context!!, playlist.id)
-            is Playlist.AllAlbums -> AllAlbums(context!!)
-            is Playlist.AllArtists -> AllArtists(context!!)
-            is Playlist.AllGenres -> AllGenres(context!!)
+            is Playlist.Artist -> Server.getArtist(context!!, playlist.id)
+            is Playlist.Album -> {assert(false); return} // this should have been forwarded to SongsFragments
+            is Playlist.Genre -> Server.getGenre(context!!, playlist.id)
+            is Playlist.AllAlbums -> Server.getAlbums(context!!) // TODO: better naming
+            is Playlist.AllArtists -> Server.getArtists(context!!)
+            is Playlist.AllGenres -> Server.getGenres(context!!)
         }
-        action.execute()
-        Log.e("Playlist", "server.execute")
+        if(action is ServerPlaylistResult.Future) {
+            action.async.execute()
+            Log.e("Playlist", "server.execute")
+            while(action.get().size == 0){
+                // Log.e("Playlist", "Waiting") TODO: animation
+            }
+        }
 
-        while(action.result.size == 0){
-            // Log.e("Playlist", "Waiting") TODO: animation
-        }
-        action.result.forEach {
+        action.get().forEach {
             playlists.add(it)
         }
 

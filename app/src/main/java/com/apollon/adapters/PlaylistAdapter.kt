@@ -6,12 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.apollon.MainActivity
 import com.apollon.classes.Playlist
 import com.apollon.fragments.SongsFragment
 import com.squareup.picasso.Picasso
 import com.apollon.R
+import com.apollon.fragments.PlayListsFragment
 
 
 class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) : RecyclerView.Adapter<PlaylistViewHolder>() {
@@ -34,7 +36,11 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
         Picasso.get().load(playlist.img_url).into(holder.thumbnail)
 
         //CardView listener
-        holder.itemView.setOnClickListener { (context as MainActivity).replaceFragment(SongsFragment.newInstance(playlist)) }
+        val target = when(playlist){
+            is Playlist.Album -> SongsFragment.newInstance(playlist)
+            else -> PlayListsFragment.newInstance(playlist)
+        }
+        holder.itemView.setOnClickListener { (context as MainActivity).replaceFragment(target) }
 
         //delete click listener
         holder.itemView.findViewById<Button>(R.id.button_delete).setOnClickListener {

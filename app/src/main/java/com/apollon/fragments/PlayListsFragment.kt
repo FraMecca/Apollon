@@ -10,13 +10,11 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.apollon.R
 import com.apollon.adapters.PlaylistAdapter
 import com.apollon.classes.Playlist
 import android.widget.EditText
 import android.widget.Toast
-import com.apollon.AllAlbums
-import com.apollon.AllGenre
+import com.apollon.*
 
 
 class PlayListsFragment : Fragment(), View.OnClickListener {
@@ -67,17 +65,46 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
 
     // Adds playlists to the empty ArrayList
     private fun addPlaylists() {
+        val playlist: Playlist = if(this.arguments != null && this.arguments!!.containsKey("playlist"))
+                this.arguments!!.get("playlist") as Playlist
+        else
+            Playlist.Begin()
         playlists.clear()
-        val allAlbums = AllAlbums(context!!)
-        allAlbums.execute()
+
+
+        val action = when(playlist){
+            is Playlist.Begin -> {
+                playlists.add(Playlist.AllArtists())
+                playlists.add(Playlist.AllAlbums())
+                playlists.add(Playlist.AllGenres())
+                return // break
+            }
+            is Playlist.Artist -> SingleArtist(context!!, playlist.id)
+            is Playlist.Album -> {assert(false); AllAlbums(context!!)} // this should have been forwarded to SongsFragments
+            is Playlist.Genre -> SingleGenre(context!!, playlist.id)
+            is Playlist.AllAlbums -> AllAlbums(context!!)
+            is Playlist.AllArtists -> AllArtists(context!!)
+            is Playlist.AllGenres -> AllGenres(context!!)
+        }
+        action.execute()
         Log.e("Playlist", "server.execute")
 
-        while(allAlbums.result.size == 0){
+        while(action.result.size == 0){
             // Log.e("Playlist", "Waiting") TODO: animation
         }
-        allAlbums.result.forEach {
+        action.result.forEach {
             playlists.add(it)
         }
 
+    }
+    companion object {
+
+        fun newInstance(playlist: Playlist): PlayListsFragment {
+            val args = Bundle()
+            args.putSerializable("playlist", playlist)
+            val fragment = PlayListsFragment()
+            fragment.arguments = args
+            return fragment
+        }
     }
 }

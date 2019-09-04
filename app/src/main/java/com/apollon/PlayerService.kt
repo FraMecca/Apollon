@@ -205,9 +205,16 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                     break
                 } catch (e: TimeoutException){}
             }
-            val str: StreamingSong = s.get()
+            val str = s.get()
             try {
-                mediaPlayer?.setDataSource(str.url)
+                val uu:String = str.url
+                //mediaPlayer?.setDataSource("https://francescomecca.eu/apollon/file/944436d51e02ff43322dd813211df7945321400b.mp3")
+                val f = FileExists(applicationContext, uu)
+                f.execute()
+                while(f.result == false) {} // TODO ANIMATION
+
+
+                mediaPlayer?.setDataSource(uu)
                 mediaPlayer?.prepareAsync()
                 mediaSession.setMetadata(songToMetaData(str))
             } catch (ex: IOException) {
@@ -303,7 +310,10 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.img_url)
         metaDataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration.toLong())
 
-        Picasso.get().load(playlist[songIndex].img_url).into(object : com.squareup.picasso.Target {
+        val cursong = playlist[songIndex]
+        val url = cursong.img_url.replace("http://", "https://")
+        Log.e("Picasso", url)
+        Picasso.get().load(url).into(object : com.squareup.picasso.Target {
             override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
                 Log.e("Picasso", e?.message)
             }

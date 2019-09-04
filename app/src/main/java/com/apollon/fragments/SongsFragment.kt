@@ -19,6 +19,7 @@ import com.apollon.adapters.SongAdapter
 import com.apollon.classes.Playlist
 import com.apollon.classes.Song
 import com.squareup.picasso.Picasso
+import kotlin.reflect.typeOf
 
 
 class SongsFragment : Fragment() {
@@ -41,7 +42,7 @@ class SongsFragment : Fragment() {
             (activity as MainActivity).setSupportActionBar(playlistToolbar)
             playlistToolbar.title = playlist.title
             // Loads elements into the ArrayList
-            addSongs(playlist.id)
+            addSongs(playlist as Playlist.Album) // TODO, assert or something else, improve costraints
         // Creates a Grid Layout Manager
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
@@ -51,12 +52,13 @@ class SongsFragment : Fragment() {
     }
 
     // Adds songs to the empty ArrayList
-    private fun addSongs(uri: String) {
+    private fun addSongs(playlist: Playlist.Album) {
+        val uri = playlist.id
         songs.clear()
-        val album = SingleAlbum(context!!, uri)
-        album.execute()
-        while(album.result.size == 0){} // TODO : animation for waiting
-        album.result.forEach { songs.add(it) }
+        val req = SingleAlbum(context!!, uri)
+        req.execute()
+        while(req.result.size == 0){} // TODO : animation for waiting
+        req.result.forEach { songs.add(it) }
 
     }
 

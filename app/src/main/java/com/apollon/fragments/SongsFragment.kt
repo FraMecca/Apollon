@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
@@ -57,6 +58,10 @@ class SongsFragment : Fragment() {
         if (req is ServerSongsResult.Future) {
             req.async.execute()
             while (req.get().size == 0) {
+                if(req.error() != "") {
+                    Toast.makeText(context, req.error(), Toast.LENGTH_LONG).show()
+                    return
+                }
             } // TODO : animation for waiting
         }
         req.get().forEach { songs.add(it) }

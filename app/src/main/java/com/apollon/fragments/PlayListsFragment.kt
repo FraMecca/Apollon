@@ -91,6 +91,10 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
             Log.e("Playlist", "server.execute")
             while(action.get().size == 0){
                 // Log.e("Playlist", "Waiting") TODO: animation
+                if(action.error() != "") {
+                    Toast.makeText(context, action.error(), Toast.LENGTH_LONG).show()
+                    return
+                }
             }
         }
 

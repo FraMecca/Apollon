@@ -6,6 +6,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import android.util.Log
 import com.apollon.classes.*
+import com.apollon.fragments.LoginFragment
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -15,29 +16,37 @@ sealed class RequestResult {
 }
 
 fun makeRequest(m: Map<String, String>): RequestResult{
-    val params = hashMapOf("user" to "mario",
-        "password" to "rossi")
+    val (user, pass) = Credentials.get()
+    val params = hashMapOf("user" to user,
+        "password" to pass)
 
     m.forEach {k,v -> params.put(k, v)}
     val data = JSONObject(params).toString()
-    with(baseurl.openConnection() as HttpURLConnection) {
-        requestMethod = "POST"
-        this.outputStream.write(data.toByteArray())
-        this.outputStream.flush()
-        this.outputStream.close()
-        inputStream.bufferedReader().use {
-            val llines = it.lines().toArray()
-            assert(llines.count() == 1.toInt())
-            val j: JSONObject = JSONObject(llines[0] as String)
-            if (j["response"] == "error")
-                return RequestResult.Error(j["msg"] as String)
-            else
-                return RequestResult.Ok(j)
+    try {
+        with(baseurl().openConnection() as HttpURLConnection) {
+            requestMethod = "POST"
+            this.outputStream.write(data.toByteArray())
+            this.outputStream.flush()
+            this.outputStream.close()
+            inputStream.bufferedReader().use {
+                val llines = it.lines().toArray()
+                assert(llines.count() == 1.toInt())
+                val j: JSONObject = JSONObject(llines[0] as String)
+                if (j["response"] == "error")
+                    return RequestResult.Error(j["msg"] as String)
+                else
+                    return RequestResult.Ok(j)
+            }
         }
+    }catch(e:Exception){
+        return RequestResult.Error("Can't make the connection: "+e.message)
     }
-
 }
-val baseurl = URL("https://francescomecca.eu/apollon/")
+fun baseurl():URL{
+    val (ip, port) = Credentials.getServer()
+    return URL(ip +":"+ port.toString())
+}
+
 
 abstract class ApollonAsync: AsyncTask<Void, Int, List<Playlist>>() {
     var result = ArrayList<Playlist>()
@@ -262,7 +271,7 @@ class SingleSong(val context: Context, val uri:String) : AsyncTask<Void, Int, St
         result = when(resp){
             is RequestResult.Ok -> {
                 val j = resp.result
-                val url = baseurl.toString().substring(0, baseurl.toString().length-1) +(j["uri"] as String)
+                val url = baseurl().toString().substring(0, baseurl().toString().length-1) +(j["uri"] as String)
                 Log.e("URL", url)
                 val metadata = ((((j.get("metadata") as JSONObject).get("json") as JSONObject).get("media") as JSONObject)
                     .get("track") as JSONArray).get(0) as JSONObject
@@ -291,11 +300,29 @@ class FileExists(val context: Context, val uri:String) : AsyncTask<Void, Int, Bo
     override fun doInBackground(vararg params: Void?): Boolean {
         Log.e("HTTP", "request: file-exists")
 
-        with(baseurl.openConnection() as HttpURLConnection) {
+        with(baseurl().openConnection() as HttpURLConnection) {
             requestMethod = "HEAD"
             connect()
         }
         result = true
+        return result
+    }
+}
+
+class DoLogin(val context: Context) : AsyncTask<Void, Int, Boolean>(){
+    var result : Boolean = false
+    var done = false
+    var msg = ""
+
+    override fun doInBackground(vararg params: Void?): Boolean {
+        Log.e("HTTP", "request: do-login")
+
+        val resp = makeRequest(hashMapOf("action" to "challenge-login"))
+        when(resp) {
+            is RequestResult.Ok -> result = true
+            is RequestResult.Error -> {result = false; msg = resp.msg}
+        }
+        done = true
         return result
     }
 }

@@ -16,10 +16,14 @@ import com.apollon.R
 import com.apollon.fragments.PlayListsFragment
 
 
-class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) : RecyclerView.Adapter<PlaylistViewHolder>() {
+class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable {
+
+    private val filter = PlaylistFilter()
+    private var filteredPlaylists = playlists
+
     // Gets the number of playlists in the list
     override fun getItemCount(): Int {
-        return playlists.size
+        return filteredPlaylists.size
     }
 
     // Inflates the item views
@@ -29,7 +33,7 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
 
     // Binds each playlist in the ArrayList to a view
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
-        val playlist = playlists[position]
+        val playlist = filteredPlaylists[position]
         holder.title.text = playlist.title
 
         //Thumbnail download
@@ -86,7 +90,31 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
         }
     }
 
+    override fun getFilter(): Filter {
+        return filter
+    }
 
+    inner class PlaylistFilter : Filter() {
+        override fun performFiltering(s: CharSequence?): FilterResults {
+            val res = FilterResults()
+            if (s.isNullOrEmpty())
+                res.values = playlists
+            else{
+                val resList = ArrayList<Playlist>()
+                playlists.forEach {
+                    if(it.title.toLowerCase().contains(s.toString().toLowerCase()))
+                        resList.add(it)
+                }
+                res.values = resList
+            }
+            return res
+        }
+
+        override fun publishResults(s: CharSequence?, r: FilterResults?) {
+            filteredPlaylists = r?.values as ArrayList<Playlist>
+            notifyDataSetChanged()
+        }
+    }
 }
 
 class PlaylistViewHolder(view: View) : RecyclerView.ViewHolder(view) {

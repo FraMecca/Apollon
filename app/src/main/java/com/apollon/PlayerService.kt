@@ -3,9 +3,6 @@ package com.apollon
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.Intent
-import android.media.AudioAttributes
-import android.media.AudioManager
-import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
@@ -16,8 +13,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.icu.util.ULocale
-import android.media.RingtoneManager
+import android.media.*
 import android.os.AsyncTask
+import android.os.Handler
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -61,6 +59,12 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private lateinit var notificationManager: NotificationManagerCompat
 
+    private lateinit var audioManager: AudioManager
+
+    private lateinit var focusRequest: AudioFocusRequest
+
+    private val handler = Handler()
+
     private var loopPlaylist = false
 
     private var randomSelection = false
@@ -93,8 +97,20 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         notificationManager = NotificationManagerCompat.from(this)
 
-        mediaController.registerCallback(NotificationCallback())
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+        focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN).run {
+            setAudioAttributes(AudioAttributes.Builder().run {
+                setUsage(AudioAttributes.USAGE_MEDIA)
+                setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                build()
+            })
+            setAcceptsDelayedFocusGain(true)
+            setOnAudioFocusChangeListener(FocusChangeListener(), handler)
+            build()
+        }
+
+        mediaController.registerCallback(NotificationCallback())
 
         //Notification channel
         val channel = NotificationChannel(CHANNEL_ID, getString(R.string.player_notifications_channel), NotificationManager.IMPORTANCE_LOW)
@@ -106,8 +122,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     //The system calls this method when an activity, requests the service be started
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.e("PlayerService", this.toString())
-        if (mediaPlayer == null)
-            initMediaPlayer()
         when (intent.action) {
             PLAY_ACTION -> mediaSession.controller.transportControls.play()
             PAUSE_ACTION -> mediaSession.controller.transportControls.pause()
@@ -143,13 +157,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onCompletion(mp: MediaPlayer) {
         //Invoked when playback of a media source has completed.
         if (songIndex == playlist.size - 1 && !loopPlaylist && !randomSelection) {
-            mediaSession.setMetadata(null)
-            mediaPlayer?.stop()
-            mediaPlayer?.release()
-            mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 0F).build())
-            mediaPlayer = null
-            ready = false
-            notificationManager.cancelAll()
+            mediaController.transportControls.stop()
         } else {
             nextMedia()
         }
@@ -174,8 +182,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onPrepared(mp: MediaPlayer) {
         //Invoked when the media source is ready for playback.
         ready = true
-        mediaPlayer?.start()
-        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition().toLong(), 1f).build())
+        mediaController.transportControls.play()
     }
 
     override fun onSeekComplete(mp: MediaPlayer) {
@@ -338,6 +345,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         override fun onPlay() {
             super.onPlay()
+            audioManager.requestAudioFocus(focusRequest)
+            handler.removeCallbacksAndMessages(null)
             if (mediaPlayer == null) {
                 initMedia(playlist, songIndex)
             } else if (mediaPlayer?.isPlaying == false) {
@@ -351,7 +360,16 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             if (mediaPlayer?.isPlaying == true) {
                 mediaPlayer?.pause()
                 mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, getCurrentPosition().toLong(), 0F).build())
+                handler.postDelayed({mediaController.transportControls.stop(); Log.e("PAUSE", "stopped")}, 30000)
             }
+        }
+
+        override fun onStop() {
+            super.onStop()
+            mediaPlayer?.release()
+            mediaPlayer = null
+            ready = false
+            mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 0F).build())
         }
 
         override fun onSkipToNext() {
@@ -437,6 +455,18 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             super.onMetadataChanged(metadata)
             sendNotification()
+        }
+    }
+
+    inner class FocusChangeListener : AudioManager.OnAudioFocusChangeListener{
+        override fun onAudioFocusChange(focusChange: Int) {
+            when(focusChange){
+                AudioManager.AUDIOFOCUS_LOSS -> mediaController.transportControls.pause()
+
+                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> mediaController.transportControls.pause()
+
+                AudioManager.AUDIOFOCUS_GAIN -> mediaController.transportControls.play()
+            }
         }
     }
 }

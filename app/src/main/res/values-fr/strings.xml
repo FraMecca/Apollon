@@ -4,7 +4,7 @@
     <string name="action_play_next">Joue ensuite</string>
     <string name="user">Usager</string>
     <string name="password">Password</string>
-    <string name="ip">IP</string>
+    <string name="server">URL Server</string>
     <string name="port">Port</string>
 	<string name="login">S\'identifier</string>
 	<string name="all">Toute</string>
@@ -30,4 +30,5 @@
     <string name="pause">PAUSE</string>
     <string name="play">JOUER</string>
     <string name="next">SUIVANTE</string>
+    <string name="search">Chercher</string>
 </resources>

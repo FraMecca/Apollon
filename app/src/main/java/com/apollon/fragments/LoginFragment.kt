@@ -26,24 +26,24 @@ class LoginFragment : Fragment() {
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        Credentials.init(context!!)
+        //Credentials.init(context!!)
         mView = inflater.inflate(R.layout.login, container, false)
 
-        val (user, password) = Credentials.get()
+        //val (user, password) = Credentials.get()
         val userField: EditText = mView.findViewById(R.id.input_username)
         val passField: EditText = mView.findViewById(R.id.input_password)
         userField.text?.clear()
-        userField.text?.insert(0, user)
+        //userField.text?.insert(0, user)
         passField.text?.clear()
-        passField.text?.insert(0, password)
+        //passField.text?.insert(0, password)
 
-        val (server, port) = Credentials.getServer()
-        val serverField: EditText = mView.findViewById(R.id.input_username)
-        val portField: EditText = mView.findViewById(R.id.input_password)
+        //val (server, port) = Credentials.getServer()
+        val serverField: EditText = mView.findViewById(R.id.input_ip)
+        val portField: EditText = mView.findViewById(R.id.input_port)
         serverField.text?.clear()
-        serverField.text?.insert(0, server)
+        //serverField.text?.insert(0, server)
         portField.text?.clear()
-        portField.text?.insert(0, port.toString())
+        //portField.text?.insert(0, port.toString())
 
         loginButton = mView.findViewById(R.id.login_btn)
         loginButton.setOnClickListener {

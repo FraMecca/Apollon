@@ -8,14 +8,13 @@ import android.os.Handler
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.apollon.MainActivity
 import com.apollon.R
 import com.squareup.picasso.Picasso
+import kotlin.math.abs
 
 
 class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClickListener {
@@ -32,6 +31,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     lateinit var loopButton: Button
     lateinit var randomButton: Button
     lateinit var favouriteButton: Button
+    lateinit var gestureDetector: GestureDetector
     var songDuration = 0
 
     override fun onCreateView(
@@ -40,6 +40,10 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     ): View? {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         (activity as MainActivity).miniPlayer.visibility = View.GONE
+
+        //Initialize gesture detection
+        gestureDetector = GestureDetector((activity as MainActivity).applicationContext, GListener())
+
         var mView = inflater.inflate(R.layout.player, container, false)
         title = mView.findViewById(R.id.song_title)
         artist = mView.findViewById(R.id.song_artist)
@@ -61,6 +65,11 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         randomButton.setOnClickListener(this)
         seekBar.setOnSeekBarChangeListener(this)
         favouriteButton.setOnClickListener(this)
+        albumArt.setOnTouchListener(object: View.OnTouchListener{
+            override fun onTouch(v: View?, e: MotionEvent?): Boolean {
+                return gestureDetector.onTouchEvent(e)
+            }
+        })
 
         //Registers to service bus
         callback = Callback()
@@ -260,6 +269,43 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
             } else {
                 randomButton.setBackgroundResource(R.drawable.shuffle_not_button_selector)
             }
+        }
+    }
+
+    inner class GListener : GestureDetector.SimpleOnGestureListener(){
+        private val SWIPE_MAX_OFF_PATH = 250 //How much you can derail from a straight line when swiping
+        private val SWIPE_MIN_DISTANCE = 120 //How long must the swipe be
+        private val SWIPE_MIN_VELOCITY = 120 //How quick must the swipe be
+
+        override fun onShowPress(p0: MotionEvent?) {}
+
+        override fun onSingleTapUp(p0: MotionEvent?): Boolean {return true}
+
+        override fun onDown(p0: MotionEvent?): Boolean {return true}
+
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velX: Float, velY: Float): Boolean {
+            //Check if user made a swipe-like motion
+            if(abs(e1!!.y - e2!!.y) <= SWIPE_MAX_OFF_PATH && abs(velX) > SWIPE_MIN_VELOCITY && abs(e1.x - e2.x) >= SWIPE_MIN_DISTANCE){
+                //Right to left swipe
+                if(e1.x >= e2.x) {
+                    (activity as  MainActivity).mediaController.transportControls.skipToNext()
+                }
+                //Left to right swipe
+                else{
+                    (activity as  MainActivity).mediaController.transportControls.skipToPrevious()
+                }
+                return true
+            }
+            return false
+        }
+
+        override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {return true}
+
+        override fun onLongPress(p0: MotionEvent?){}
+
+        override fun onDoubleTap(e: MotionEvent?): Boolean {
+            Toast.makeText(context, "${title.text} added to fav", Toast.LENGTH_SHORT).show()
+            return true
         }
     }
 }

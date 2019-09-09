@@ -18,6 +18,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.apollon.fragments.LoginFragment
+import com.apollon.fragments.PlayListsFragment
 import com.apollon.fragments.PlayerFragment
 import com.squareup.picasso.Picasso
 

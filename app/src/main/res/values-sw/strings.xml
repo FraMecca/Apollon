@@ -4,7 +4,7 @@
     <string name="action_play_next">Cheza ijayo</string>
     <string name="user">Mtumiaji</string>
     <string name="password">Nywila</string>
-    <string name="ip">IP</string>
+    <string name="server">URL Seva</string>
     <string name="port">Bandari</string>
 	<string name="login">Ingia</string>
 	<string name="all">Wote</string>
@@ -30,4 +30,5 @@
     <string name="pause">PAUSE</string>
     <string name="play">KUCHEZA</string>
     <string name="next">IJAYO</string>
+    <string name="search">Tafuta</string>
 </resources>

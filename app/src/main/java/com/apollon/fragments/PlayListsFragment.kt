@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.apollon.adapters.PlaylistAdapter
 import com.apollon.classes.Playlist
 import android.widget.EditText
+import android.widget.SearchView
 import android.widget.Toast
 import com.apollon.*
 
@@ -25,7 +26,20 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val mView = inflater.inflate(R.layout.playlists, container, false)
+        val search = mView.findViewById<SearchView>(R.id.search)
         val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
+
+        search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(s: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(s: String?): Boolean {
+                (recyclerView.adapter as PlaylistAdapter).filter.filter(s)
+                return false
+            }
+        })
+
         mView.findViewById<Button>(R.id.new_playlist_button).setOnClickListener(this)
 
         // Loads elements into the ArrayList

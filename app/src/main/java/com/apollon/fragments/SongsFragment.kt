@@ -1,13 +1,12 @@
 package com.apollon.fragments
 
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -18,7 +17,6 @@ import com.apollon.adapters.SongAdapter
 import com.apollon.classes.Playlist
 import com.apollon.classes.Song
 import com.squareup.picasso.Picasso
-import kotlin.reflect.typeOf
 
 
 class SongsFragment : Fragment() {
@@ -30,18 +28,30 @@ class SongsFragment : Fragment() {
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-            mView = inflater.inflate(R.layout.songs, container, false)
-            val playlist = arguments?.getSerializable("playlist") as Playlist
-            Log.e("PLAYLIST", playlist.id)
-            val playlistThumbnail = mView.findViewById<ImageView>(R.id.playlist_thumbnail)
-            val playlistToolbar = mView.findViewById<Toolbar>(R.id.playlist_toolbar)
-            val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
+        mView = inflater.inflate(R.layout.songs, container, false)
+        val playlist = arguments?.getSerializable("playlist") as Playlist
+        Log.e("PLAYLIST", playlist.id)
+        val playlistThumbnail = mView.findViewById<ImageView>(R.id.playlist_thumbnail)
+        val playlistToolbar = mView.findViewById<Toolbar>(R.id.playlist_toolbar)
+        val search = mView.findViewById<SearchView>(R.id.search)
+        val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
 
-            Picasso.get().load(playlist.img_url).into(playlistThumbnail)
-            (activity as MainActivity).setSupportActionBar(playlistToolbar)
-            playlistToolbar.title = playlist.title
-            // Loads elements into the ArrayList
-            addSongs(playlist as Playlist.Album) // TODO, assert or something else, improve costraints
+        search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(s: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(s: String?): Boolean {
+                (recyclerView.adapter as SongAdapter).filter.filter(s)
+                return false
+            }
+        })
+
+        Picasso.get().load(playlist.img_url).into(playlistThumbnail)
+        (activity as MainActivity).setSupportActionBar(playlistToolbar)
+        playlistToolbar.title = playlist.title
+        // Loads elements into the ArrayList
+        addSongs(playlist as Playlist.Album) // TODO, assert or something else, improve costraints
         // Creates a Grid Layout Manager
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
@@ -58,7 +68,7 @@ class SongsFragment : Fragment() {
         if (req is ServerSongsResult.Future) {
             req.async.execute()
             while (req.get().size == 0) {
-                if(req.error() != "") {
+                if (req.error() != "") {
                     Toast.makeText(context, req.error(), Toast.LENGTH_LONG).show()
                     return
                 }

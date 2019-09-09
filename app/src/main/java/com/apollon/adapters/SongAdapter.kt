@@ -4,10 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.PopupMenu
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.apollon.MainActivity
 import com.apollon.R
@@ -16,10 +13,14 @@ import com.apollon.fragments.PlayerFragment
 import com.squareup.picasso.Picasso
 import java.util.*
 
-class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerView.Adapter<SongViewHolder>(){
+class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerView.Adapter<SongViewHolder>(), Filterable {
+
+    private val filter = SongtFilter()
+    private var filteredSongs = songs
+
     // Gets the number of songs in the list
     override fun getItemCount(): Int {
-        return songs.size
+        return filteredSongs.size
     }
 
     // Inflates the item views
@@ -29,7 +30,7 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
 
     // Binds each `(activity as MainActivity).currentSong` in the ArrayList to a view
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-        val song = songs[position]
+        val song = filteredSongs[position]
         holder.title.text = song.title
         holder.artist.text = song.artist
 
@@ -62,6 +63,33 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
                 }
             }
             true
+        }
+    }
+
+    override fun getFilter(): Filter {
+        return filter
+    }
+
+    inner class SongtFilter : Filter() {
+        override fun performFiltering(s: CharSequence?): FilterResults {
+            val res = FilterResults()
+            if (s.isNullOrEmpty())
+                res.values = songs
+            else {
+                val resList = ArrayList<Song>()
+                val query = s.toString().toLowerCase()
+                songs.forEach {
+                    if (it.title.toLowerCase().contains(query) or it.artist.toLowerCase().contains(query))
+                        resList.add(it)
+                }
+                res.values = resList
+            }
+            return res
+        }
+
+        override fun publishResults(s: CharSequence?, r: FilterResults?) {
+            filteredSongs = r?.values as ArrayList<Song>
+            notifyDataSetChanged()
         }
     }
 }

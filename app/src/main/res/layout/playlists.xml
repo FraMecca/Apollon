@@ -5,12 +5,28 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <SearchView
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:iconifiedByDefault="false"
+        android:queryHint="@string/search"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:scrollbars="vertical" />
+
+    </LinearLayout>
 
        <Button
             android:id="@+id/new_playlist_button"

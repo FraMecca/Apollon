@@ -44,8 +44,19 @@ fun makeRequest(m: Map<String, String>): RequestResult{
 }
 
 fun baseurl():URL{
-    val (ip, port) = Credentials.getServer()
-    return URL("https","francescomecca.eu",80, "/apollon/")//PLACEHOLDER
+    val (ip, snd) = Credentials.getServer()
+    val (proto, port) = snd
+    val split = ip.split('/')
+    val hostname = split[0]
+    val file = ip.substring(hostname.length,ip.length)
+
+    val protoString:String = when(proto) {
+        0 -> "http"
+        1 -> "https"
+        else -> {assert(false); "https"}
+    }
+    Log.e("GOTURL:", URL(protoString , hostname,port, file).toString())
+    return URL(protoString , hostname,port, file)
 }
 
 

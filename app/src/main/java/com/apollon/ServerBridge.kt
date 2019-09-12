@@ -16,11 +16,11 @@ sealed class RequestResult {
 }
 
 fun makeRequest(m: Map<String, String>): RequestResult{
-    val (user, pass) = Credentials.get()
-    val params = hashMapOf("user" to user,
-        "password" to pass)
+   val (user, pass) = Credentials.get()
+   val params = hashMapOf("user" to "mario",
+        "password" to "rossi")
 
-    m.forEach {k,v -> params.put(k, v)}
+    m.forEach { (k, v) -> params.put(k, v)}
     val data = JSONObject(params).toString()
     try {
         with(baseurl().openConnection() as HttpURLConnection) {
@@ -30,8 +30,8 @@ fun makeRequest(m: Map<String, String>): RequestResult{
             this.outputStream.close()
             inputStream.bufferedReader().use {
                 val llines = it.lines().toArray()
-                assert(llines.count() == 1.toInt())
-                val j: JSONObject = JSONObject(llines[0] as String)
+                assert(llines.count() == 1)
+                val j = JSONObject(llines[0] as String)
                 if (j["response"] == "error")
                     return RequestResult.Error(j["msg"] as String)
                 else
@@ -42,9 +42,10 @@ fun makeRequest(m: Map<String, String>): RequestResult{
         return RequestResult.Error("Can't make the connection: "+e.message)
     }
 }
+
 fun baseurl():URL{
     val (ip, port) = Credentials.getServer()
-    return URL(ip +":"+ port.toString())
+    return URL("https","francescomecca.eu",80, "/apollon/")//PLACEHOLDER
 }
 
 

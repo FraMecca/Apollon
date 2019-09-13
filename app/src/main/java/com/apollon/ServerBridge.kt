@@ -17,8 +17,8 @@ sealed class RequestResult {
 
 fun makeRequest(m: Map<String, String>): RequestResult{
    val (user, pass) = Credentials.get()
-   val params = hashMapOf("user" to "mario",
-        "password" to "rossi")
+   val params = hashMapOf("user" to user,
+        "password" to pass)
 
     m.forEach { (k, v) -> params.put(k, v)}
     val data = JSONObject(params).toString()
@@ -65,7 +65,7 @@ abstract class ApollonAsync: AsyncTask<Void, Int, List<Playlist>>() {
     var error = ""
 }
 
-private class AllAlbums(val context: Context) : ApollonAsync(){
+private class AllAlbums : ApollonAsync(){
 
     override fun doInBackground(vararg params: Void?): List<Playlist.Album>? {
         val ret = ArrayList<Playlist.Album>()
@@ -91,6 +91,7 @@ private class AllAlbums(val context: Context) : ApollonAsync(){
         }
         Log.e("HTTP", "Finished all-albums")
         if (ret.size != 0) {
+            @Suppress("UNCHECKED_CAST")
             result = ret as ArrayList<Playlist>
             return ret
         }
@@ -99,7 +100,7 @@ private class AllAlbums(val context: Context) : ApollonAsync(){
     }
 }
 
-private class AllArtists(val context: Context) : ApollonAsync(){
+private class AllArtists : ApollonAsync(){
 
     override fun doInBackground(vararg params: Void?): List<Playlist.Artist>? {
         val ret = ArrayList<Playlist.Artist>()
@@ -125,6 +126,7 @@ private class AllArtists(val context: Context) : ApollonAsync(){
         }
         Log.e("HTTP", "Finished all-artists")
         if (ret.size != 0) {
+            @Suppress("UNCHECKED_CAST")
             result = ret as ArrayList<Playlist>
             return ret
         }
@@ -133,7 +135,7 @@ private class AllArtists(val context: Context) : ApollonAsync(){
     }
 }
 
-private class AllGenres(val context: Context) : ApollonAsync(){
+private class AllGenres : ApollonAsync(){
 
     override fun doInBackground(vararg params: Void?): List<Playlist.Genre>? {
         val ret = ArrayList<Playlist.Genre>()
@@ -155,6 +157,7 @@ private class AllGenres(val context: Context) : ApollonAsync(){
         }
         Log.e("HTTP", "Finished all-Genre")
         if (ret.size != 0) {
+            @Suppress("UNCHECKED_CAST")
             result = ret as ArrayList<Playlist>
             return ret
         }
@@ -162,7 +165,7 @@ private class AllGenres(val context: Context) : ApollonAsync(){
             return null
     }
 }
-private class SingleGenre(val context: Context, val name:String) : ApollonAsync(){
+private class SingleGenre(val name:String) : ApollonAsync(){
 
     override fun doInBackground(vararg params: Void?): ArrayList<Playlist.Artist>? {
         val ret = ArrayList<Playlist.Artist>()
@@ -187,6 +190,7 @@ private class SingleGenre(val context: Context, val name:String) : ApollonAsync(
         }
         Log.e("HTTP", "Finished SingleArtist")
         if (ret.size != 0){
+            @Suppress("UNCHECKED_CAST")
             result = ret as ArrayList<Playlist>
             return ret
         }
@@ -196,7 +200,7 @@ private class SingleGenre(val context: Context, val name:String) : ApollonAsync(
 }
 
 
-class SingleAlbum(val context: Context, val uri:String) : AsyncTask<Void, Int, List<Song>>(){
+class SingleAlbum(val uri:String) : AsyncTask<Void, Int, List<Song>>(){
     var result = ArrayList<Song>()
     var error = ""
 
@@ -235,7 +239,7 @@ class SingleAlbum(val context: Context, val uri:String) : AsyncTask<Void, Int, L
     }
 }
 
-private class SingleArtist(val context: Context, val name:String) : ApollonAsync(){
+private class SingleArtist(val name:String) : ApollonAsync(){
 
     override fun doInBackground(vararg params: Void?): ArrayList<Playlist.Album>? {
         val ret = ArrayList<Playlist.Album>()
@@ -246,7 +250,7 @@ private class SingleArtist(val context: Context, val name:String) : ApollonAsync
             is RequestResult.Ok -> {
                 val j = resp.result
                 val albums = (j["artist"] as JSONObject)["albums"] as JSONArray
-                val artist = (j["artist"] as JSONObject)["name"] as String
+                //val artist = (j["artist"] as JSONObject)["name"] as String
                 val img = (j["artist"] as JSONObject)["img"] as String
 
                 for (i in 0 .. albums.length()-1){
@@ -264,6 +268,7 @@ private class SingleArtist(val context: Context, val name:String) : ApollonAsync
         }
         Log.e("HTTP", "Finished SingleArtist")
         if (ret.size != 0){
+            @Suppress("UNCHECKED_CAST")
             result = ret as ArrayList<Playlist>
             return ret
         }
@@ -272,7 +277,7 @@ private class SingleArtist(val context: Context, val name:String) : ApollonAsync
     }
 }
 
-class SingleSong(val context: Context, val uri:String) : AsyncTask<Void, Int, StreamingSong>(){
+class SingleSong(val uri:String) : AsyncTask<Void, Int, StreamingSong>(){
     var result : StreamingSong? = null
     var error = ""
 
@@ -289,7 +294,7 @@ class SingleSong(val context: Context, val uri:String) : AsyncTask<Void, Int, St
                     .get("track") as JSONArray).get(0) as JSONObject
                 val title = metadata["Title"] as String
                 val artist = metadata["Performer"] as String
-                val album = metadata["Album"] as String
+                //val album = metadata["Album"] as String
                 val fduration = metadata["Duration"] as String
                 val duration = (fduration.toFloat() * 1000).toInt()
                 val s = StreamingSong(url, duration, uri, title, artist)
@@ -300,13 +305,9 @@ class SingleSong(val context: Context, val uri:String) : AsyncTask<Void, Int, St
         }
         return result
     }
-
-    override fun onPostExecute(result: StreamingSong?) {
-        super.onPostExecute(result)
-    }
 }
 
-class FileExists(val context: Context, val uri:String) : AsyncTask<Void, Int, Boolean>(){
+class FileExists(val uri:String) : AsyncTask<Void, Int, Boolean>(){
     var result : Boolean = false
 
     override fun doInBackground(vararg params: Void?): Boolean {
@@ -321,7 +322,7 @@ class FileExists(val context: Context, val uri:String) : AsyncTask<Void, Int, Bo
     }
 }
 
-class DoLogin(val context: Context) : AsyncTask<Void, Int, Boolean>(){
+class DoLogin : AsyncTask<Void, Int, Boolean>(){
     var result : Boolean = false
     var done = false
     var msg = ""
@@ -339,7 +340,7 @@ class DoLogin(val context: Context) : AsyncTask<Void, Int, Boolean>(){
     }
 }
 
-sealed class ServerPlaylistResult(){
+sealed class ServerPlaylistResult {
     abstract fun get(): ArrayList<Playlist>
     abstract fun error(): String
 
@@ -353,7 +354,7 @@ sealed class ServerPlaylistResult(){
     }
 }
 
-sealed class ServerSongsResult(){
+sealed class ServerSongsResult {
     abstract fun get(): ArrayList<Song>
     abstract fun error(): String
 
@@ -376,57 +377,57 @@ object Server {
     private var allArtists: ApollonAsync? = null
 
 
-    fun getArtist(context: Context, id: String): ServerPlaylistResult{
+    fun getArtist(id: String): ServerPlaylistResult{
         if (artists.containsKey(id)) {
             val asyn = artists.get(id)!!
             return ServerPlaylistResult.Ready(asyn)
         } else {
-            val asyn = SingleArtist(context, id)
+            val asyn = SingleArtist(id)
             artists.put(id, asyn)
             return ServerPlaylistResult.Future(asyn)
         }
     }
-    fun getGenre(context: Context, id: String): ServerPlaylistResult{
+    fun getGenre(id: String): ServerPlaylistResult{
         if (genres.containsKey(id)) {
             val asyn = genres.get(id)!!
             return ServerPlaylistResult.Ready(asyn)
         } else {
-            val asyn = SingleArtist(context, id)
+            val asyn = SingleArtist(id)
             genres.put(id, asyn)
             return ServerPlaylistResult.Future(asyn)
         }
     }
 
-    fun getAlbum(context: Context, id: String): ServerSongsResult{
+    fun getAlbum(id: String): ServerSongsResult{
         if (albums.containsKey(id)) {
             val asyn = albums.get(id)!!
             return ServerSongsResult.Ready(asyn)
         } else {
-            val asyn = SingleAlbum(context, id)
+            val asyn = SingleAlbum(id)
             albums.put(id, asyn)
             return ServerSongsResult.Future(asyn)
         }
     }
 
-    fun getAlbums(context: Context): ServerPlaylistResult{
+    fun getAlbums(): ServerPlaylistResult{
         if(allAlbums == null) {
-            allAlbums = AllAlbums(context)
+            allAlbums = AllAlbums()
             return ServerPlaylistResult.Future(allAlbums!!)
         } else {
             return ServerPlaylistResult.Ready(allAlbums!!)
         }
     }
-    fun getArtists(context: Context): ServerPlaylistResult{
+    fun getArtists(): ServerPlaylistResult{
         if(allArtists == null) {
-            allArtists = AllArtists(context)
+            allArtists = AllArtists()
             return ServerPlaylistResult.Future(allArtists!!)
         } else {
             return ServerPlaylistResult.Ready(allArtists!!)
         }
     }
-    fun getGenres(context: Context): ServerPlaylistResult{
+    fun getGenres(): ServerPlaylistResult{
         if(allGenres == null) {
-            allGenres = AllGenres(context)
+            allGenres = AllGenres()
             return ServerPlaylistResult.Future(allGenres!!)
         } else {
             return ServerPlaylistResult.Ready(allGenres!!)

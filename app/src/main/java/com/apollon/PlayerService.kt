@@ -204,7 +204,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                 mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
             mediaPlayer?.reset()
 
-            val s = SingleSong(applicationContext, playlist[songIndex].id)
+            val s = SingleSong(playlist[songIndex].id)
             s.execute()
             while(true) {
                 try {
@@ -215,8 +215,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             val str = s.get()
             try {
                 val uu:String = str.url
-                //mediaPlayer?.setDataSource("https://francescomecca.eu/apollon/file/944436d51e02ff43322dd813211df7945321400b.mp3")
-                val f = FileExists(applicationContext, uu)
+                val f = FileExists(uu)
                 f.execute()
                 while(f.result == false) {} // TODO ANIMATION
 

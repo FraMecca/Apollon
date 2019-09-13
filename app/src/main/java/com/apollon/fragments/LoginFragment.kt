@@ -58,8 +58,9 @@ class LoginFragment : Fragment() {
             val newPort = portField.text.toString().toInt()
             val newServer = serverField.text.toString()
             val newProto = protocolField.selectedItemId.toInt()
-            Credentials.save(newUser, newPass, newServer, newProto, newPort)
-            val l = DoLogin(context!!)
+            Log.e("CREDS", newServer+newPass+newUser)
+            Credentials.save(context!!, newUser, newPass, newServer, newProto, newPort)
+            val l = DoLogin()
             l.execute()
             while (l.done == false){ // TODO animation
                 Log.e("Trying login", l.done.toString())
@@ -72,10 +73,6 @@ class LoginFragment : Fragment() {
             }
         }
         return mView
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
     }
 
 }

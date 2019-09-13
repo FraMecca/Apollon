@@ -64,7 +64,7 @@ class SongsFragment : Fragment() {
     private fun addSongs(playlist: Playlist.Album) {
         val uri = playlist.id
         songs.clear()
-        val req = Server.getAlbum(context!!, uri)
+        val req = Server.getAlbum(uri)
         if (req is ServerSongsResult.Future) {
             req.async.execute()
             while (req.get().size == 0) {

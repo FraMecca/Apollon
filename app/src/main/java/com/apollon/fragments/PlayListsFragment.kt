@@ -93,12 +93,12 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 playlists.add(Playlist.AllGenres())
                 return // break
             }
-            is Playlist.Artist -> Server.getArtist(context!!, playlist.id)
+            is Playlist.Artist -> Server.getArtist(playlist.id)
             is Playlist.Album -> {assert(false); return} // this should have been forwarded to SongsFragments
-            is Playlist.Genre -> Server.getGenre(context!!, playlist.id)
-            is Playlist.AllAlbums -> Server.getAlbums(context!!) // TODO: better naming
-            is Playlist.AllArtists -> Server.getArtists(context!!)
-            is Playlist.AllGenres -> Server.getGenres(context!!)
+            is Playlist.Genre -> Server.getGenre(playlist.id)
+            is Playlist.AllAlbums -> Server.getAlbums()
+            is Playlist.AllArtists -> Server.getArtists()
+            is Playlist.AllGenres -> Server.getGenres()
         }
         if(action is ServerPlaylistResult.Future) {
             action.async.execute()

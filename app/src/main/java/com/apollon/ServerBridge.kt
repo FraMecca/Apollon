@@ -307,6 +307,33 @@ class SingleSong(val uri:String) : AsyncTask<Void, Int, StreamingSong>(){
     }
 }
 
+class GetLyrics(val artist:String, val title:String) : AsyncTask<Void, Int, List<String>>(){
+    var result: List<String>? = null
+    var error: String = ""
+
+    override fun doInBackground(vararg params: Void?): List<String>? {
+        val ret : List<String>
+        Log.e("HTTP", "request: lyrics")
+
+        val resp = makeRequest(hashMapOf("action" to "lyrics", "artist" to artist, "song" to title))
+        when(resp){
+            is RequestResult.Ok -> {
+                val j = resp.result
+                val content = j["lyrics"] as String
+                ret = content.split("\r\n")
+            }
+            is RequestResult.Error -> { error = resp.msg; return null}
+        }
+        Log.e("HTTP", "Finished GetLyrics")
+        if (ret.size != 0){
+            result = ret
+            return ret
+        }
+        else
+            return null
+    }
+}
+
 class FileExists(val uri:String) : AsyncTask<Void, Int, Boolean>(){
     var result : Boolean = false
 
@@ -366,6 +393,11 @@ sealed class ServerSongsResult {
         override fun get(): ArrayList<Song> {return value.result}
         override fun error(): String { return value.error }
     }
+}
+
+ class LyricsResult(val async:GetLyrics){
+    fun get(): List<String>? {return async.result}
+    fun error(): String { return async.error }
 }
 
 object Server {
@@ -432,5 +464,8 @@ object Server {
         } else {
             return ServerPlaylistResult.Ready(allGenres!!)
         }
+    }
+    fun getLyrics(artist:String, title:String): LyricsResult{
+        return LyricsResult(GetLyrics(artist, title))
     }
 }

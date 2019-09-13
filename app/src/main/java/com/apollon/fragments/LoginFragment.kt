@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import com.apollon.DoLogin
 import com.apollon.MainActivity
 import com.apollon.R
+import com.apollon.Server
 import com.apollon.classes.Credentials
 
 
@@ -58,7 +59,6 @@ class LoginFragment : Fragment() {
             val newPort = portField.text.toString().toInt()
             val newServer = serverField.text.toString()
             val newProto = protocolField.selectedItemId.toInt()
-            Log.e("CREDS", newServer+newPass+newUser)
             Credentials.save(context!!, newUser, newPass, newServer, newProto, newPort)
             val l = DoLogin()
             l.execute()
@@ -69,6 +69,12 @@ class LoginFragment : Fragment() {
                 Toast.makeText(context!!, l.msg, Toast.LENGTH_LONG).show()
                 Log.e("Login","Invalid Login")
             } else {
+                /*
+                val s = Server.getLyrics("Nirvana", "Lithium")
+                s.async.execute()
+                while(s.get() == null){}
+                Log.e("TEST-Lyrics", s.get().toString()) // Many lines
+                 */
                 (activity as MainActivity).replaceFragment(PlayListsFragment(), false)
             }
         }

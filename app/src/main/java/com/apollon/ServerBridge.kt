@@ -431,6 +431,7 @@ object Server {
     }
 
     fun getAlbum(id: String): ServerSongsResult{
+        Log.e("album_id", id)
         if (albums.containsKey(id)) {
             val asyn = albums.get(id)!!
             return ServerSongsResult.Ready(asyn)

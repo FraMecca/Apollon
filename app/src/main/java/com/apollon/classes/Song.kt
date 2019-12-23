@@ -3,10 +3,10 @@ package com.apollon.classes
 import android.support.v4.media.MediaMetadataCompat
 import java.io.Serializable
 
-open class Song(val id: String, val title: String, val artist: String, val img_url: String) : Serializable {
+open class Song(val id: String, val title: String, val artist: String, var img_url: String) : Serializable {
 
     constructor(id: String, title: String, artist: String) :
-            this(id, title, artist,"https://cdn3.iconfinder.com/data/icons/66-cds-dvds/512/Icon_60-512.png")
+            this(id, title, artist,"")
 
 
     fun millisToString(millis: Int) : String{

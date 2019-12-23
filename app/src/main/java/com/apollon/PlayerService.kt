@@ -11,6 +11,7 @@ import java.io.IOException
 import kotlin.random.Random
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.icu.util.ULocale
 import android.media.*
@@ -74,6 +75,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     private var songIndex = 0
 
     private var ready = false
+
+    private lateinit var target: com.squareup.picasso.Target
 
     override fun onCreate() {
         super.onCreate()
@@ -150,8 +153,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     override fun onBufferingUpdate(mp: MediaPlayer, percent: Int) {
-        //Invoked indicating buffering status of
-        //a media resource being streamed over the network.
+        Log.e("Buffered", percent.toString())
     }
 
     override fun onCompletion(mp: MediaPlayer) {
@@ -206,26 +208,57 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             val s = SingleSong(playlist[songIndex].id)
             s.execute()
-            while(true) {
+            while (true) {
                 try {
                     s.get(50, TimeUnit.MILLISECONDS)
                     break
-                } catch (e: TimeoutException){}
+                } catch (e: TimeoutException) {
+                }
             }
             val str = s.get()
             try {
-                val uu:String = str.url
+                val uu: String = str.url
                 val f = FileExists(uu)
                 f.execute()
-                while(f.result == false) {} // TODO ANIMATION
+                while (!f.result) {
+                } // TODO ANIMATION
 
 
                 mediaPlayer?.setDataSource(uu)
                 mediaPlayer?.prepareAsync()
-                mediaSession.setMetadata(songToMetaData(str))
+                mediaPlayer?.setOnBufferingUpdateListener(this)
+
+                //MetaData builder with song informations
+                var builder: MediaMetadataCompat.Builder = songToMetaData(str)
+                if (!this::target.isInitialized) {
+                    target = object : com.squareup.picasso.Target {
+                        override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                            Log.e("Picasso", e?.message)
+                        }
+
+                        override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                            builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
+                            mediaSession.setMetadata(builder.build())
+                        }
+
+                        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                            //default bitmap
+                            builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, BitmapFactory.decodeResource(resources, R.drawable.default_song))
+                            mediaSession.setMetadata(builder.build())
+                        }
+                    }
+                }
+
+                //Loads bitmap in MetaData
+                if (playlist[songIndex].img_url.isNotEmpty())
+                    Picasso.get().load(playlist[songIndex].img_url).into(target)
+                else {
+                    builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, BitmapFactory.decodeResource(resources, R.drawable.default_song))
+                    mediaSession.setMetadata(builder.build())
+                }
             } catch (ex: IOException) {
                 Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT)
-                    .show()
+                        .show()
             }
         }
     }
@@ -279,7 +312,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             setSmallIcon(R.drawable.icon)
             setContentTitle(playlist[songIndex].title)
             setContentText(playlist[songIndex].artist)
-           // setLargeIcon(mediaSession.controller.metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
+            setLargeIcon(mediaSession.controller.metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             // Adds transport controls
             addAction(createAction(PREVIOUS_ACTION, R.drawable.back_noti, getString(R.string.previous)))
@@ -310,16 +343,14 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         return NotificationCompat.Action.Builder(drawable, title, pi).build()
     }
 
-    private fun songToMetaData(song: StreamingSong): MediaMetadataCompat {
+    private fun songToMetaData(song: StreamingSong): MediaMetadataCompat.Builder {
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
-        metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.img_url)
         metaDataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration.toLong())
 
         val cursong = playlist[songIndex]
-        val url = cursong.img_url.replace("http://", "https://")
-        Log.e("Picasso", url)
-        Picasso.get().load(url).into(object : com.squareup.picasso.Target {
+        metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, cursong.img_url)
+        /*Picasso.get().load(url).into(object : com.squareup.picasso.Target {
             override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
                 Log.e("Picasso", e?.message)
             }
@@ -331,8 +362,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
 
-        })
-        return metaDataBuilder.build()
+        })*/
+        return metaDataBuilder
     }
 
     inner class LocalBinder : Binder() {
@@ -356,10 +387,11 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         override fun onPause() {
             super.onPause()
+            Log.e("Caricato", mediaPlayer?.duration.toString())
             if (mediaPlayer?.isPlaying == true) {
                 mediaPlayer?.pause()
                 mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, getCurrentPosition().toLong(), 0F).build())
-                handler.postDelayed({mediaController.transportControls.stop(); Log.e("PAUSE", "stopped")}, 30000)
+                handler.postDelayed({ mediaController.transportControls.stop(); Log.e("PAUSE", "stopped") }, 30000)
             }
         }
 
@@ -457,9 +489,9 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    inner class FocusChangeListener : AudioManager.OnAudioFocusChangeListener{
+    inner class FocusChangeListener : AudioManager.OnAudioFocusChangeListener {
         override fun onAudioFocusChange(focusChange: Int) {
-            when(focusChange){
+            when (focusChange) {
                 AudioManager.AUDIOFOCUS_LOSS -> mediaController.transportControls.pause()
 
                 AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> mediaController.transportControls.pause()

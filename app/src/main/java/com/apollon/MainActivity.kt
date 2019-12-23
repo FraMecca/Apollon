@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
             R.id.button_play ->
                 if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PAUSED)
                     mediaController.transportControls.play()
-                else if(mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
+                else if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
                     mediaController.transportControls.pause()
 
             R.id.button_previous ->
@@ -124,9 +124,9 @@ class MainActivity : AppCompatActivity(), OnClickListener {
                 //setIsPlaying(false)
             } else {    //New or same currentSong
 
-                    title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
-                    artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
-                    Picasso.get().load(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)).into(albumArt)
+                title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
+                artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
+                albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
             }
 
         }

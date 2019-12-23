@@ -36,6 +36,7 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
         val playlist = filteredPlaylists[position]
         holder.title.text = playlist.title
 
+        //Da prendere da res (DA MODIFICARE)
         //Thumbnail download
         Picasso.get().load(playlist.img_url).into(holder.thumbnail)
 

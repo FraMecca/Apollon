@@ -238,7 +238,8 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
                 songDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
                 duration.text = millisToString(songDuration)
-                Picasso.get().load(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)).into(albumArt)
+                //Picasso.get().load(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)).into(albumArt)
+                albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
             }
 
             if((activity as MainActivity).mediaController.playbackState?.state == PlaybackStateCompat.STATE_PLAYING){

@@ -1,6 +1,7 @@
 package com.apollon.adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,7 @@ import com.apollon.fragments.PlayerFragment
 import com.squareup.picasso.Picasso
 import java.util.*
 
-class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerView.Adapter<SongViewHolder>(), Filterable {
+class SongAdapter(val songs: ArrayList<Song>, val context: Context) : RecyclerView.Adapter<SongViewHolder>(), Filterable {
 
     private val filter = SongtFilter()
     private var filteredSongs = songs
@@ -35,26 +36,27 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
         holder.artist.text = song.artist
 
         //Thumbnail download
-        Picasso.get().load(song.img_url).into(holder.thumbnail)
+        if (song.img_url.isNotEmpty())
+            Picasso.get().load(song.img_url).into(holder.thumbnail)
 
         //Menu listener
-        holder.menu.setOnClickListener{showPopUpMenu(it, song)}
+        holder.menu.setOnClickListener { showPopUpMenu(it, song) }
 
         //CardView listener
-        holder.itemView.setOnClickListener{
+        holder.itemView.setOnClickListener {
             (context as MainActivity).replaceFragment(PlayerFragment())
             context.player.initMedia(songs, position)
         }
     }
 
-    private fun showPopUpMenu(view : View, song : Song){
+    private fun showPopUpMenu(view: View, song: Song) {
         val popupMenu = PopupMenu(context, view)
         val inflater = popupMenu.menuInflater
         inflater.inflate(R.menu.song_menu, popupMenu.menu)
         popupMenu.show()
 
         popupMenu.setOnMenuItemClickListener {
-            when(it.itemId) {
+            when (it.itemId) {
                 R.id.action_add_favourite -> {
                     Toast.makeText(context, "Song ${song.id} added to favourites", Toast.LENGTH_SHORT).show()
                 }
@@ -94,7 +96,7 @@ class SongAdapter(val songs : ArrayList<Song>, val context: Context) : RecyclerV
     }
 }
 
-class SongViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+class SongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val title = view.findViewById(R.id.title) as TextView
     val artist = view.findViewById(R.id.artist) as TextView
     val thumbnail = view.findViewById(R.id.thumbnail) as ImageView

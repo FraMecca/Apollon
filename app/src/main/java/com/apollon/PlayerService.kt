@@ -299,11 +299,9 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         return mediaSession.controller
     }
 
-    /*
     fun echoCurrentSong() {
-        mediaSession.setMetadata(songToMetaData(playlist[songIndex]))
+        mediaSession.setMetadata(mediaController.metadata)
     }
-   */
 
     private fun sendNotification() {
 

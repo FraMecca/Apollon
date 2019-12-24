@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
             R.id.mini_player -> {
                 replaceFragment(PlayerFragment())
-                //player.echoCurrentSong()
+                player.echoCurrentSong()
             }
         }
     }
@@ -118,16 +118,13 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            super.onMetadataChanged(metadata)
+                super.onMetadataChanged(metadata)
 
-            if (metadata == null) {   //No songs to play
-                //setIsPlaying(false)
-            } else {    //New or same currentSong
-
-                title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
-                artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
-                albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
-            }
+                if (metadata != null) {   //No songs to play
+                    title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
+                    artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
+                    albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
+                }
 
         }
     }

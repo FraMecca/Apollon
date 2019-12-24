@@ -2,11 +2,11 @@ package com.apollon.adapters
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.apollon.MainActivity
 import com.apollon.classes.Playlist
@@ -37,11 +37,15 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
         holder.title.text = playlist.title
 
         //Da prendere da res (DA MODIFICARE)
-        //Thumbnail download
-        Picasso.get().load(playlist.img_url).into(holder.thumbnail)
+        when (playlist.img_url) {
+            "artist" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.artist))
+            "album" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.album))
+            "genre" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.genre))
+            else -> Picasso.get().load(playlist.img_url).into(holder.thumbnail)
+        }
 
         //CardView listener
-        val target = when(playlist){
+        val target = when (playlist) {
             is Playlist.Album -> SongsFragment.newInstance(playlist)
             else -> PlayListsFragment.newInstance(playlist)
         }
@@ -100,10 +104,10 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
             val res = FilterResults()
             if (s.isNullOrEmpty())
                 res.values = playlists
-            else{
+            else {
                 val resList = ArrayList<Playlist>()
                 playlists.forEach {
-                    if(it.title.toLowerCase().contains(s.toString().toLowerCase()))
+                    if (it.title.toLowerCase().contains(s.toString().toLowerCase()))
                         resList.add(it)
                 }
                 res.values = resList

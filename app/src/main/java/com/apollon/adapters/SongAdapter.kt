@@ -16,7 +16,7 @@ import java.util.*
 
 class SongAdapter(val songs: ArrayList<Song>, val context: Context) : RecyclerView.Adapter<SongViewHolder>(), Filterable {
 
-    private val filter = SongtFilter()
+    private val filter = SongFilter()
     private var filteredSongs = songs
 
     // Gets the number of songs in the list
@@ -72,7 +72,7 @@ class SongAdapter(val songs: ArrayList<Song>, val context: Context) : RecyclerVi
         return filter
     }
 
-    inner class SongtFilter : Filter() {
+    inner class SongFilter : Filter() {
         override fun performFiltering(s: CharSequence?): FilterResults {
             val res = FilterResults()
             if (s.isNullOrEmpty())

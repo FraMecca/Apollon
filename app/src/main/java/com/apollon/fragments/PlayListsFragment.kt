@@ -1,6 +1,7 @@
 package com.apollon.fragments
 
 import android.app.AlertDialog
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,18 +17,20 @@ import android.widget.EditText
 import android.widget.SearchView
 import android.widget.Toast
 import com.apollon.*
+import pl.droidsonroids.gif.GifImageView
 
 
 class PlayListsFragment : Fragment(), View.OnClickListener {
 
     private val playlists: ArrayList<Playlist> = ArrayList()
-
+    lateinit var loading: GifImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val mView = inflater.inflate(R.layout.playlists, container, false)
         val search = mView.findViewById<SearchView>(R.id.search)
         val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
+        loading = mView.findViewById(R.id.loading)
 
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String?): Boolean {
@@ -103,13 +106,18 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
         if(action is ServerPlaylistResult.Future) {
             action.async.execute()
             Log.e("Playlist", "server.execute")
+            //Loading gif starts
+            //loading.visibility = View.VISIBLE
+
             while(action.get().size == 0){
-                // Log.e("Playlist", "Waiting") TODO: animation
                 if(action.error() != "") {
                     Toast.makeText(context, action.error(), Toast.LENGTH_LONG).show()
+                    loading.visibility = View.GONE
                     return
                 }
             }
+            //Loading gif ends
+            //loading.visibility = View.GONE
         }
 
         action.get().forEach {

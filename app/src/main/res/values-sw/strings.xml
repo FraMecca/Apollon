@@ -31,4 +31,9 @@
     <string name="play">KUCHEZA</string>
     <string name="next">IJAYO</string>
     <string name="search">Tafuta</string>
+    <string name="close">karibu</string>
+    <string name="Albums">Albamu</string>
+    <string name="Artists">Wasanii</string>
+    <string name="Favourites">Vipendwa</string>
+    <string name="Genres">Aina</string>
 </resources>

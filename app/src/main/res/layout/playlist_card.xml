@@ -55,7 +55,9 @@
                     android:paddingHorizontal="@dimen/card_title_padding"
                     android:layout_weight="1"
                     android:gravity="left"
-                    android:textSize="@dimen/playlist_title"/>
+                    android:textSize="@dimen/playlist_title"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"/>
 
                 <TextView
                     android:id="@+id/songs_number"
@@ -65,7 +67,8 @@
                     android:layout_weight="1"
                     android:paddingHorizontal="@dimen/card_title_padding"
                     android:text="15 tracce"
-                    android:textSize="@dimen/songs_number"/>
+                    android:textSize="@dimen/songs_number"
+                    android:singleLine="true"/>
             </LinearLayout>
 
         </RelativeLayout>

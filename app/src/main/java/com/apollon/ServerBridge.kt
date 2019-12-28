@@ -450,6 +450,7 @@ object Server {
             return ServerPlaylistResult.Ready(allAlbums!!)
         }
     }
+
     fun getArtists(): ServerPlaylistResult{
         if(allArtists == null) {
             allArtists = AllArtists()
@@ -458,6 +459,7 @@ object Server {
             return ServerPlaylistResult.Ready(allArtists!!)
         }
     }
+
     fun getGenres(): ServerPlaylistResult{
         if(allGenres == null) {
             allGenres = AllGenres()
@@ -466,6 +468,7 @@ object Server {
             return ServerPlaylistResult.Ready(allGenres!!)
         }
     }
+
     fun getLyrics(artist:String, title:String): LyricsResult{
         return LyricsResult(GetLyrics(artist, title))
     }

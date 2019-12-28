@@ -44,4 +44,5 @@
     <dimen name="mini_player_text_width">130dp</dimen>
     <dimen name="mini_player_text_margin">8dp</dimen>
     <dimen name="edit_margin">20dp</dimen>
+    <dimen name="layout_top_margin">20dp</dimen>
 </resources>

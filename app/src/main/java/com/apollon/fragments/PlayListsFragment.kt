@@ -94,6 +94,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 playlists.add(Playlist.AllArtists())
                 playlists.add(Playlist.AllAlbums())
                 playlists.add(Playlist.AllGenres())
+                playlists.add(Playlist.Favourites())
                 return // break
             }
             is Playlist.Artist -> Server.getArtist(playlist.id)
@@ -102,6 +103,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
             is Playlist.AllAlbums -> Server.getAlbums()
             is Playlist.AllArtists -> Server.getArtists()
             is Playlist.AllGenres -> Server.getGenres()
+            is Playlist.Favourites -> {assert(false); return}
         }
         if(action is ServerPlaylistResult.Future) {
             action.async.execute()

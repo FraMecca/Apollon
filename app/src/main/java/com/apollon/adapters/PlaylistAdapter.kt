@@ -34,13 +34,23 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
     // Binds each playlist in the ArrayList to a view
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         val playlist = filteredPlaylists[position]
-        holder.title.text = playlist.title
 
-        //Da prendere da res (DA MODIFICARE)
+        //sets the correct title
+        when(playlist){
+            is Playlist.AllArtists -> holder.title.text = context.getString(R.string.Artists)
+            is Playlist.AllAlbums -> holder.title.text = context.getString(R.string.Albums)
+            is Playlist.AllGenres -> holder.title.text = context.getString(R.string.Genres)
+            is Playlist.Favourites -> holder.title.text = context.getString(R.string.Favourites)
+            else -> {holder.title.text = playlist.title
+                holder.title.isSelected = true}
+        }
+
+        //Loads in the correct image
         when (playlist.img_url) {
             "artist" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.artist))
             "album" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.album))
             "genre" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.genre))
+            "favourites" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.favourites))
             else -> Picasso.get().load(playlist.img_url).into(holder.thumbnail)
         }
 

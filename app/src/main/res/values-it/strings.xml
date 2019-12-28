@@ -31,4 +31,9 @@
     <string name="previous">PRECEDENTE</string>
     <string name="play">RIPRODUCI</string>
     <string name="search">Cerca</string>
+    <string name="close">chiudi</string>
+    <string name="Albums">Album</string>
+    <string name="Artists">Artisti</string>
+    <string name="Favourites">Preferiti</string>
+    <string name="Genres">Generi</string>
 </resources>

@@ -16,7 +16,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:singleLine="true"
+            android:ellipsize="marquee"/>
 
         <TextView
             android:id="@+id/song_artist"
@@ -24,7 +26,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/player_artist_margin_bottom"
             android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:singleLine="true"
+            android:ellipsize="marquee"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -48,13 +52,24 @@
                 app:layout_constraintRight_toRightOf="parent" />
 
             <Button
+                android:id="@+id/button_lyrics"
+                android:layout_width="@dimen/player_control_dimension"
+                android:layout_height="@dimen/player_control_dimension"
+                android:layout_margin="@dimen/floating_button_player_margin"
+                android:layout_marginTop="32dp"
+                android:background="@drawable/lyrics_button_selector"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/button_favourite" />
+
+            <Button
                 android:id="@+id/button_share"
                 android:layout_width="@dimen/player_control_dimension"
                 android:layout_height="@dimen/player_control_dimension"
-                android:background="@drawable/share_button_selector"
                 android:layout_margin="@dimen/floating_button_player_margin"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent" />
+                android:background="@drawable/share_button_selector"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/button_lyrics" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

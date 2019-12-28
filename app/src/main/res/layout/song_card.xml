@@ -31,7 +31,9 @@
                 android:layout_below="@id/thumbnail"
                 android:paddingHorizontal="@dimen/card_title_padding"
                 android:paddingTop="@dimen/card_title_padding"
-                android:textSize="@dimen/song_title"/>
+                android:textSize="@dimen/song_title"
+                android:singleLine="true"
+                android:ellipsize="marquee"/>
 
             <TextView
                 android:id="@+id/artist"
@@ -40,7 +42,9 @@
                 android:layout_below="@id/title"
                 android:paddingBottom="@dimen/song_artist_padding_bottom"
                 android:paddingHorizontal="@dimen/card_title_padding"
-                android:textSize="@dimen/song_artist"/>
+                android:textSize="@dimen/song_artist"
+                android:singleLine="true"
+                android:ellipsize="marquee"/>
 
             <ImageView
                 android:id="@+id/menu"

@@ -1,6 +1,8 @@
 package com.apollon.fragments
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -8,11 +10,14 @@ import android.os.Handler
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import com.apollon.GetLyrics
 import com.apollon.MainActivity
 import com.apollon.R
+import com.apollon.Server
 import com.squareup.picasso.Picasso
 import kotlin.math.abs
 
@@ -34,6 +39,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     lateinit var gestureDetector: GestureDetector
     var songDuration = 0
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
@@ -44,9 +50,11 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         //Initialize gesture detection
         gestureDetector = GestureDetector((activity as MainActivity).applicationContext, GListener())
 
-        var mView = inflater.inflate(R.layout.player, container, false)
+        val mView = inflater.inflate(R.layout.player, container, false)
         title = mView.findViewById(R.id.song_title)
         artist = mView.findViewById(R.id.song_artist)
+        title.isSelected = true
+        artist.isSelected = true
         albumArt = mView.findViewById(R.id.album_art)
         seekBar = mView.findViewById(R.id.seekbar_audio)
         currentTime = mView.findViewById(R.id.current_position)
@@ -59,13 +67,15 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         mView.findViewById<Button>(R.id.button_previous).setOnClickListener(activity as MainActivity)
         mView.findViewById<Button>(R.id.button_next).setOnClickListener(activity as MainActivity)
         mView.findViewById<Button>(R.id.button_share).setOnClickListener(this)
+        mView.findViewById<Button>(R.id.button_lyrics).setOnClickListener(this)
 
         playButton.setOnClickListener(activity as MainActivity)
         loopButton.setOnClickListener(this)
         randomButton.setOnClickListener(this)
         seekBar.setOnSeekBarChangeListener(this)
         favouriteButton.setOnClickListener(this)
-        albumArt.setOnTouchListener(object: View.OnTouchListener{
+
+        albumArt.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, e: MotionEvent?): Boolean {
                 return gestureDetector.onTouchEvent(e)
             }
@@ -86,9 +96,9 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         super.onDestroyView()
     }
 
-    private fun millisToString(millis: Int) : String{
-        val seconds = millis/1000
-        return "" + seconds/60 + ":" + String.format("%02d", seconds%60) // 2 digits precision - 0 for padding
+    private fun millisToString(millis: Int): String {
+        val seconds = millis / 1000
+        return "" + seconds / 60 + ":" + String.format("%02d", seconds % 60) // 2 digits precision - 0 for padding
     }
 
     override fun onProgressChanged(seekbar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -156,35 +166,20 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 }
                 startActivity(sendIntent)
             }
+
+            R.id.button_lyrics -> {
+                //creates alert
+                AlertDialog.Builder(context, R.style.AlertStyle)
+                        .setTitle(title.text)
+                        .setMessage(Server.getLyrics(artist.text.toString(), title.text.toString()).get()?.joinToString(separator = "\n"))
+                        .setNegativeButton(context?.getString(R.string.close)) { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .create()
+                        .show()
+            }
         }
     }
-
-    /*
-    //Handles newSong event posted on bus by PlayerService
-    @Subscribe
-    fun answerAvailable(event: NewSongEvent) {
-        if (event.song == null) {   //No songs to play
-            playButton.setBackgroundResource(R.drawable.play_button_selector)
-            seekBarHandler.removeCallbacksAndMessages(null)
-        } else {    //New or same currentSong
-            title.text = (activity as MainActivity).currentSong.title
-            artist.text = (activity as MainActivity).currentSong.artist
-            duration.text = (activity as MainActivity).currentSong.millisToString((activity as MainActivity).currentSong.duration)
-            Picasso.get().load((activity as MainActivity).currentSong.img_url).into(albumArt)
-        }
-
-        //Starts currentSong if it was paused
-        /*if ((activity as MainActivity).) {
-            playButton.setBackgroundResource(R.drawable.pause_button_selector)
-            startSeekBarHandler()
-        } else {
-            playButton.setBackgroundResource(R.drawable.play_button_selector)
-            updateSeekBar()
-        }*/
-
-        //Updates loop button and variables
-
-    }*/
 
     inner class Callback : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -205,7 +200,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         @SuppressLint("SwitchIntDef")
         override fun onShuffleModeChanged(shuffleMode: Int) {
             super.onShuffleModeChanged(shuffleMode)
-            when(shuffleMode){
+            when (shuffleMode) {
                 PlaybackStateCompat.SHUFFLE_MODE_ALL -> randomButton.setBackgroundResource(R.drawable.shuffle_button_selector)
 
                 PlaybackStateCompat.SHUFFLE_MODE_NONE -> randomButton.setBackgroundResource(R.drawable.shuffle_not_button_selector)
@@ -215,7 +210,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         @SuppressLint("SwitchIntDef")
         override fun onRepeatModeChanged(repeatMode: Int) {
             super.onRepeatModeChanged(repeatMode)
-            when(repeatMode){
+            when (repeatMode) {
                 PlaybackStateCompat.REPEAT_MODE_ALL -> loopButton.setBackgroundResource(R.drawable.repeat_all_button_selector)
 
                 PlaybackStateCompat.REPEAT_MODE_ONE -> loopButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
@@ -226,8 +221,8 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
         override fun onSessionEvent(event: String?, extras: Bundle?) {
             super.onSessionEvent(event, extras)
-            if(event == "PositionChanged" && (activity as MainActivity).mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
-                    startSeekBarHandler()
+            if (event == "PositionChanged" && (activity as MainActivity).mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
+                startSeekBarHandler()
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
@@ -242,17 +237,16 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
             }
 
-            if((activity as MainActivity).mediaController.playbackState?.state == PlaybackStateCompat.STATE_PLAYING){
+            if ((activity as MainActivity).mediaController.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {
                 playButton.setBackgroundResource(R.drawable.pause_button_selector)
                 startSeekBarHandler()
-            }
-            else{
+            } else {
                 playButton.setBackgroundResource(R.drawable.play_button_selector)
                 updateSeekBar()
             }
 
             //Updates loop button
-            when((activity as MainActivity).mediaController.repeatMode) {
+            when ((activity as MainActivity).mediaController.repeatMode) {
                 PlaybackStateCompat.REPEAT_MODE_ONE -> {
                     loopButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
                 }
@@ -273,36 +267,42 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         }
     }
 
-    inner class GListener : GestureDetector.SimpleOnGestureListener(){
+    inner class GListener : GestureDetector.SimpleOnGestureListener() {
         private val SWIPE_MAX_OFF_PATH = 250 //How much you can derail from a straight line when swiping
         private val SWIPE_MIN_DISTANCE = 120 //How long must the swipe be
         private val SWIPE_MIN_VELOCITY = 120 //How quick must the swipe be
 
         override fun onShowPress(p0: MotionEvent?) {}
 
-        override fun onSingleTapUp(p0: MotionEvent?): Boolean {return true}
+        override fun onSingleTapUp(p0: MotionEvent?): Boolean {
+            return true
+        }
 
-        override fun onDown(p0: MotionEvent?): Boolean {return true}
+        override fun onDown(p0: MotionEvent?): Boolean {
+            return true
+        }
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velX: Float, velY: Float): Boolean {
             //Check if user made a swipe-like motion
-            if(abs(e1!!.y - e2!!.y) <= SWIPE_MAX_OFF_PATH && abs(velX) > SWIPE_MIN_VELOCITY && abs(e1.x - e2.x) >= SWIPE_MIN_DISTANCE){
+            if (abs(e1!!.y - e2!!.y) <= SWIPE_MAX_OFF_PATH && abs(velX) > SWIPE_MIN_VELOCITY && abs(e1.x - e2.x) >= SWIPE_MIN_DISTANCE) {
                 //Right to left swipe
-                if(e1.x >= e2.x) {
-                    (activity as  MainActivity).mediaController.transportControls.skipToNext()
+                if (e1.x >= e2.x) {
+                    (activity as MainActivity).mediaController.transportControls.skipToNext()
                 }
                 //Left to right swipe
-                else{
-                    (activity as  MainActivity).mediaController.transportControls.skipToPrevious()
+                else {
+                    (activity as MainActivity).mediaController.transportControls.skipToPrevious()
                 }
                 return true
             }
             return false
         }
 
-        override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {return true}
+        override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
+            return true
+        }
 
-        override fun onLongPress(p0: MotionEvent?){}
+        override fun onLongPress(p0: MotionEvent?) {}
 
         override fun onDoubleTap(e: MotionEvent?): Boolean {
             Toast.makeText(context, "${title.text} added to fav", Toast.LENGTH_SHORT).show()

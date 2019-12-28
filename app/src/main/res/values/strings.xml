@@ -31,4 +31,9 @@
     <string name="play">PLAY</string>
     <string name="next">NEXT</string>
     <string name="search">Search</string>
+    <string name="close">close</string>
+    <string name="Albums">Albums</string>
+    <string name="Genres">Genres</string>
+    <string name="Artists">Artists</string>
+    <string name="Favourites">Favourites</string>
 </resources>

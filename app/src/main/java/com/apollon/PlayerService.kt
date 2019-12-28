@@ -348,19 +348,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         val cursong = playlist[songIndex]
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, cursong.img_url)
-        /*Picasso.get().load(url).into(object : com.squareup.picasso.Target {
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                Log.e("Picasso", e?.message)
-            }
-
-            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                // loaded bitmap is here (bitmap)
-                metaDataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
-            }
-
-            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-
-        })*/
         return metaDataBuilder
     }
 

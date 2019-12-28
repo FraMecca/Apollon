@@ -34,6 +34,8 @@ class SongAdapter(val songs: ArrayList<Song>, val context: Context) : RecyclerVi
         val song = filteredSongs[position]
         holder.title.text = song.title
         holder.artist.text = song.artist
+        holder.title.isSelected = true
+        holder.artist.isSelected = true
 
         //Thumbnail download
         if (song.img_url.isNotEmpty())

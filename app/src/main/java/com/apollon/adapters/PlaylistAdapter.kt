@@ -36,13 +36,16 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
         val playlist = filteredPlaylists[position]
 
         //sets the correct title
-        when(playlist){
-            is Playlist.AllArtists -> holder.title.text = context.getString(R.string.Artists)
-            is Playlist.AllAlbums -> holder.title.text = context.getString(R.string.Albums)
-            is Playlist.AllGenres -> holder.title.text = context.getString(R.string.Genres)
+        when (playlist) {
+            is Playlist.AllArtists -> holder.title.text = context.getString(R.string.artists)
+            is Playlist.AllAlbums -> holder.title.text = context.getString(R.string.albums)
+            is Playlist.AllGenres -> holder.title.text = context.getString(R.string.genres)
             is Playlist.Favourites -> holder.title.text = context.getString(R.string.Favourites)
-            else -> {holder.title.text = playlist.title
-                holder.title.isSelected = true}
+            else -> {
+                holder.title.text = playlist.title
+                holder.title.isSelected = true
+                holder.elements.text = String.format(context.getString(R.string.elements), playlist.elements)
+            }
         }
 
         //Loads in the correct image
@@ -135,4 +138,5 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
 class PlaylistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val title = view.findViewById(R.id.title) as TextView
     val thumbnail = view.findViewById(R.id.thumbnail) as ImageView
+    val elements = view.findViewById(R.id.elements) as TextView
 }

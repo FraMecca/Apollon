@@ -32,8 +32,9 @@
     <string name="play">RIPRODUCI</string>
     <string name="search">Cerca</string>
     <string name="close">chiudi</string>
-    <string name="Albums">Album</string>
-    <string name="Artists">Artisti</string>
+    <string name="albums">Album</string>
+    <string name="artists">Artisti</string>
     <string name="Favourites">Preferiti</string>
-    <string name="Genres">Generi</string>
+    <string name="genres">Generi</string>
+    <string name="elements">%1$d elementi</string>
 </resources>

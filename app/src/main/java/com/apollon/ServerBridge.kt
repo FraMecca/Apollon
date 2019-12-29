@@ -115,11 +115,12 @@ private class AllArtists : ApollonAsync(){
 
                 for (i in 0 .. values.length()-1){
                     val artist : JSONObject = values[i] as JSONObject
+
                     // TODO : uri, title + artist
                     if((artist["img"] as String) != "")
-                        ret.add(Playlist.Artist(artist["name"] as String, artist["name"] as String, artist["img"] as String))
+                        ret.add(Playlist.Artist(artist["name"] as String, artist["name"] as String, artist["img"] as String, artist["#albums"] as Int))
                     else
-                        ret.add(Playlist.Artist(artist["name"] as String, artist["name"] as String))
+                        ret.add(Playlist.Artist(artist["name"] as String, artist["name"] as String, artist["#albums"] as Int))
                 }
             }
             is RequestResult.Error -> { error = resp.msg; return null}
@@ -165,6 +166,7 @@ private class AllGenres : ApollonAsync(){
             return null
     }
 }
+/*
 private class SingleGenre(val name:String) : ApollonAsync(){
 
     override fun doInBackground(vararg params: Void?): ArrayList<Playlist.Artist>? {
@@ -198,7 +200,7 @@ private class SingleGenre(val name:String) : ApollonAsync(){
             return null
     }
 }
-
+*/
 
 class SingleAlbum(val uri:String) : AsyncTask<Void, Int, List<Song>>(){
     var result = ArrayList<Song>()
@@ -251,12 +253,12 @@ private class SingleArtist(val name:String) : ApollonAsync(){
                 val j = resp.result
                 val albums = (j["artist"] as JSONObject)["albums"] as JSONArray
                 //val artist = (j["artist"] as JSONObject)["name"] as String
-                val img = (j["artist"] as JSONObject)["img"] as String
+                //val img = (j["artist"] as JSONObject)["img"] as String
 
                 for (i in 0 .. albums.length()-1){
                     val jalbum = albums[i] as JSONObject
-                    val title : String  = jalbum["title"] as String
-
+                    val title = jalbum["title"] as String
+                    val img = jalbum["img"] as String
                     val uri = jalbum["uri"] as String
                     if (img == "")
                         ret.add(Playlist.Album(uri, title))
@@ -319,18 +321,19 @@ class GetLyrics(val artist:String, val title:String) : AsyncTask<Void, Int, List
         when(resp){
             is RequestResult.Ok -> {
                 val j = resp.result
+                Log.e("JSON", j.toString())
                 val content = j["lyrics"] as String
                 ret = content.split("\r\n")
             }
-            is RequestResult.Error -> { error = resp.msg; return null}
+            is RequestResult.Error -> { error = resp.msg; Log.e("JSON", resp.msg);return null}
         }
         Log.e("HTTP", "Finished GetLyrics")
-        if (ret.size != 0){
+        return if (ret.size != 0){
             result = ret
-            return ret
+            ret
         }
         else
-            return null
+            null
     }
 }
 
@@ -432,40 +435,40 @@ object Server {
 
     fun getAlbum(id: String): ServerSongsResult{
         Log.e("album_id", id)
-        if (albums.containsKey(id)) {
+        return if (albums.containsKey(id)) {
             val asyn = albums.get(id)!!
-            return ServerSongsResult.Ready(asyn)
+            ServerSongsResult.Ready(asyn)
         } else {
             val asyn = SingleAlbum(id)
             albums.put(id, asyn)
-            return ServerSongsResult.Future(asyn)
+            ServerSongsResult.Future(asyn)
         }
     }
 
     fun getAlbums(): ServerPlaylistResult{
-        if(allAlbums == null) {
+        return if(allAlbums == null) {
             allAlbums = AllAlbums()
-            return ServerPlaylistResult.Future(allAlbums!!)
+            ServerPlaylistResult.Future(allAlbums!!)
         } else {
-            return ServerPlaylistResult.Ready(allAlbums!!)
+            ServerPlaylistResult.Ready(allAlbums!!)
         }
     }
 
     fun getArtists(): ServerPlaylistResult{
-        if(allArtists == null) {
+        return if(allArtists == null) {
             allArtists = AllArtists()
-            return ServerPlaylistResult.Future(allArtists!!)
+            ServerPlaylistResult.Future(allArtists!!)
         } else {
-            return ServerPlaylistResult.Ready(allArtists!!)
+            ServerPlaylistResult.Ready(allArtists!!)
         }
     }
 
     fun getGenres(): ServerPlaylistResult{
-        if(allGenres == null) {
+        return if(allGenres == null) {
             allGenres = AllGenres()
-            return ServerPlaylistResult.Future(allGenres!!)
+            ServerPlaylistResult.Future(allGenres!!)
         } else {
-            return ServerPlaylistResult.Ready(allGenres!!)
+            ServerPlaylistResult.Ready(allGenres!!)
         }
     }
 

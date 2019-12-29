@@ -32,8 +32,9 @@
     <string name="next">NEXT</string>
     <string name="search">Search</string>
     <string name="close">close</string>
-    <string name="Albums">Albums</string>
-    <string name="Genres">Genres</string>
-    <string name="Artists">Artists</string>
+    <string name="albums">Albums</string>
+    <string name="genres">Genres</string>
+    <string name="artists">Artists</string>
     <string name="Favourites">Favourites</string>
+    <string name="elements">%1$d elements</string>
 </resources>

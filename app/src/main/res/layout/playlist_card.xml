@@ -60,13 +60,13 @@
                     android:ellipsize="marquee"/>
 
                 <TextView
-                    android:id="@+id/songs_number"
+                    android:id="@+id/elements"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:gravity="right"
                     android:layout_weight="1"
                     android:paddingHorizontal="@dimen/card_title_padding"
-                    android:text="15 tracce"
+                    android:text=""
                     android:textSize="@dimen/songs_number"
                     android:singleLine="true"/>
             </LinearLayout>

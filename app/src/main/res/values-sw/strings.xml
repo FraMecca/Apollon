@@ -32,8 +32,9 @@
     <string name="next">IJAYO</string>
     <string name="search">Tafuta</string>
     <string name="close">karibu</string>
-    <string name="Albums">Albamu</string>
-    <string name="Artists">Wasanii</string>
+    <string name="albums">Albamu</string>
+    <string name="artists">Wasanii</string>
     <string name="Favourites">Vipendwa</string>
-    <string name="Genres">Aina</string>
+    <string name="genres">Aina</string>
+    <string name="elements">%1$d mambo</string>
 </resources>

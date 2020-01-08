@@ -309,34 +309,6 @@ class SingleSong(val uri:String) : AsyncTask<Void, Int, StreamingSong>(){
     }
 }
 
-class GetLyrics(val artist:String, val title:String) : AsyncTask<Void, Int, List<String>>(){
-    var result: List<String>? = null
-    var error: String = ""
-
-    override fun doInBackground(vararg params: Void?): List<String>? {
-        val ret : List<String>
-        Log.e("HTTP", "request: lyrics")
-
-        val resp = makeRequest(hashMapOf("action" to "lyrics", "artist" to artist, "song" to title))
-        when(resp){
-            is RequestResult.Ok -> {
-                val j = resp.result
-                Log.e("JSON", j.toString())
-                val content = j["lyrics"] as String
-                ret = content.split("\r\n")
-            }
-            is RequestResult.Error -> { error = resp.msg; Log.e("JSON", resp.msg);return null}
-        }
-        Log.e("HTTP", "Finished GetLyrics")
-        return if (ret.size != 0){
-            result = ret
-            ret
-        }
-        else
-            null
-    }
-}
-
 class FileExists(val uri:String) : AsyncTask<Void, Int, Boolean>(){
     var result : Boolean = false
 
@@ -473,6 +445,37 @@ object Server {
     }
 
     fun getLyrics(artist:String, title:String): LyricsResult{
-        return LyricsResult(GetLyrics(artist, title))
+        val gl = GetLyrics(artist, title)
+        gl.execute()
+        return LyricsResult(gl)
     }
 }
+
+class GetLyrics(val artist:String, val title:String) : AsyncTask<Void, Int, List<String>>(){
+    var result: List<String>? = null
+    var error: String = ""
+
+    override fun doInBackground(vararg params: Void?): List<String>? {
+        val ret : List<String>
+        Log.e("HTTP", "request: lyrics")
+
+        val resp = makeRequest(hashMapOf("action" to "lyrics", "artist" to artist, "song" to title))
+        when(resp){
+            is RequestResult.Ok -> {
+                val j = resp.result
+                Log.e("JSON", j.toString())
+                val content = j["lyrics"] as String
+                ret = content.split("\r\n")
+            }
+            is RequestResult.Error -> { error = resp.msg; Log.e("JSON", resp.msg);return null}
+        }
+        Log.e("HTTP", "Finished GetLyrics")
+        return if (ret.size != 0){
+            result = ret
+            ret
+        }
+        else
+            null
+    }
+}
+

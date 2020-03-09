@@ -171,10 +171,12 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 //creates alert
                 val lyr = Server.getLyrics(artist.text.toString(), title.text.toString())
                 while(lyr.get() == null) {}
-                val st = lyr.get()
+                var st = lyr.get()?.joinToString(separator = "\n")
+                if(st == "")
+                    st = resources.getString(R.string.lyrics)
                 AlertDialog.Builder(context, R.style.AlertStyle)
                         .setTitle(title.text)
-                        .setMessage(st!!.joinToString(separator = "\n"))
+                        .setMessage(st)
                         .setNegativeButton(context?.getString(R.string.close)) { dialog, _ ->
                             dialog.dismiss()
                         }

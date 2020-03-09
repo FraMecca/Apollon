@@ -37,4 +37,5 @@
     <string name="Favourites">Favoris</string>
     <string name="genres">Genres</string>
     <string name="elements">%1$d éléments</string>
+    <string name="lyrics">Paroles non disponibles</string>
 </resources>

@@ -260,7 +260,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                 Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT)
                         .show()
             }
-        }
+        } else
+            echoCurrentSong()
     }
 
 

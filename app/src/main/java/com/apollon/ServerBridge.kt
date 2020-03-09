@@ -81,10 +81,11 @@ private class AllAlbums : ApollonAsync(){
                 for (i in 0 .. values.length()-1){
                     val album : JSONObject = values[i] as JSONObject
                     // TODO : uri, title + artist
+                    Log.e("ALBUM", album.toString())
                     if((album["img"] as String) != "")
-                        ret.add(Playlist.Album(album["uri"] as String, album["title"] as String, album["img"] as String))
+                        ret.add(Playlist.Album(album["uri"] as String, album["title"] as String, album["img"] as String, album["#nsongs"] as Int))
                     else
-                        ret.add(Playlist.Album(album["uri"] as String, album["title"] as String))
+                        ret.add(Playlist.Album(album["uri"] as String, album["title"] as String, album["#nsongs"] as Int))
                 }
             }
             is RequestResult.Error -> { error = resp.msg; return null}
@@ -260,10 +261,12 @@ private class SingleArtist(val name:String) : ApollonAsync(){
                     val title = jalbum["title"] as String
                     val img = jalbum["img"] as String
                     val uri = jalbum["uri"] as String
+                    //val nsongs = jalbum["#nsongs"] as Int
+                    Log.e("JSON", jalbum.toString())
                     if (img == "")
-                        ret.add(Playlist.Album(uri, title))
+                        ret.add(Playlist.Album(uri, title, 0))
                     else
-                        ret.add(Playlist.Album(uri, title, img))
+                        ret.add(Playlist.Album(uri, title, img, 0))
                 }
             }
             is RequestResult.Error -> { error = resp.msg; return null}

@@ -13,8 +13,8 @@ sealed class Playlist( val id: String, val title: String, val img_url: String, v
     class Artist( id: String, title: String, img_url: String, elements: Int) : Playlist(id, title, img_url, elements) {
         constructor(id: String, title: String, elements: Int) : this(id, title, "artist", elements)
     }
-    class Album( id: String, title: String, img_url: String) : Playlist(id, title, img_url, 0) {
-        constructor(id: String, title: String) : this(id, title, "album")
+    class Album( id: String, title: String, img_url: String, elements: Int) : Playlist(id, title, img_url, elements) {
+        constructor(id: String, title: String, elements: Int) : this(id, title, "album", elements)
     }
     class Genre( id: String, title: String, img_url: String) : Playlist(id, title, img_url, 0) {
         constructor(id: String, title: String) : this(id, title, "genre")

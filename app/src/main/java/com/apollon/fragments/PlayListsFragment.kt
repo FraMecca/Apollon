@@ -75,7 +75,14 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                         .setView(editView)
 
                         .setPositiveButton(getString(R.string.create)) { dialog, _ ->
-                            Toast.makeText(context, "long live playlist: ${editView.findViewById<EditText>(R.id.edit_title).text}", Toast.LENGTH_SHORT).show()
+                            val res = Server.createPlaylist(editView.findViewById<EditText>(R.id.edit_title).text.toString())
+                            while(res.get() == null){}
+                            if(res.get() == "ok") {
+                                Toast.makeText(context, "Playlist ${editView.findViewById<EditText>(R.id.edit_title).text} created", Toast.LENGTH_SHORT).show()
+                                (context as MainActivity).refreshFragment(this)
+                            }
+                            else
+                                Toast.makeText(context, "Error: ${res.get()}", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }
                         .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->

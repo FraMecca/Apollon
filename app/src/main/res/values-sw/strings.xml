@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Apollon</string>
     <string name="action_add_favourite">Ongeza kwenye vipendwa</string>
-    <string name="action_play_next">Cheza ijayo</string>
     <string name="user">Mtumiaji</string>
     <string name="password">Nywila</string>
     <string name="server">URL Seva</string>
@@ -39,4 +38,6 @@
     <string name="elements">%1$d mambo</string>
     <string name="lyrics">Sauti hazipatikani</string>
     <string name="playlists">Orodha za kucheza</string>
+    <string name="action_add_playlist">Ongeza kwenye orodha ya kucheza</string>
+    <string name="action_remove">Ondoa</string>
 </resources>

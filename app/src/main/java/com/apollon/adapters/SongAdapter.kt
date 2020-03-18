@@ -3,12 +3,14 @@ package com.apollon.adapters
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.apollon.MainActivity
 import com.apollon.R
+import com.apollon.classes.PlaylistSong
 import com.apollon.classes.Song
 import com.apollon.fragments.PlayerFragment
 import com.squareup.picasso.Picasso
@@ -55,6 +57,8 @@ class SongAdapter(val songs: ArrayList<Song>, val context: Context) : RecyclerVi
         val popupMenu = PopupMenu(context, view)
         val inflater = popupMenu.menuInflater
         inflater.inflate(R.menu.song_menu, popupMenu.menu)
+        if(song is PlaylistSong)
+            popupMenu.menu.findItem(R.id.action_remove).isVisible = true
         popupMenu.show()
 
         popupMenu.setOnMenuItemClickListener {
@@ -62,8 +66,11 @@ class SongAdapter(val songs: ArrayList<Song>, val context: Context) : RecyclerVi
                 R.id.action_add_favourite -> {
                     Toast.makeText(context, "Song ${song.id} added to favourites", Toast.LENGTH_SHORT).show()
                 }
-                R.id.action_play_next -> {
-                    Toast.makeText(context, "Song ${song.id} added to queue", Toast.LENGTH_SHORT).show()
+                R.id.action_add_playlist -> {
+                    Toast.makeText(context, "Song ${song.id} added to playlist", Toast.LENGTH_SHORT).show()
+                }
+                R.id.action_remove -> {
+                    Toast.makeText(context, "Song ${song.id} removed from playlist", Toast.LENGTH_SHORT).show()
                 }
             }
             true

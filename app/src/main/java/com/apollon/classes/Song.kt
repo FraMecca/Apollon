@@ -20,3 +20,5 @@ open class Song(val id: String, val title: String, val artist: String, var img_u
         return this.id == other.id
     }
 }
+
+class PlaylistSong(id: String, title: String, artist:String) : Song(id, title, artist) {}

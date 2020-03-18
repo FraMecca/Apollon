@@ -365,7 +365,7 @@ class SinglePlaylist(val title:String) : SongAsync(){
                     val title : String  = jsong["title"] as String
                     val artist : String = jsong["artist"] as String
                     val uri = jsong["uri"] as String
-                    ret.add(Song(uri, title, artist))
+                    ret.add(PlaylistSong(uri, title, artist))
                 }
             }
             is RequestResult.Error -> { error = resp.msg; return null}
@@ -388,8 +388,7 @@ class GetLyrics(val artist:String, val title:String) : AsyncTask<Void, Int, List
         val ret : List<String>
         Log.e("HTTP", "request: lyrics")
 
-        val resp = makeRequest(hashMapOf("action" to "lyrics", "artist" to artist, "song" to title))
-        when(resp){
+        when(val resp = makeRequest(hashMapOf("action" to "lyrics", "artist" to artist, "song" to title))){
             is RequestResult.Ok -> {
                 val j = resp.result
                 Log.e("JSON", j.toString())
@@ -399,7 +398,7 @@ class GetLyrics(val artist:String, val title:String) : AsyncTask<Void, Int, List
             is RequestResult.Error -> { error = resp.msg; Log.e("JSON", resp.msg);result = listOf(""); return result}
         }
         Log.e("HTTP", "Finished GetLyrics")
-        return if (ret.size != 0){
+        return if (ret.isNotEmpty()){
             result = ret
             ret
         }
@@ -408,19 +407,22 @@ class GetLyrics(val artist:String, val title:String) : AsyncTask<Void, Int, List
     }
 }
 
-/*class CreatePlaylist(var title: String) : AsyncTask<Void, Int, String>(){
-    var response = ""
-    override fun doInBackground(vararg p0: Void?): String {
-        val resp = makeRequest(hashMapOf("action" to "new-playlist", "title" to title))
-        when(resp){
+class CreatePlaylist(var title: String) : AsyncTask<Void, Int, String?>(){
+    var result: String? = null
+    var error:String = ""
+    override fun doInBackground(vararg p0: Void?): String? {
+        when(val resp = makeRequest(hashMapOf("action" to "new-playlist", "title" to title, "uris" to ""))){
             is RequestResult.Ok ->{
                 Log.e("JSON", resp.result.toString())
-                response = resp.result["response"] as String
+                result = resp.result["response"] as String
+                Server.resetPlaylists()
             }
-            is RequestResult.Error -> {Log.e("JSON", resp.msg); return ""}//TODO
+            is RequestResult.Error -> { Log.e("JSON", resp.msg); result = resp.msg}
         }
+        Log.e("HTTP", "Finished CreatePlaylist")
+        return result
     }
-}*/
+}
 
 class FileExists(val uri:String) : AsyncTask<Void, Int, Boolean>(){
     var result : Boolean = false
@@ -486,6 +488,10 @@ sealed class ServerSongsResult {
  class LyricsResult(val async:GetLyrics){
     fun get(): List<String>? {return async.result}
     fun error(): String { return async.error }
+}
+
+class CreatePlaylistResult(val async:CreatePlaylist){
+    fun get(): String? {return async.result}
 }
 
 object Server {
@@ -583,6 +589,16 @@ object Server {
             playlists.put(title, asyn)
             ServerSongsResult.Future(asyn)
         }
+    }
+
+    fun createPlaylist(title:String): CreatePlaylistResult{
+        val asyn = CreatePlaylist(title)
+        asyn.execute()
+        return CreatePlaylistResult(asyn)
+    }
+
+    fun resetPlaylists(){
+        allPlaylists = null
     }
 }
 

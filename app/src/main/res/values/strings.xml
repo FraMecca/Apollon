@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Apollon</string>
     <string name="action_add_favourite">Add to favourites</string>
-    <string name="action_play_next">Play next</string>
     <string name="user">User</string>
     <string name="password">Password</string>
     <string name="server">Server URL</string>
@@ -39,4 +38,6 @@
     <string name="elements">%1$d elements</string>
     <string name="lyrics">Lyrics unavailable</string>
     <string name="playlists">Playlists</string>
+    <string name="action_add_playlist">Add to a playlist</string>
+    <string name="action_remove">Remove</string>
 </resources>

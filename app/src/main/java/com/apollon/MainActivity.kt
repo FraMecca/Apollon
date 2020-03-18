@@ -86,6 +86,12 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         supportFragmentManager.executePendingTransactions()
     }
 
+    fun refreshFragment(frag:Fragment){
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.detach(frag).attach(frag).commit()
+        supportFragmentManager.executePendingTransactions()
+    }
+
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.button_play ->

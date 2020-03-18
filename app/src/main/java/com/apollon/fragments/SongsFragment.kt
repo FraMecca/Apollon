@@ -1,5 +1,6 @@
 package com.apollon.fragments
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -46,12 +47,15 @@ class SongsFragment : Fragment() {
                 return false
             }
         })
+        if(playlist.img_url == "genre")
+            playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.genre))
+        else
+            Picasso.get().load(playlist.img_url).into(playlistThumbnail)
 
-        Picasso.get().load(playlist.img_url).into(playlistThumbnail)
         (activity as MainActivity).setSupportActionBar(playlistToolbar)
         playlistToolbar.title = playlist.title
         // Loads elements into the ArrayList
-        addSongs(playlist as Playlist.Album) // TODO, assert or something else, improve costraints
+        addSongs(playlist) // TODO, assert or something else, improve costraints
         // Creates a Grid Layout Manager
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
@@ -61,10 +65,14 @@ class SongsFragment : Fragment() {
     }
 
     // Adds songs to the empty ArrayList
-    private fun addSongs(playlist: Playlist.Album) {
+    private fun addSongs(playlist: Playlist) {
         val uri = playlist.id
         songs.clear()
-        val req = Server.getAlbum(uri)
+        val req = when(playlist){
+            is Playlist.Album -> Server.getAlbum(uri)
+            is Playlist.Custom -> Server.getPlaylist(uri)
+            else -> {assert(false); return}
+        }
         if (req is ServerSongsResult.Future) {
             req.async.execute()
             while (req.get().size == 0) {

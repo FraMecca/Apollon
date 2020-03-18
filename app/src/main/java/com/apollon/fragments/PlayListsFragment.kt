@@ -23,6 +23,7 @@ import pl.droidsonroids.gif.GifImageView
 class PlayListsFragment : Fragment(), View.OnClickListener {
 
     private val playlists: ArrayList<Playlist> = ArrayList()
+    lateinit var playlist: Playlist
     lateinit var loading: GifImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -30,6 +31,11 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
         val mView = inflater.inflate(R.layout.playlists, container, false)
         val search = mView.findViewById<SearchView>(R.id.search)
         val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
+        playlist =  if(this.arguments != null && this.arguments!!.containsKey("playlist"))
+            this.arguments!!.get("playlist") as Playlist
+        else
+            Playlist.Begin()
+
         loading = mView.findViewById(R.id.loading)
 
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -42,8 +48,11 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 return false
             }
         })
-
-        mView.findViewById<Button>(R.id.new_playlist_button).setOnClickListener(this)
+        if(playlist is Playlist.AllPlaylists){
+            val addButton = mView.findViewById<Button>(R.id.new_playlist_button)
+            addButton.setOnClickListener(this)
+            addButton.visibility = View.VISIBLE
+        }
 
         // Loads elements into the ArrayList
         addPlaylists()
@@ -76,16 +85,11 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                         .create()
                         .show()
             }
-
         }
     }
 
     // Adds playlists to the empty ArrayList
     private fun addPlaylists() {
-        val playlist: Playlist = if(this.arguments != null && this.arguments!!.containsKey("playlist"))
-                this.arguments!!.get("playlist") as Playlist
-        else
-            Playlist.Begin()
         playlists.clear()
 
 
@@ -94,6 +98,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 playlists.add(Playlist.AllArtists())
                 playlists.add(Playlist.AllAlbums())
                 playlists.add(Playlist.AllGenres())
+                playlists.add(Playlist.AllPlaylists())
                 playlists.add(Playlist.Favourites())
                 return // break
             }
@@ -103,7 +108,9 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
             is Playlist.AllAlbums -> Server.getAlbums()
             is Playlist.AllArtists -> Server.getArtists()
             is Playlist.AllGenres -> Server.getGenres()
+            is Playlist.AllPlaylists -> Server.getPlaylists()
             is Playlist.Favourites -> {assert(false); return}
+            is Playlist.Custom -> {assert(false); return} // this should have been forwarded to SongsFragments
         }
         if(action is ServerPlaylistResult.Future) {
             action.async.execute()

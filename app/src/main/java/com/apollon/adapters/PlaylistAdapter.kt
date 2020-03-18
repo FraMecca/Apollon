@@ -40,6 +40,7 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
             is Playlist.AllArtists -> holder.title.text = context.getString(R.string.artists)
             is Playlist.AllAlbums -> holder.title.text = context.getString(R.string.albums)
             is Playlist.AllGenres -> holder.title.text = context.getString(R.string.genres)
+            is Playlist.AllPlaylists -> holder.title.text = context.getString(R.string.playlists)
             is Playlist.Favourites -> holder.title.text = context.getString(R.string.Favourites)
             else -> {
                 holder.title.text = playlist.title
@@ -60,51 +61,60 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
         //CardView listener
         val target = when (playlist) {
             is Playlist.Album -> SongsFragment.newInstance(playlist)
+            is Playlist.Custom -> SongsFragment.newInstance(playlist)
             else -> PlayListsFragment.newInstance(playlist)
         }
+
         holder.itemView.setOnClickListener { (context as MainActivity).replaceFragment(target) }
 
-        //delete click listener
-        holder.itemView.findViewById<Button>(R.id.button_delete).setOnClickListener {
-            //creates alert
-            AlertDialog.Builder(context, R.style.AlertStyle)
-                    .setTitle(context.getString(R.string.delete_title))
-                    .setMessage(context.getString(R.string.delete_message) + " ${playlist.title}?")
+        //Custom playlist buttons
+        if(playlist is Playlist.Custom) {
+            val deleteButton = holder.itemView.findViewById<Button>(R.id.button_delete)
+            val editButton = holder.itemView.findViewById<Button>(R.id.button_edit)
+            deleteButton.visibility = View.VISIBLE
+            editButton.visibility = View.VISIBLE
+            //delete click listener
+            deleteButton.setOnClickListener {
+                //creates alert
+                AlertDialog.Builder(context, R.style.AlertStyle)
+                        .setTitle(context.getString(R.string.delete_title))
+                        .setMessage(context.getString(R.string.delete_message) + " ${playlist.title}?")
 
-                    .setPositiveButton(context.getString(R.string.delete)) { dialog, _ ->
-                        Toast.makeText(context, "u r ded: ${playlist.id}", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
-                        Toast.makeText(context, "u r safe: ${playlist.id}", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    }
-                    .create()
-                    .show()
-        }
+                        .setPositiveButton(context.getString(R.string.delete)) { dialog, _ ->
+                            Toast.makeText(context, "u r ded: ${playlist.id}", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
+                            Toast.makeText(context, "u r safe: ${playlist.id}", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                        .create()
+                        .show()
+            }
 
-        // edit click listener
-        holder.itemView.findViewById<Button>(R.id.button_edit).setOnClickListener {
-            val editView = LayoutInflater.from(context).inflate(R.layout.modify, null)
-            val editText = editView.findViewById<EditText>(R.id.edit_title)
-            editText.setText(playlist.title)
-            //creates alert
-            AlertDialog.Builder(context, R.style.AlertStyle)
-                    .setView(editView)
-                    .setTitle(context.getString(R.string.edit_title))
-                    .setMessage(context.getString(R.string.edit_playlist_message))
+            // edit click listener
+            editButton.setOnClickListener{
+                val editView = LayoutInflater.from(context).inflate(R.layout.modify, null)
+                val editText = editView.findViewById<EditText>(R.id.edit_title)
+                editText.setText(playlist.title)
+                //creates alert
+                AlertDialog.Builder(context, R.style.AlertStyle)
+                        .setView(editView)
+                        .setTitle(context.getString(R.string.edit_title))
+                        .setMessage(context.getString(R.string.edit_playlist_message))
 
-                    .setPositiveButton(context.getString(R.string.edit)) { dialog, _ ->
+                        .setPositiveButton(context.getString(R.string.edit)) { dialog, _ ->
 
-                        Toast.makeText(context, "newname: ${editText.text}", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
-                        Toast.makeText(context, "u r safe: ${playlist.id}", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    }
-                    .create()
-                    .show()
+                            Toast.makeText(context, "newname: ${editText.text}", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
+                            Toast.makeText(context, "u r safe: ${playlist.id}", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                        .create()
+                        .show()
+            }
         }
     }
 

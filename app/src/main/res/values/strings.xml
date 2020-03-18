@@ -38,4 +38,5 @@
     <string name="Favourites">Favourites</string>
     <string name="elements">%1$d elements</string>
     <string name="lyrics">Lyrics unavailable</string>
+    <string name="playlists">Playlists</string>
 </resources>

@@ -38,4 +38,5 @@
     <string name="genres">Generi</string>
     <string name="elements">%1$d elementi</string>
     <string name="lyrics">Testo non disponibile</string>
+    <string name="playlists">Playlist</string>
 </resources>

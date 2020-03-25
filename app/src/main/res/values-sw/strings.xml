@@ -42,4 +42,6 @@
     <string name="action_remove">Ondoa</string>
     <string name="error">Kosa</string>
     <string name="playlist_deleted">Orodha ya kucheza %1$s imefutwa</string>
+    <string name="song_added">%1$s imeongezwa kwa %2$s</string>
+    <string name="already_in">%1$s tayari yuko %2$s</string>
 </resources>

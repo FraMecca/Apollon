@@ -42,4 +42,6 @@
     <string name="action_remove">Retirer</string>
     <string name="error">Erreur</string>
     <string name="playlist_deleted">Playlist %1$s supprimée</string>
+    <string name="song_added">%1$s ajouté à %2$s</string>
+    <string name="already_in">%1$s déjà présent à %2$s</string>
 </resources>

@@ -31,7 +31,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
         val mView = inflater.inflate(R.layout.playlists, container, false)
         val search = mView.findViewById<SearchView>(R.id.search)
         val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
-        playlist =  if(this.arguments != null && this.arguments!!.containsKey("playlist"))
+        playlist = if (this.arguments != null && this.arguments!!.containsKey("playlist"))
             this.arguments!!.get("playlist") as Playlist
         else
             Playlist.Begin()
@@ -48,7 +48,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 return false
             }
         })
-        if(playlist is Playlist.AllPlaylists){
+        if (playlist is Playlist.AllPlaylists) {
             val addButton = mView.findViewById<Button>(R.id.new_playlist_button)
             addButton.setOnClickListener(this)
             addButton.visibility = View.VISIBLE
@@ -60,7 +60,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
         recyclerView.layoutManager = GridLayoutManager(context, 1)
 
         // Access the RecyclerView Adapter and load the data into it
-        recyclerView.adapter = PlaylistAdapter(playlists, requireContext())
+        recyclerView.adapter = PlaylistAdapter(playlists, requireContext(), this)
         return mView
     }
 
@@ -76,12 +76,12 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
 
                         .setPositiveButton(getString(R.string.create)) { dialog, _ ->
                             val res = Server.createPlaylist(editView.findViewById<EditText>(R.id.edit_title).text.toString())
-                            while(res.get() == null){}
-                            if(res.get() == "ok") {
+                            while (res.get() == null) {
+                            }
+                            if (res.get() == "ok") {
                                 Toast.makeText(context, "Playlist ${editView.findViewById<EditText>(R.id.edit_title).text} created", Toast.LENGTH_SHORT).show()
                                 (context as MainActivity).refreshFragment(this)
-                            }
-                            else
+                            } else
                                 Toast.makeText(context, "Error: ${res.get()}", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }
@@ -100,7 +100,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
         playlists.clear()
 
 
-        val action = when(playlist){
+        val action = when (playlist) {
             is Playlist.Begin -> {
                 playlists.add(Playlist.AllArtists())
                 playlists.add(Playlist.AllAlbums())
@@ -110,23 +110,29 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 return // break
             }
             is Playlist.Artist -> Server.getArtist(playlist.id)
-            is Playlist.Album -> {assert(false); return} // this should have been forwarded to SongsFragments
+            is Playlist.Album -> {
+                assert(false); return
+            } // this should have been forwarded to SongsFragments
             is Playlist.Genre -> Server.getGenre(playlist.id)
             is Playlist.AllAlbums -> Server.getAlbums()
             is Playlist.AllArtists -> Server.getArtists()
             is Playlist.AllGenres -> Server.getGenres()
             is Playlist.AllPlaylists -> Server.getPlaylists()
-            is Playlist.Favourites -> {assert(false); return}
-            is Playlist.Custom -> {assert(false); return} // this should have been forwarded to SongsFragments
+            is Playlist.Favourites -> {
+                assert(false); return
+            }
+            is Playlist.Custom -> {
+                assert(false); return
+            } // this should have been forwarded to SongsFragments
         }
-        if(action is ServerPlaylistResult.Future) {
+        if (action is ServerPlaylistResult.Future) {
             action.async.execute()
             Log.e("Playlist", "server.execute")
             //Loading gif starts
             //loading.visibility = View.VISIBLE
 
-            while(action.get().size == 0){
-                if(action.error() != "") {
+            while (action.get().size == 0 && action.error() != "No Playlists") {
+                if (action.error() != "") {
                     Toast.makeText(context, action.error(), Toast.LENGTH_LONG).show()
                     loading.visibility = View.GONE
                     return
@@ -141,6 +147,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
         }
 
     }
+
     companion object {
 
         fun newInstance(playlist: Playlist): PlayListsFragment {

@@ -13,10 +13,12 @@ import com.apollon.classes.Playlist
 import com.apollon.fragments.SongsFragment
 import com.squareup.picasso.Picasso
 import com.apollon.R
+import com.apollon.Server
 import com.apollon.fragments.PlayListsFragment
 
 
-class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable {
+
+class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context, val fragment: PlayListsFragment) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable {
 
     private val filter = PlaylistFilter()
     private var filteredPlaylists = playlists
@@ -81,11 +83,17 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
                         .setMessage(context.getString(R.string.delete_message) + " ${playlist.title}?")
 
                         .setPositiveButton(context.getString(R.string.delete)) { dialog, _ ->
-                            Toast.makeText(context, "u r ded: ${playlist.id}", Toast.LENGTH_SHORT).show()
+                            val res = Server.removePlaylist(playlist.title)
+                            while (res.get() == null) {
+                            }
+                            if (res.get() == "ok") {
+                                Toast.makeText(context, context.getString(R.string.playlist_deleted, playlist.title), Toast.LENGTH_SHORT).show()
+                                (context as MainActivity).refreshFragment(fragment)
+                            } else
+                                Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }
                         .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
-                            Toast.makeText(context, "u r safe: ${playlist.id}", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }
                         .create()
@@ -104,7 +112,6 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context) 
                         .setMessage(context.getString(R.string.edit_playlist_message))
 
                         .setPositiveButton(context.getString(R.string.edit)) { dialog, _ ->
-
                             Toast.makeText(context, "newname: ${editText.text}", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }

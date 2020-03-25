@@ -75,7 +75,7 @@ class SongsFragment : Fragment() {
         }
         if (req is ServerSongsResult.Future) {
             req.async.execute()
-            while (req.get().size == 0) {
+            while (req.get().size == 0 && req.error() != "No Tracks") {
                 if (req.error() != "") {
                     Toast.makeText(context, req.error(), Toast.LENGTH_LONG).show()
                     return

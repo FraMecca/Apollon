@@ -40,4 +40,6 @@
     <string name="playlists">Playlists</string>
     <string name="action_add_playlist">Add to a playlist</string>
     <string name="action_remove">Remove</string>
+    <string name="error">Error</string>
+    <string name="playlist_deleted">Playlist %1$s deleted</string>
 </resources>

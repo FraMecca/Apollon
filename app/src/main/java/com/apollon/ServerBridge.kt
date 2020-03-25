@@ -15,9 +15,9 @@ sealed class RequestResult {
     class Error(val msg: String) : RequestResult ()
 }
 
-fun makeRequest(m: Map<String, String>): RequestResult{
+fun makeRequest(m: Map<String, Any>): RequestResult{
    val (user, pass) = Credentials.get()
-   val params = hashMapOf("user" to user,
+   val params = hashMapOf<String, Any>("user" to user,
         "password" to pass)
 
     m.forEach { (k, v) -> params.put(k, v)}
@@ -96,13 +96,15 @@ private class AllAlbums : ApollonAsync(){
             is RequestResult.Error -> { error = resp.msg; return null}
         }
         Log.e("HTTP", "Finished all-albums")
-        if (ret.size != 0) {
+        return if (resp is RequestResult.Ok) {
             @Suppress("UNCHECKED_CAST")
             result = ret as ArrayList<Playlist>
-            return ret
+            if(ret.isEmpty())
+                error = "No Playlists"
+            ret
         }
         else
-            return null
+            null
     }
 }
 
@@ -132,13 +134,15 @@ private class AllArtists : ApollonAsync(){
             is RequestResult.Error -> { error = resp.msg; return null}
         }
         Log.e("HTTP", "Finished all-artists")
-        if (ret.size != 0) {
+        return if (resp is RequestResult.Ok) {
             @Suppress("UNCHECKED_CAST")
             result = ret as ArrayList<Playlist>
-            return ret
+            if(ret.isEmpty())
+                error = "No Playlists"
+            ret
         }
         else
-            return null
+            null
     }
 }
 
@@ -194,14 +198,17 @@ private class AllPlaylists : ApollonAsync(){
             }
             is RequestResult.Error -> { error = resp.msg; return null}
         }
-        Log.e("HTTP", "Finished all-artists")
-        if (ret.size != 0) {
+        Log.e("HTTP", "Finished all-playlists")
+
+        return if (resp is RequestResult.Ok) {
             @Suppress("UNCHECKED_CAST")
             result = ret as ArrayList<Playlist>
-            return ret
+            if(ret.isEmpty())
+                error = "No Playlists"
+            ret
         }
         else
-            return null
+            null
     }
 }
 
@@ -371,12 +378,14 @@ class SinglePlaylist(val title:String) : SongAsync(){
             is RequestResult.Error -> { error = resp.msg; return null}
         }
         Log.e("HTTP", "Finished SinglePlaylist")
-        if (ret.size != 0){
+        return if(resp is RequestResult.Ok){
             result = ret
-            return ret
+            if(ret.isEmpty())
+                error = "No Tracks"
+            ret
         }
         else
-            return null
+            null
     }
 }
 
@@ -411,7 +420,7 @@ class CreatePlaylist(var title: String) : AsyncTask<Void, Int, String?>(){
     var result: String? = null
     var error:String = ""
     override fun doInBackground(vararg p0: Void?): String? {
-        when(val resp = makeRequest(hashMapOf("action" to "new-playlist", "title" to title, "uris" to ""))){
+        when(val resp = makeRequest(hashMapOf<String, Any>("action" to "new-playlist", "title" to title, "uris" to emptyList<String>()))){
             is RequestResult.Ok ->{
                 Log.e("JSON", resp.result.toString())
                 result = resp.result["response"] as String
@@ -420,6 +429,24 @@ class CreatePlaylist(var title: String) : AsyncTask<Void, Int, String?>(){
             is RequestResult.Error -> { Log.e("JSON", resp.msg); result = resp.msg}
         }
         Log.e("HTTP", "Finished CreatePlaylist")
+        return result
+    }
+}
+
+class RemovePlaylist(var title: String) : AsyncTask<Void, Int, String?>(){
+    var result: String? = null
+    var error:String = ""
+    override fun doInBackground(vararg p0: Void?): String? {
+        when(val resp = makeRequest(hashMapOf("action" to "remove-playlist", "title" to title))){
+            is RequestResult.Ok ->{
+                Log.e("JSON", resp.result.toString())
+                result = resp.result["response"] as String
+                Server.resetPlaylists()
+                Server.dropPlaylist(title)
+            }
+            is RequestResult.Error -> { Log.e("JSON", resp.msg); result = resp.msg}
+        }
+        Log.e("HTTP", "Finished RemovePlaylist")
         return result
     }
 }
@@ -491,6 +518,10 @@ sealed class ServerSongsResult {
 }
 
 class CreatePlaylistResult(val async:CreatePlaylist){
+    fun get(): String? {return async.result}
+}
+
+class RemovePlaylistResult(val async:RemovePlaylist){
     fun get(): String? {return async.result}
 }
 
@@ -597,8 +628,18 @@ object Server {
         return CreatePlaylistResult(asyn)
     }
 
+    fun removePlaylist(title:String): RemovePlaylistResult{
+        val asyn = RemovePlaylist(title)
+        asyn.execute()
+        return RemovePlaylistResult(asyn)
+    }
+
     fun resetPlaylists(){
         allPlaylists = null
+    }
+
+    fun dropPlaylist(title: String){
+        playlists.remove(title)
     }
 }
 

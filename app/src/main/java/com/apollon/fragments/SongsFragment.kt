@@ -60,7 +60,7 @@ class SongsFragment : Fragment() {
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
         // Access the RecyclerView Adapter and load the data into it
-        recyclerView.adapter = SongAdapter(songs, requireContext())
+        recyclerView.adapter = SongAdapter(playlist.title, songs, requireContext(), this)
         return mView
     }
 

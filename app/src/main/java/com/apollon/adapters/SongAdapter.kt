@@ -16,9 +16,10 @@ import java.util.*
 import com.apollon.R
 import com.apollon.Server
 import com.apollon.ServerPlaylistResult
+import com.apollon.fragments.SongsFragment
 
 
-class SongAdapter(val songs: ArrayList<Song>, val context: Context) : RecyclerView.Adapter<SongViewHolder>(), Filterable {
+class SongAdapter(val playlistTitle: String, val songs: ArrayList<Song>, val context: Context, val fragment: SongsFragment) : RecyclerView.Adapter<SongViewHolder>(), Filterable {
 
     private val filter = SongFilter()
     private var filteredSongs = songs
@@ -98,7 +99,16 @@ class SongAdapter(val songs: ArrayList<Song>, val context: Context) : RecyclerVi
                     menu.show()
                 }
                 R.id.action_remove -> {
-                    Toast.makeText(context, "Song ${song.id} removed from playlist", Toast.LENGTH_SHORT).show()
+                    val res = Server.removeSong(playlistTitle, song.id)
+                    while (res.get() == null) {
+                    }
+                    when {
+                        res.get() == "ok" -> {
+                            Toast.makeText(context, context.getString(R.string.song_removed, song.title, playlistTitle), Toast.LENGTH_SHORT).show()
+                            (context as MainActivity).refreshFragment(fragment)
+                        }
+                        else -> Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             true

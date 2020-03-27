@@ -70,6 +70,10 @@ abstract class SongAsync: AsyncTask<Void, Int, List<Song>>() {
     var error = ""
 }
 
+abstract class OperationAsync: AsyncTask<Void, Int, String?>(){
+    var result: String? = null
+}
+
 private class AllAlbums : ApollonAsync(){
 
     override fun doInBackground(vararg params: Void?): List<Playlist.Album>? {
@@ -416,8 +420,7 @@ class GetLyrics(val artist:String, val title:String) : AsyncTask<Void, Int, List
     }
 }
 
-class CreatePlaylist(var title: String) : AsyncTask<Void, Int, String?>(){
-    var result: String? = null
+class CreatePlaylist(var title: String) : OperationAsync(){
     override fun doInBackground(vararg p0: Void?): String? {
         when(val resp = makeRequest(hashMapOf<String, Any>("action" to "new-playlist", "title" to title, "uris" to emptyList<String>()))){
             is RequestResult.Ok ->{
@@ -432,8 +435,7 @@ class CreatePlaylist(var title: String) : AsyncTask<Void, Int, String?>(){
     }
 }
 
-class RemovePlaylist(var title: String) : AsyncTask<Void, Int, String?>(){
-    var result: String? = null
+class RemovePlaylist(var title: String) : OperationAsync(){
     override fun doInBackground(vararg p0: Void?): String? {
         when(val resp = makeRequest(hashMapOf("action" to "remove-playlist", "title" to title))){
             is RequestResult.Ok ->{
@@ -449,8 +451,7 @@ class RemovePlaylist(var title: String) : AsyncTask<Void, Int, String?>(){
     }
 }
 
-class AddSong(var title: String, var uri: String) : AsyncTask<Void, Int, String?>(){
-    var result: String? = null
+class AddSong(var title: String, var uri: String) : OperationAsync(){
     override fun doInBackground(vararg p0: Void?): String? {
         when(val resp = makeRequest(hashMapOf("action" to "modify-playlist", "playlist-action" to "add", "title" to title, "uris" to listOf(uri)))){
             is RequestResult.Ok ->{
@@ -462,6 +463,22 @@ class AddSong(var title: String, var uri: String) : AsyncTask<Void, Int, String?
             is RequestResult.Error -> { Log.e("JSON", resp.msg); result = resp.msg}
         }
         Log.e("HTTP", "Finished AddSong")
+        return result
+    }
+}
+
+class RemoveSong(var title: String, var uri: String) : OperationAsync(){
+    override fun doInBackground(vararg p0: Void?): String? {
+        when(val resp = makeRequest(hashMapOf("action" to "modify-playlist", "playlist-action" to "remove", "title" to title, "uris" to listOf(uri)))){
+            is RequestResult.Ok ->{
+                Log.e("JSON", resp.result.toString())
+                result = resp.result["response"] as String
+                Server.resetPlaylists()
+                Server.dropPlaylist(title)
+            }
+            is RequestResult.Error -> { Log.e("JSON", resp.msg); result = resp.msg}
+        }
+        Log.e("HTTP", "Finished RemoveSong")
         return result
     }
 }
@@ -532,15 +549,7 @@ sealed class ServerSongsResult {
     fun error(): String { return async.error }
 }
 
-class CreatePlaylistResult(val async:CreatePlaylist){
-    fun get(): String? {return async.result}
-}
-
-class RemovePlaylistResult(val async:RemovePlaylist){
-    fun get(): String? {return async.result}
-}
-
-class AddSongResult(val async:AddSong){
+class OperationResult(val async:OperationAsync){
     fun get(): String? {return async.result}
 }
 
@@ -641,22 +650,28 @@ object Server {
         }
     }
 
-    fun createPlaylist(title:String): CreatePlaylistResult{
+    fun createPlaylist(title:String): OperationResult{
         val asyn = CreatePlaylist(title)
         asyn.execute()
-        return CreatePlaylistResult(asyn)
+        return OperationResult(asyn)
     }
 
-    fun removePlaylist(title:String): RemovePlaylistResult{
+    fun removePlaylist(title:String): OperationResult{
         val asyn = RemovePlaylist(title)
         asyn.execute()
-        return RemovePlaylistResult(asyn)
+        return OperationResult(asyn)
     }
 
-    fun addSong(title:String, uri:String): AddSongResult{
+    fun addSong(title:String, uri:String): OperationResult{
         val asyn = AddSong(title, uri)
         asyn.execute()
-        return AddSongResult(asyn)
+        return OperationResult(asyn)
+    }
+
+    fun removeSong(title:String, uri:String): OperationResult{
+        val asyn = RemoveSong(title, uri)
+        asyn.execute()
+        return OperationResult(asyn)
     }
 
     fun resetPlaylists(){

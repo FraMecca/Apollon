@@ -343,6 +343,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     private fun songToMetaData(song: StreamingSong): MediaMetadataCompat.Builder {
+        metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song.id)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
         metaDataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration.toLong())

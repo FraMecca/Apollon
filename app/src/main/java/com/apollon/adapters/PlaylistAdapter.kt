@@ -64,6 +64,7 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context, 
         val target = when (playlist) {
             is Playlist.Album -> SongsFragment.newInstance(playlist)
             is Playlist.Custom -> SongsFragment.newInstance(playlist)
+            is Playlist.Favourites -> SongsFragment.newInstance(playlist)
             else -> PlayListsFragment.newInstance(playlist)
         }
 

@@ -78,11 +78,14 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                             val res = Server.createPlaylist(editView.findViewById<EditText>(R.id.edit_title).text.toString())
                             while (res.get() == null) {
                             }
-                            if (res.get() == "ok") {
-                                Toast.makeText(context, "Playlist ${editView.findViewById<EditText>(R.id.edit_title).text} created", Toast.LENGTH_SHORT).show()
-                                (context as MainActivity).refreshFragment(this)
-                            } else
-                                Toast.makeText(context, "Error: ${res.get()}", Toast.LENGTH_SHORT).show()
+                            when {
+                                res.get() == "ok" -> {
+                                    Toast.makeText(context, "Playlist ${editView.findViewById<EditText>(R.id.edit_title).text} created", Toast.LENGTH_SHORT).show()
+                                    (context as MainActivity).refreshFragment(this)
+                                }
+                                res.get().toString().contains("There is a playlist with the same title and user already") -> Toast.makeText(context, context!!.getString(R.string.already_exists, "${editView.findViewById<EditText>(R.id.edit_title).text}"), Toast.LENGTH_SHORT).show()
+                                else -> Toast.makeText(context, "Error: ${res.get()}", Toast.LENGTH_SHORT).show()
+                            }
                             dialog.dismiss()
                         }
                         .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->

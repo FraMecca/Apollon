@@ -47,10 +47,11 @@ class SongsFragment : Fragment() {
                 return false
             }
         })
-        if(playlist.img_url == "genre")
-            playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.genre))
-        else
-            Picasso.get().load(playlist.img_url).into(playlistThumbnail)
+        when (playlist.img_url) {
+            "genre" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.genre))
+            "favourites" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.favourites))
+            else -> Picasso.get().load(playlist.img_url).into(playlistThumbnail)
+        }
 
         (activity as MainActivity).setSupportActionBar(playlistToolbar)
         playlistToolbar.title = playlist.title
@@ -71,6 +72,7 @@ class SongsFragment : Fragment() {
         val req = when(playlist){
             is Playlist.Album -> Server.getAlbum(uri)
             is Playlist.Custom -> Server.getPlaylist(uri)
+            is Playlist.Favourites -> Server.getPlaylist(uri)
             else -> {assert(false); return}
         }
         if (req is ServerSongsResult.Future) {

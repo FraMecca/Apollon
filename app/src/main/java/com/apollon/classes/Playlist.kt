@@ -9,7 +9,7 @@ sealed class Playlist( val id: String, val title: String, val img_url: String, v
     class AllArtists: Playlist("AllArtists", "", "artist",0)
     class AllGenres : Playlist("AllGenres", "", "genre", 0)
     class AllPlaylists : Playlist("AllPlaylists", "", "genre", 0)
-    class Favourites : Playlist("Favourites", "", "favourites", 0)
+    class Favourites : Playlist("Favourites", "Favourites", "favourites", 0)
 
     class Artist( id: String, title: String, img_url: String, elements: Int) : Playlist(id, title, img_url, elements) {
         constructor(id: String, title: String, elements: Int) : this(id, title, "artist", elements)

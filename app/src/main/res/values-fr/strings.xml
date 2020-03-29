@@ -45,4 +45,5 @@
     <string name="song_added">%1$s ajouté à %2$s</string>
     <string name="already_in">%1$s déjà présent à %2$s</string>
     <string name="song_removed">%1$s retiré de %2$s</string>
+    <string name="already_exists">%1$s existe déjà</string>
 </resources>

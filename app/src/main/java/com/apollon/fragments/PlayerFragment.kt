@@ -14,11 +14,10 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.apollon.GetLyrics
-import com.apollon.MainActivity
-import com.apollon.R
-import com.apollon.Server
+import com.apollon.*
+import com.apollon.classes.Song
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.player.*
 import kotlin.math.abs
 
 
@@ -37,9 +36,10 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     lateinit var randomButton: Button
     lateinit var favouriteButton: Button
     lateinit var gestureDetector: GestureDetector
+    var isFavourite: Boolean = false
     var songDuration = 0
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SourceLockedOrientationActivity")
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
@@ -155,8 +155,9 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                     (activity as MainActivity).mediaController.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
                 }
 
-            R.id.button_favourite ->
-                favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
+            R.id.button_favourite -> {
+                favouriteOps()
+            }
 
             R.id.button_share -> {
                 val sendIntent = Intent().apply {
@@ -170,9 +171,10 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
             R.id.button_lyrics -> {
                 //creates alert
                 val lyr = Server.getLyrics(artist.text.toString(), title.text.toString())
-                while(lyr.get() == null) {}
+                while (lyr.get() == null) {
+                }
                 var st = lyr.get()?.joinToString(separator = "\n")
-                if(st == "")
+                if (st == "")
                     st = resources.getString(R.string.lyrics)
                 AlertDialog.Builder(context, R.style.AlertStyle)
                         .setTitle(title.text)
@@ -182,6 +184,35 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                         }
                         .create()
                         .show()
+            }
+        }
+    }
+
+    fun favouriteOps() {
+        val songId = (activity as MainActivity).mediaController.metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+        if (isFavourite) {
+            val req = Server.removeSong("Favourites", songId)
+            while (req.get() == null) {
+            }
+            when {
+                req.get() == "ok" -> {
+                    favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
+                    isFavourite = false
+                    Toast.makeText(context, context!!.getString(R.string.song_removed, title.text, "Favourites"), Toast.LENGTH_SHORT).show()
+                }
+                else -> Toast.makeText(context, "${context!!.getString(R.string.error)}: ${req.get()}", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            val req = Server.addSong("Favourites", songId)
+            while (req.get() == null) {
+            }
+            when {
+                req.get() == "ok" -> {
+                    favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
+                    isFavourite = true
+                    Toast.makeText(context, context!!.getString(R.string.song_added, title.text, "Favourites"), Toast.LENGTH_SHORT).show()
+                }
+                else -> Toast.makeText(context, "${context!!.getString(R.string.error)}: ${req.get()}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -238,8 +269,19 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
                 songDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
                 duration.text = millisToString(songDuration)
-                //Picasso.get().load(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)).into(albumArt)
                 albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
+
+                val req = Server.getPlaylist("Favourites")
+                if (req is ServerSongsResult.Future) {
+                    req.async.execute()
+                    while (req.get().size == 0 && req.error() != "No Tracks") {
+                    } // TODO : animation for waiting
+                }
+                isFavourite = (req.get() as List<Song>).any { (it as Song).id == metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) }
+                if (isFavourite)
+                    button_favourite.setBackgroundResource(R.drawable.favourite_button_selector)
+                else
+                    button_favourite.setBackgroundResource(R.drawable.favourite_not_button_selector)
             }
 
             if ((activity as MainActivity).mediaController.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {
@@ -310,7 +352,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         override fun onLongPress(p0: MotionEvent?) {}
 
         override fun onDoubleTap(e: MotionEvent?): Boolean {
-            Toast.makeText(context, "${title.text} added to fav", Toast.LENGTH_SHORT).show()
+            favouriteOps()
             return true
         }
     }

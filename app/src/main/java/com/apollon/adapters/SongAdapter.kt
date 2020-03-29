@@ -67,7 +67,14 @@ class SongAdapter(val playlistTitle: String, val songs: ArrayList<Song>, val con
         popupMenu.setOnMenuItemClickListener { it ->
             when (it.itemId) {
                 R.id.action_add_favourite -> {
-                    Toast.makeText(context, "Song ${song.id} added to favourites", Toast.LENGTH_SHORT).show()
+                    val res = Server.addSong("Favourites", song.id)
+                    while (res.get() == null) {
+                    }
+                    when {
+                        res.get() == "ok" -> Toast.makeText(context, context.getString(R.string.song_added, song.title, "Favourites"), Toast.LENGTH_SHORT).show()
+                        res.get().toString().contains("already in the playlist") -> Toast.makeText(context, context.getString(R.string.already_in, song.title, "Favourites"), Toast.LENGTH_SHORT).show()
+                        else -> Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 R.id.action_add_playlist -> {
                     val action = Server.getPlaylists()

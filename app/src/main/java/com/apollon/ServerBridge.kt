@@ -196,14 +196,20 @@ private class AllPlaylists : ApollonAsync() {
         when (resp) {
             is RequestResult.Ok -> {
                 val j = resp.result
+                var img: String
                 val values = j["result"] as JSONArray
                 Log.e("HTTP", values.length().toString())
 
                 for (i in 0..values.length() - 1) {
                     val playlist: JSONObject = values[i] as JSONObject
                     Log.e("HTTP", playlist.toString())
-                    if(playlist["title"] != "Favourites")
-                        ret.add(Playlist.Custom(playlist["title"] as String, playlist["title"] as String, playlist["#nsongs"] as Int))
+                    if (playlist["title"] != "Favourites") {
+                        if ((playlist["uris"] as JSONArray).length() > 0)
+                            img = ((playlist["uris"] as JSONArray)[0] as JSONObject)["img"] as String//TODO random?
+                        else
+                            img = "genre"//TODO correct name
+                        ret.add(Playlist.Custom(playlist["title"] as String, playlist["title"] as String, img, playlist["#nsongs"] as Int))
+                    }
                 }
             }
             is RequestResult.Error -> {
@@ -387,7 +393,8 @@ class SinglePlaylist(val title: String) : SongAsync() {
                     val title: String = jsong["title"] as String
                     val artist: String = jsong["artist"] as String
                     val uri = jsong["uri"] as String
-                    ret.add(PlaylistSong(uri, title, artist))
+                    val img = jsong["img"] as String
+                    ret.add(PlaylistSong(uri, title, artist, img))
                 }
             }
             is RequestResult.Error -> {
@@ -519,6 +526,22 @@ class FileExists(val uri: String) : AsyncTask<Void, Int, Boolean>() {
     }
 }
 
+class ConversionStatus(val uri: String): OperationAsync(){
+    override fun doInBackground(vararg p0: Void?): String? {
+        result = when (val resp = makeRequest(hashMapOf("action" to "conversion-status", "uri" to uri.substring(baseurl().toString().length - 1)))) {
+            is RequestResult.Ok -> {
+                Log.e("JSON", resp.result.toString())
+                resp.result["result"] as String
+            }
+            is RequestResult.Error -> {
+                Log.e("JSON", resp.msg); resp.msg
+            }
+        }
+        Log.e("HTTP", "Finished conversionStatus")
+        return result
+    }
+}
+
 class DoLogin : AsyncTask<Void, Int, Boolean>() {
     var result: Boolean = false
     var done = false
@@ -614,6 +637,7 @@ object Server {
     private var allGenres: ApollonAsync? = null
     private var allArtists: ApollonAsync? = null
     private var allPlaylists: ApollonAsync? = null
+    var quality = "high" //TODO different quality
 
 
     fun getArtist(id: String): ServerPlaylistResult {
@@ -733,6 +757,12 @@ object Server {
 
     fun dropPlaylist(title: String) {
         playlists.remove(title)
+    }
+
+    fun getConversionStatus(uri: String): OperationResult {
+        val asyn = ConversionStatus(uri)
+        asyn.execute()
+        return OperationResult(asyn)
     }
 }
 

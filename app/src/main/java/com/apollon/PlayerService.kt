@@ -196,6 +196,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     fun initMedia(playlist: ArrayList<Song>, songIndex: Int) {
+        Log.e("bug", "init")
         if (mediaPlayer == null)
             initMediaPlayer()
         if (this.playlist != playlist || this.songIndex != songIndex || !ready) {
@@ -220,8 +221,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                 val uu: String = str.url
                 val f = FileExists(uu)
                 f.execute()
-                while (!f.result) {
-                } // TODO ANIMATION
+                while (!f.result) {}
 
 
                 mediaPlayer?.setDataSource(uu)
@@ -347,6 +347,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
         metaDataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration.toLong())
+        Log.e("durations", song.duration.toLong().toString())
+        metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, song.url)
 
         val cursong = playlist[songIndex]
         metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, cursong.img_url)

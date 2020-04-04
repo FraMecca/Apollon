@@ -1,6 +1,7 @@
 package com.apollon.fragments
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
@@ -35,6 +36,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     lateinit var loopButton: Button
     lateinit var randomButton: Button
     lateinit var favouriteButton: Button
+    lateinit var qualityButton: Button
     lateinit var gestureDetector: GestureDetector
     var isFavourite: Boolean = false
     var songDuration = 0
@@ -63,7 +65,15 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         loopButton = mView.findViewById(R.id.button_repeat)
         randomButton = mView.findViewById(R.id.button_random)
         favouriteButton = mView.findViewById(R.id.button_favourite)
+        qualityButton = mView.findViewById(R.id.button_quality)
+        //quality button look
+        when(Server.quality){
+            "high" ->  qualityButton.setBackgroundResource(R.drawable.hq_button_selector)
+            "medium" ->  qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
+            "low" ->  qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
+        }
 
+        seekBar.isEnabled = false
         mView.findViewById<Button>(R.id.button_previous).setOnClickListener(activity as MainActivity)
         mView.findViewById<Button>(R.id.button_next).setOnClickListener(activity as MainActivity)
         mView.findViewById<Button>(R.id.button_share).setOnClickListener(this)
@@ -74,6 +84,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         randomButton.setOnClickListener(this)
         seekBar.setOnSeekBarChangeListener(this)
         favouriteButton.setOnClickListener(this)
+        qualityButton.setOnClickListener(this)
 
         albumArt.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, e: MotionEvent?): Boolean {
@@ -81,10 +92,8 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
             }
         })
 
-        //Registers to service bus
         callback = Callback()
         (activity as MainActivity).mediaController.registerCallback(callback)
-
         return mView
     }
 
@@ -111,6 +120,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
     override fun onStopTrackingTouch(seekbar: SeekBar?) {
         (activity as MainActivity).mediaController.transportControls.seekTo(songDuration.toLong() * seekbar!!.progress / 1000)
+        Log.e("seekto", (songDuration.toLong() * seekbar!!.progress / 1000).toString())
     }
 
     private fun updateSeekBar() {
@@ -124,6 +134,12 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         activity?.runOnUiThread(object : Runnable {
             override fun run() {
                 updateSeekBar()
+                if (!seekBar.isEnabled){
+                    val resp = Server.getConversionStatus((activity as MainActivity).mediaController.metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))
+                    while(resp.get() == null){}
+                    if(resp.get() == "done")
+                        seekBar.isEnabled = true
+                }
                 seekBarHandler.postDelayed(this, 1000)
             }
         })
@@ -184,6 +200,20 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                         }
                         .create()
                         .show()
+            }
+
+            R.id.button_quality -> {
+                when(Server.quality){
+                    "high" -> {
+                        Server.quality = "medium"
+                        qualityButton.setBackgroundResource(R.drawable.mq_button_selector)}
+                    "medium" ->{
+                        Server.quality = "low"
+                        qualityButton.setBackgroundResource(R.drawable.lq_button_selector)}
+                    "low" -> {
+                        Server.quality = "high"
+                        qualityButton.setBackgroundResource(R.drawable.hq_button_selector)}
+                }
             }
         }
     }
@@ -270,12 +300,12 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 songDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
                 duration.text = millisToString(songDuration)
                 albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
-
+                seekBar.isEnabled = false
                 val req = Server.getPlaylist("Favourites")
                 if (req is ServerSongsResult.Future) {
                     req.async.execute()
                     while (req.get().size == 0 && req.error() != "No Tracks") {
-                    } // TODO : animation for waiting
+                    }
                 }
                 isFavourite = (req.get() as List<Song>).any { (it as Song).id == metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) }
                 if (isFavourite)

@@ -20,5 +20,5 @@ sealed class Playlist( val id: String, val title: String, val img_url: String, v
     class Genre( id: String, title: String, img_url: String) : Playlist(id, title, img_url, 0) {
         constructor(id: String, title: String) : this(id, title, "genre")
     }
-    class Custom( id: String, title: String, elements: Int) : Playlist(id, title, "genre", elements)
+    class Custom( id: String, title: String, img:String, elements: Int) : Playlist(id, title, img, elements)
 }

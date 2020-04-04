@@ -21,4 +21,4 @@ open class Song(val id: String, val title: String, val artist: String, var img_u
     }
 }
 
-class PlaylistSong(id: String, title: String, artist:String) : Song(id, title, artist) {}
+class PlaylistSong(id: String, title: String, artist:String, img_url: String) : Song(id, title, artist, img_url) {}

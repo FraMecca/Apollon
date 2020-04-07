@@ -73,7 +73,6 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
             "low" ->  qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
         }
 
-        seekBar.isEnabled = false
         mView.findViewById<Button>(R.id.button_previous).setOnClickListener(activity as MainActivity)
         mView.findViewById<Button>(R.id.button_next).setOnClickListener(activity as MainActivity)
         mView.findViewById<Button>(R.id.button_share).setOnClickListener(this)
@@ -120,7 +119,6 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
     override fun onStopTrackingTouch(seekbar: SeekBar?) {
         (activity as MainActivity).mediaController.transportControls.seekTo(songDuration.toLong() * seekbar!!.progress / 1000)
-        Log.e("seekto", (songDuration.toLong() * seekbar!!.progress / 1000).toString())
     }
 
     private fun updateSeekBar() {
@@ -134,12 +132,6 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         activity?.runOnUiThread(object : Runnable {
             override fun run() {
                 updateSeekBar()
-                if (!seekBar.isEnabled){
-                    val resp = Server.getConversionStatus((activity as MainActivity).mediaController.metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))
-                    while(resp.get() == null){}
-                    if(resp.get() == "done")
-                        seekBar.isEnabled = true
-                }
                 seekBarHandler.postDelayed(this, 1000)
             }
         })
@@ -206,12 +198,16 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 when(Server.quality){
                     "high" -> {
                         Server.quality = "medium"
-                        qualityButton.setBackgroundResource(R.drawable.mq_button_selector)}
+                        (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
+                        qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
+                    }
                     "medium" ->{
                         Server.quality = "low"
+                        (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
                         qualityButton.setBackgroundResource(R.drawable.lq_button_selector)}
                     "low" -> {
                         Server.quality = "high"
+                        (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
                         qualityButton.setBackgroundResource(R.drawable.hq_button_selector)}
                 }
             }
@@ -287,8 +283,12 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
         override fun onSessionEvent(event: String?, extras: Bundle?) {
             super.onSessionEvent(event, extras)
-            if (event == "PositionChanged" && (activity as MainActivity).mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
-                startSeekBarHandler()
+            when(event){
+                "PositionChanged" ->
+                    if((activity as MainActivity).mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
+                        startSeekBarHandler()
+                "Buffered" -> seekBar.secondaryProgress = extras!!.getInt("percent") * 10
+            }
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
@@ -300,7 +300,6 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 songDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
                 duration.text = millisToString(songDuration)
                 albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
-                seekBar.isEnabled = false
                 val req = Server.getPlaylist("Favourites")
                 if (req is ServerSongsResult.Future) {
                     req.async.execute()

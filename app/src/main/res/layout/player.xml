@@ -88,6 +88,7 @@
             android:layout_marginTop="@dimen/seekbar_margin_top"
             android:layout_marginBottom="@dimen/seekbar_margin_bottom"
             android:progress="0"
+            android:secondaryProgress="0"
             android:max="1000"/>
 
         <LinearLayout

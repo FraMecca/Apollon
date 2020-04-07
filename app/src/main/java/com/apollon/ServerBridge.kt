@@ -348,9 +348,10 @@ class SingleSong(val uri: String) : AsyncTask<Void, Int, StreamingSong>() {
     var error = ""
 
     override fun doInBackground(vararg params: Void?): StreamingSong? {
+        Log.e("singleSong", uri)
         Log.e("HTTP", "request: single-song")
 
-        val resp = makeRequest(hashMapOf("action" to "new-song", "quality" to "high", "uri" to uri))
+        val resp = makeRequest(hashMapOf("action" to "new-song", "quality" to Server.quality, "uri" to uri))
         result = when (resp) {
             is RequestResult.Ok -> {
                 val j = resp.result
@@ -358,9 +359,8 @@ class SingleSong(val uri: String) : AsyncTask<Void, Int, StreamingSong>() {
                 Log.e("URL", url)
                 val metadata = ((((j.get("metadata") as JSONObject).get("json") as JSONObject).get("media") as JSONObject)
                         .get("track") as JSONArray).get(0) as JSONObject
-                val title = metadata["Title"] as String
+                val title = if (metadata.has("Title")) metadata["Title"] as String else metadata["Album"] as String
                 val artist = metadata["Performer"] as String
-                //val album = metadata["Album"] as String
                 val fduration = metadata["Duration"] as String
                 val duration = (fduration.toFloat() * 1000).toInt()
                 val s = StreamingSong(url, duration, uri, title, artist)

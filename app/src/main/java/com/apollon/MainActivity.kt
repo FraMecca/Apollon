@@ -135,6 +135,3 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         }
     }
 }
-// TODO: check if server down
-// TODO: genre does not work, mess with it
-// TODO real login

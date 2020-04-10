@@ -67,10 +67,10 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         favouriteButton = mView.findViewById(R.id.button_favourite)
         qualityButton = mView.findViewById(R.id.button_quality)
         //quality button look
-        when(Server.quality){
-            "high" ->  qualityButton.setBackgroundResource(R.drawable.hq_button_selector)
-            "medium" ->  qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
-            "low" ->  qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
+        when (Server.quality) {
+            "high" -> qualityButton.setBackgroundResource(R.drawable.hq_button_selector)
+            "medium" -> qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
+            "low" -> qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
         }
 
         mView.findViewById<Button>(R.id.button_previous).setOnClickListener(activity as MainActivity)
@@ -119,6 +119,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
     override fun onStopTrackingTouch(seekbar: SeekBar?) {
         (activity as MainActivity).mediaController.transportControls.seekTo(songDuration.toLong() * seekbar!!.progress / 1000)
+        seekBar.isEnabled = false
     }
 
     private fun updateSeekBar() {
@@ -195,20 +196,35 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
             }
 
             R.id.button_quality -> {
-                when(Server.quality){
-                    "high" -> {
-                        Server.quality = "medium"
-                        (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
-                        qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
+                val popupMenu = PopupMenu(context, v)
+                val inflater = popupMenu.menuInflater
+                inflater.inflate(R.menu.quality_menu, popupMenu.menu)
+                popupMenu.show()
+                popupMenu.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.low_quality -> {
+                            if (Server.quality != "low") {
+                                Server.quality = "low"
+                                (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
+                                qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
+                            }
+                        }
+                        R.id.medium_quality -> {
+                            if (Server.quality != "medium") {
+                                Server.quality = "medium"
+                                (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
+                                qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
+                            }
+                        }
+                        R.id.high_quality -> {
+                            if (Server.quality != "high") {
+                                Server.quality = "high"
+                                (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
+                                qualityButton.setBackgroundResource(R.drawable.hq_button_selector)
+                            }
+                        }
                     }
-                    "medium" ->{
-                        Server.quality = "low"
-                        (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
-                        qualityButton.setBackgroundResource(R.drawable.lq_button_selector)}
-                    "low" -> {
-                        Server.quality = "high"
-                        (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
-                        qualityButton.setBackgroundResource(R.drawable.hq_button_selector)}
+                    true
                 }
             }
         }
@@ -248,6 +264,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
             super.onPlaybackStateChanged(state)
             when (state?.state) {
                 PlaybackStateCompat.STATE_PLAYING -> {
+                    seekBar.isEnabled = true
                     playButton.setBackgroundResource(R.drawable.pause_button_selector)
                     startSeekBarHandler()
                 }
@@ -283,10 +300,12 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
 
         override fun onSessionEvent(event: String?, extras: Bundle?) {
             super.onSessionEvent(event, extras)
-            when(event){
-                "PositionChanged" ->
-                    if((activity as MainActivity).mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
+            when (event) {
+                "PositionChanged" -> {
+                    seekBar.isEnabled = true
+                    if ((activity as MainActivity).mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING)
                         startSeekBarHandler()
+                }
                 "Buffered" -> seekBar.secondaryProgress = extras!!.getInt("percent") * 10
             }
         }

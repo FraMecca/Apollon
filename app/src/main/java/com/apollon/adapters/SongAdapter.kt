@@ -64,7 +64,7 @@ class SongAdapter(val playlistTitle: String, val songs: ArrayList<Song>, val con
             popupMenu.menu.findItem(R.id.action_remove).isVisible = true
         popupMenu.show()
 
-        popupMenu.setOnMenuItemClickListener { it ->
+        popupMenu.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_add_favourite -> {
                     val res = Server.addSong("Favourites", song.id)

@@ -20,22 +20,24 @@ import com.apollon.classes.Song
 import com.squareup.picasso.Picasso
 
 
-class SongsFragment : Fragment() {
+class SongsFragment : Fragment(), TaskListener {
 
     lateinit var mView: View
     private val songs: ArrayList<Song> = ArrayList()
+    lateinit var playlist: Playlist
+    lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
         mView = inflater.inflate(R.layout.songs, container, false)
-        val playlist = arguments?.getSerializable("playlist") as Playlist
+        playlist = arguments?.getSerializable("playlist") as Playlist
         Log.e("PLAYLIST", playlist.id)
         val playlistThumbnail = mView.findViewById<ImageView>(R.id.playlist_thumbnail)
         val playlistToolbar = mView.findViewById<Toolbar>(R.id.playlist_toolbar)
         val search = mView.findViewById<SearchView>(R.id.search)
-        val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
+        recyclerView = mView.findViewById(R.id.recycler_view)
 
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String?): Boolean {
@@ -55,13 +57,12 @@ class SongsFragment : Fragment() {
 
         (activity as MainActivity).setSupportActionBar(playlistToolbar)
         playlistToolbar.title = playlist.title
-        // Loads elements into the ArrayList
-        addSongs(playlist) // TODO, assert or something else, improve costraints
         // Creates a Grid Layout Manager
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-
         // Access the RecyclerView Adapter and load the data into it
         recyclerView.adapter = SongAdapter(playlist.title, songs, requireContext(), this)
+        // Loads elements into the ArrayList
+        addSongs(playlist) // TODO, assert or something else, improve constraints
         return mView
     }
 
@@ -69,22 +70,32 @@ class SongsFragment : Fragment() {
     private fun addSongs(playlist: Playlist) {
         val uri = playlist.id
         songs.clear()
-        val req = when(playlist){
-            is Playlist.Album -> Server.getAlbum(uri)
-            is Playlist.Custom -> Server.getPlaylist(uri)
-            is Playlist.Favourites -> Server.getPlaylist(uri)
-            else -> {assert(false); return}
+        when (playlist) {
+            is Playlist.Album -> Server.getAlbum(this, uri)
+            is Playlist.Custom -> Server.getPlaylist(this, uri)
+            is Playlist.Favourites -> Server.getPlaylist(this, uri)
+            else -> {
+                assert(false); return
+            }
         }
-        if (req is ServerSongsResult.Future) {
-            req.async.execute()
-            while (req.get().size == 0 && req.error() != "No Tracks") {
-                if (req.error() != "") {
-                    Toast.makeText(context, req.error(), Toast.LENGTH_LONG).show()
-                    return
+    }
+
+    override fun onTaskCompleted(result: TaskResult) {
+        if (result is TaskResult.ServerSongsResult) {
+            if (result.error == "") {
+                songs.clear()
+                result.result?.forEach { songs.add(it) }
+                // Access the RecyclerView Adapter and load the data into it
+                activity?.runOnUiThread {
+                    (recyclerView.adapter as SongAdapter).songs = songs
+
+                    (recyclerView.adapter as SongAdapter).notifyDataSetChanged()
                 }
-            } // TODO : animation for waiting
+            } else
+                activity?.runOnUiThread {
+                    Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
+                }
         }
-        req.get().forEach { songs.add(it) }
 
     }
 

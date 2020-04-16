@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.apollon.MainActivity
 import com.apollon.classes.Playlist
@@ -18,7 +19,7 @@ import com.apollon.fragments.PlayListsFragment
 
 
 
-class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context, val fragment: PlayListsFragment) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable {
+class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, val fragment: PlayListsFragment) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable {
 
     private val filter = PlaylistFilter()
     private var filteredPlaylists = playlists
@@ -68,7 +69,7 @@ class PlaylistAdapter(val playlists: ArrayList<Playlist>, val context: Context, 
             else -> PlayListsFragment.newInstance(playlist)
         }
 
-        holder.itemView.setOnClickListener { (context as MainActivity).replaceFragment(target) }
+        holder.itemView.setOnClickListener { (context as MainActivity).replaceFragment(target as Fragment) }
 
         //Custom playlist buttons
         if(playlist is Playlist.Custom) {

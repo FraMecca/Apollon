@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.player.*
 import kotlin.math.abs
 
 
-class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
     lateinit var callback: Callback
     private var seekBarHandler = Handler()
@@ -40,6 +40,7 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
     lateinit var gestureDetector: GestureDetector
     var isFavourite: Boolean = false
     var songDuration = 0
+    var songUri = ""
 
     @SuppressLint("ClickableViewAccessibility", "SourceLockedOrientationActivity")
     override fun onCreateView(
@@ -259,6 +260,23 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
         }
     }
 
+    override fun onTaskCompleted(result: TaskResult) {
+        if (result is TaskResult.ServerSongsResult) {
+            if (result.error == "") {
+                isFavourite = result.result!!.any { it.id == songUri }
+                activity?.runOnUiThread {
+                    if (isFavourite)
+                        button_favourite.setBackgroundResource(R.drawable.favourite_button_selector)
+                    else
+                        button_favourite.setBackgroundResource(R.drawable.favourite_not_button_selector)
+                }
+            } else
+                activity?.runOnUiThread {
+                    Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
+                }
+        }
+    }
+
     inner class Callback : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             super.onPlaybackStateChanged(state)
@@ -319,17 +337,8 @@ class PlayerFragment : Fragment(), SeekBar.OnSeekBarChangeListener, View.OnClick
                 songDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
                 duration.text = millisToString(songDuration)
                 albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
-                val req = Server.getPlaylist("Favourites")
-                if (req is ServerSongsResult.Future) {
-                    req.async.execute()
-                    while (req.get().size == 0 && req.error() != "No Tracks") {
-                    }
-                }
-                isFavourite = (req.get() as List<Song>).any { (it as Song).id == metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) }
-                if (isFavourite)
-                    button_favourite.setBackgroundResource(R.drawable.favourite_button_selector)
-                else
-                    button_favourite.setBackgroundResource(R.drawable.favourite_not_button_selector)
+                songUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+                Server.getPlaylist(this@PlayerFragment, "Favourites")
             }
 
             if ((activity as MainActivity).mediaController.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {

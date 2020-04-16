@@ -1,28 +1,27 @@
 package com.apollon.adapters
 
+import android.app.Activity
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.apollon.MainActivity
+import com.apollon.*
 import com.apollon.classes.PlaylistSong
 import com.apollon.classes.Song
 import com.apollon.fragments.PlayerFragment
 import com.squareup.picasso.Picasso
 import java.util.*
-import com.apollon.R
-import com.apollon.Server
-import com.apollon.ServerPlaylistResult
 import com.apollon.fragments.SongsFragment
 
 
-class SongAdapter(val playlistTitle: String, val songs: ArrayList<Song>, val context: Context, val fragment: SongsFragment) : RecyclerView.Adapter<SongViewHolder>(), Filterable {
+class SongAdapter(val playlistTitle: String, var songs: ArrayList<Song>, val context: Context, val fragment: SongsFragment) : RecyclerView.Adapter<SongViewHolder>(), TaskListener, Filterable {
 
     private val filter = SongFilter()
     private var filteredSongs = songs
+    lateinit var selectedView: View
+    lateinit var selectedSong: Song
 
     // Gets the number of songs in the list
     override fun getItemCount(): Int {
@@ -77,33 +76,9 @@ class SongAdapter(val playlistTitle: String, val songs: ArrayList<Song>, val con
                     }
                 }
                 R.id.action_add_playlist -> {
-                    val action = Server.getPlaylists()
-                    if (action is ServerPlaylistResult.Future) {
-                        action.async.execute()
-
-                        while (action.get().size == 0 && action.error() != "No Playlists") {
-                            if (action.error() != "") {
-                                Toast.makeText(context, action.error(), Toast.LENGTH_LONG).show()
-                                break
-                            }
-                        }
-                    }
-                    val menu = PopupMenu(context, view)
-                    action.get().forEach {
-                        menu.menu.add(it.title)
-                    }
-                    menu.setOnMenuItemClickListener { item ->
-                        val res = Server.addSong(item.title.toString(), song.id)
-                        while (res.get() == null) {
-                        }
-                        when {
-                            res.get() == "ok" -> Toast.makeText(context, context.getString(R.string.song_added, song.title, item.title), Toast.LENGTH_SHORT).show()
-                            res.get().toString().contains("already in the playlist") -> Toast.makeText(context, context.getString(R.string.already_in, song.title, item.title), Toast.LENGTH_SHORT).show()
-                            else -> Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
-                        }
-                        true
-                    }
-                    menu.show()
+                    selectedView = view
+                    selectedSong = song
+                    Server.getPlaylists(this)
                 }
                 R.id.action_remove -> {
                     val res = Server.removeSong(playlistTitle, song.id)
@@ -112,7 +87,7 @@ class SongAdapter(val playlistTitle: String, val songs: ArrayList<Song>, val con
                     when {
                         res.get() == "ok" -> {
                             Toast.makeText(context, context.getString(R.string.song_removed, song.title, playlistTitle), Toast.LENGTH_SHORT).show()
-                            (context as MainActivity).refreshFragment(fragment)
+                            Server.getPlaylist(fragment, playlistTitle)
                         }
                         else -> Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
                     }
@@ -124,6 +99,34 @@ class SongAdapter(val playlistTitle: String, val songs: ArrayList<Song>, val con
 
     override fun getFilter(): Filter {
         return filter
+    }
+
+    override fun onTaskCompleted(result: TaskResult) {
+        if (result is TaskResult.ServerPlaylistResult) {
+            if (result.error == "") {
+                val menu = PopupMenu(context, selectedView)
+                result.result?.forEach {
+                    menu.menu.add(it.title)
+                }
+                menu.setOnMenuItemClickListener { item ->
+                    val res = Server.addSong(item.title.toString(), selectedSong.id)
+                    while (res.get() == null) {
+                    }
+                    when {
+                        res.get() == "ok" -> Toast.makeText(context, context.getString(R.string.song_added, selectedSong.title, item.title), Toast.LENGTH_SHORT).show()
+                        res.get().toString().contains("already in the playlist") -> Toast.makeText(context, context.getString(R.string.already_in, selectedSong.title, item.title), Toast.LENGTH_SHORT).show()
+                        else -> Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
+                    }
+                    true
+                }
+                (context as Activity)?.runOnUiThread {
+                    menu.show()
+                }
+            } else
+                (context as Activity)?.runOnUiThread {
+                    Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
+                }
+        }
     }
 
     inner class SongFilter : Filter() {

@@ -20,17 +20,19 @@ import com.apollon.*
 import pl.droidsonroids.gif.GifImageView
 
 
-class PlayListsFragment : Fragment(), View.OnClickListener {
+class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
 
     private val playlists: ArrayList<Playlist> = ArrayList()
     lateinit var playlist: Playlist
     lateinit var loading: GifImageView
+    lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
+        Log.e("PlaylistFragment", "OnCreateView")
         val mView = inflater.inflate(R.layout.playlists, container, false)
         val search = mView.findViewById<SearchView>(R.id.search)
-        val recyclerView = mView.findViewById<RecyclerView>(R.id.recycler_view)
+        recyclerView = mView.findViewById(R.id.recycler_view)
         playlist = if (this.arguments != null && this.arguments!!.containsKey("playlist"))
             this.arguments!!.get("playlist") as Playlist
         else
@@ -53,14 +55,15 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
             addButton.setOnClickListener(this)
             addButton.visibility = View.VISIBLE
         }
-
-        // Loads elements into the ArrayList
-        addPlaylists()
         // Creates a Grid Layout Manager
         recyclerView.layoutManager = GridLayoutManager(context, 1)
 
         // Access the RecyclerView Adapter and load the data into it
         recyclerView.adapter = PlaylistAdapter(playlists, requireContext(), this)
+
+        // Loads elements into the ArrayList
+        addPlaylists()
+
         return mView
     }
 
@@ -81,7 +84,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                             when {
                                 res.get() == "ok" -> {
                                     Toast.makeText(context, "Playlist ${editView.findViewById<EditText>(R.id.edit_title).text} created", Toast.LENGTH_SHORT).show()
-                                    (context as MainActivity).refreshFragment(this)
+                                    Server.getPlaylists(this)
                                 }
                                 res.get().toString().contains("There is a playlist with the same title and user already") -> Toast.makeText(context, context!!.getString(R.string.already_exists, "${editView.findViewById<EditText>(R.id.edit_title).text}"), Toast.LENGTH_SHORT).show()
                                 else -> Toast.makeText(context, "Error: ${res.get()}", Toast.LENGTH_SHORT).show()
@@ -103,7 +106,7 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
         playlists.clear()
 
 
-        val action = when (playlist) {
+        when (playlist) {
             is Playlist.Begin -> {
                 playlists.add(Playlist.AllArtists())
                 playlists.add(Playlist.AllAlbums())
@@ -112,15 +115,15 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 playlists.add(Playlist.Favourites())
                 return // break
             }
-            is Playlist.Artist -> Server.getArtist(playlist.id)
+            is Playlist.Artist -> Server.getArtist(this, playlist.id)
             is Playlist.Album -> {
                 assert(false); return
             } // this should have been forwarded to SongsFragments
-            is Playlist.Genre -> Server.getGenre(playlist.id)
-            is Playlist.AllAlbums -> Server.getAlbums()
-            is Playlist.AllArtists -> Server.getArtists()
-            is Playlist.AllGenres -> Server.getGenres()
-            is Playlist.AllPlaylists -> Server.getPlaylists()
+            is Playlist.Genre -> Server.getGenre(this, playlist.id)
+            is Playlist.AllAlbums -> Server.getAlbums(this)
+            is Playlist.AllArtists -> Server.getArtists(this)
+            is Playlist.AllGenres -> Server.getGenres(this)
+            is Playlist.AllPlaylists -> Server.getPlaylists(this)
             is Playlist.Favourites -> {
                 assert(false); return
             }
@@ -128,27 +131,24 @@ class PlayListsFragment : Fragment(), View.OnClickListener {
                 assert(false); return
             } // this should have been forwarded to SongsFragments
         }
-        if (action is ServerPlaylistResult.Future) {
-            action.async.execute()
-            Log.e("Playlist", "server.execute")
-            //Loading gif starts
-            //loading.visibility = View.VISIBLE
+    }
 
-            while (action.get().size == 0 && action.error() != "No Playlists") {
-                if (action.error() != "") {
-                    Toast.makeText(context, action.error(), Toast.LENGTH_LONG).show()
-                    loading.visibility = View.GONE
-                    return
+    override fun onTaskCompleted(result: TaskResult) {
+        if (result is TaskResult.ServerPlaylistResult) {
+            if (result.error == "") {
+                playlists.clear()
+                result.result?.forEach { playlists.add(it) }
+                // Access the RecyclerView Adapter and load the data into it
+                activity?.runOnUiThread {
+                    (recyclerView.adapter as PlaylistAdapter).playlists = playlists
+
+                    (recyclerView.adapter as PlaylistAdapter).notifyDataSetChanged()
                 }
-            }
-            //Loading gif ends
-            //loading.visibility = View.GONE
+            } else
+                activity?.runOnUiThread {
+                    Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
+                }
         }
-
-        action.get().forEach {
-            playlists.add(it)
-        }
-
     }
 
     companion object {

@@ -178,23 +178,7 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                 startActivity(sendIntent)
             }
 
-            R.id.button_lyrics -> {
-                //creates alert
-                val lyr = Server.getLyrics(artist.text.toString(), title.text.toString())
-                while (lyr.get() == null) {
-                }
-                var st = lyr.get()?.joinToString(separator = "\n")
-                if (st == "")
-                    st = resources.getString(R.string.lyrics)
-                AlertDialog.Builder(context, R.style.AlertStyle)
-                        .setTitle(title.text)
-                        .setMessage(st)
-                        .setNegativeButton(context?.getString(R.string.close)) { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .create()
-                        .show()
-            }
+            R.id.button_lyrics -> Server.getLyrics(this, artist.text.toString(), title.text.toString())
 
             R.id.button_quality -> {
                 val popupMenu = PopupMenu(context, v)
@@ -234,46 +218,76 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
     fun favouriteOps() {
         val songId = (activity as MainActivity).mediaController.metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
         if (isFavourite) {
-            val req = Server.removeSong("Favourites", songId)
-            while (req.get() == null) {
-            }
-            when {
-                req.get() == "ok" -> {
-                    favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
-                    isFavourite = false
-                    Toast.makeText(context, context!!.getString(R.string.song_removed, title.text, "Favourites"), Toast.LENGTH_SHORT).show()
-                }
-                else -> Toast.makeText(context, "${context!!.getString(R.string.error)}: ${req.get()}", Toast.LENGTH_SHORT).show()
-            }
+            Server.removeSong(this, "Favourites", songId)
+
         } else {
-            val req = Server.addSong("Favourites", songId)
-            while (req.get() == null) {
-            }
-            when {
-                req.get() == "ok" -> {
-                    favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
-                    isFavourite = true
-                    Toast.makeText(context, context!!.getString(R.string.song_added, title.text, "Favourites"), Toast.LENGTH_SHORT).show()
-                }
-                else -> Toast.makeText(context, "${context!!.getString(R.string.error)}: ${req.get()}", Toast.LENGTH_SHORT).show()
-            }
+            Server.addSong(this, "Favourites", songId)
         }
     }
 
     override fun onTaskCompleted(result: TaskResult) {
-        if (result is TaskResult.ServerSongsResult) {
-            if (result.error == "") {
-                isFavourite = result.result!!.any { it.id == songUri }
-                activity?.runOnUiThread {
-                    if (isFavourite)
-                        button_favourite.setBackgroundResource(R.drawable.favourite_button_selector)
-                    else
-                        button_favourite.setBackgroundResource(R.drawable.favourite_not_button_selector)
+        when (result) {
+            is TaskResult.ServerSongsResult -> {
+                if (result.error == "") {
+                    isFavourite = result.result!!.any { it.id == songUri }
+                    activity?.runOnUiThread {
+                        if (isFavourite)
+                            button_favourite.setBackgroundResource(R.drawable.favourite_button_selector)
+                        else
+                            button_favourite.setBackgroundResource(R.drawable.favourite_not_button_selector)
+                    }
+                } else
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
+                    }
+            }
+
+            is TaskResult.LyricsResult -> {
+                if (result.error == "") {
+                    var st = result.result!!.joinToString(separator = "\n")
+                    if (st == "")
+                        st = resources.getString(R.string.lyrics)
+                    activity?.runOnUiThread {
+                        AlertDialog.Builder(context, R.style.AlertStyle)
+                                .setTitle(title.text)
+                                .setMessage(st)
+                                .setNegativeButton(context?.getString(R.string.close)) { dialog, _ ->
+                                    dialog.dismiss()
+                                }
+                                .create()
+                                .show()
+                    }
                 }
-            } else
-                activity?.runOnUiThread {
-                    Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
+            }
+
+            is TaskResult.OperationResult -> {
+
+                when (result.task) {
+                    "removeSong" -> {
+                        if (result.error == "") {
+                            favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
+                            isFavourite = false
+                            activity?.runOnUiThread {
+                                Toast.makeText(context, context!!.getString(R.string.song_removed, context!!.getString(R.string.favourites)), Toast.LENGTH_SHORT).show()
+                            }
+                        } else
+                            activity?.runOnUiThread {
+                                Toast.makeText(context, "${context!!.getString(R.string.error)}: ${result.error}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                    "addSong" -> {
+                        if (result.error == "") {
+                            favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
+                            isFavourite = true
+                            activity?.runOnUiThread {
+                                Toast.makeText(context, context!!.getString(R.string.song_added, context!!.getString(R.string.favourites)), Toast.LENGTH_SHORT).show()
+                            }
+                        } else activity?.runOnUiThread {
+                            Toast.makeText(context, "${context!!.getString(R.string.error)}: ${result.error}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
+            }
         }
     }
 

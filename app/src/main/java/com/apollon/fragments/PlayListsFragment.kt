@@ -26,6 +26,7 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
     lateinit var playlist: Playlist
     lateinit var loading: GifImageView
     lateinit var recyclerView: RecyclerView
+    lateinit var selectedPlaylist: String
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -66,11 +67,12 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
 
         return mView
     }
-
+    //New playlist button
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.new_playlist_button -> {
                 val editView = LayoutInflater.from(context).inflate(R.layout.modify, null)
+
                 //creates alert
                 AlertDialog.Builder(context, R.style.AlertStyle)
                         .setTitle(getString(R.string.new_playlist))
@@ -78,21 +80,11 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
                         .setView(editView)
 
                         .setPositiveButton(getString(R.string.create)) { dialog, _ ->
-                            val res = Server.createPlaylist(editView.findViewById<EditText>(R.id.edit_title).text.toString())
-                            while (res.get() == null) {
-                            }
-                            when {
-                                res.get() == "ok" -> {
-                                    Toast.makeText(context, "Playlist ${editView.findViewById<EditText>(R.id.edit_title).text} created", Toast.LENGTH_SHORT).show()
-                                    Server.getPlaylists(this)
-                                }
-                                res.get().toString().contains("There is a playlist with the same title and user already") -> Toast.makeText(context, context!!.getString(R.string.already_exists, "${editView.findViewById<EditText>(R.id.edit_title).text}"), Toast.LENGTH_SHORT).show()
-                                else -> Toast.makeText(context, "Error: ${res.get()}", Toast.LENGTH_SHORT).show()
-                            }
+                            selectedPlaylist = editView.findViewById<EditText>(R.id.edit_title).text.toString()
+                            Server.createPlaylist(this, selectedPlaylist)
                             dialog.dismiss()
                         }
                         .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-                            Toast.makeText(context, "too bad", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }
                         .create()
@@ -118,8 +110,8 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
             is Playlist.Artist -> Server.getArtist(this, playlist.id)
             is Playlist.Album -> {
                 assert(false); return
-            } // this should have been forwarded to SongsFragments
-            is Playlist.Genre -> Server.getGenre(this, playlist.id)
+            }
+            is Playlist.Genre -> Server.getGenre(this, playlist.title)
             is Playlist.AllAlbums -> Server.getAlbums(this)
             is Playlist.AllArtists -> Server.getArtists(this)
             is Playlist.AllGenres -> Server.getGenres(this)
@@ -134,20 +126,44 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
     }
 
     override fun onTaskCompleted(result: TaskResult) {
-        if (result is TaskResult.ServerPlaylistResult) {
-            if (result.error == "") {
-                playlists.clear()
-                result.result?.forEach { playlists.add(it) }
-                // Access the RecyclerView Adapter and load the data into it
-                activity?.runOnUiThread {
-                    (recyclerView.adapter as PlaylistAdapter).playlists = playlists
+        when (result) {
+            is TaskResult.ServerPlaylistResult -> {
+                if (result.error == "") {
+                    playlists.clear()
+                    result.result?.forEach { playlists.add(it) }
+                    // Access the RecyclerView Adapter and load the data into it
+                    activity?.runOnUiThread {
+                        (recyclerView.adapter as PlaylistAdapter).playlists = playlists
+                        (recyclerView.adapter as PlaylistAdapter).notifyDataSetChanged()
+                    }
+                } else
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
+                    }
+            }
 
-                    (recyclerView.adapter as PlaylistAdapter).notifyDataSetChanged()
+            is TaskResult.OperationResult -> {
+                when (result.task) {
+                    "createPlaylist" -> {
+                        when{
+                            result.error == "" -> {
+                                activity?.runOnUiThread {
+                                    Toast.makeText(context, "Playlist $selectedPlaylist created", Toast.LENGTH_SHORT).show()
+                                }
+                                Server.getPlaylists(this)
+                            }
+                            result.error.contains("There is a playlist with the same title and user already") -> {
+                                activity?.runOnUiThread {
+                                    Toast.makeText(context, context!!.getString(R.string.already_exists, selectedPlaylist), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            else -> activity?.runOnUiThread {
+                                Toast.makeText(context, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
-            } else
-                activity?.runOnUiThread {
-                    Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
-                }
+            }
         }
     }
 

@@ -65,32 +65,15 @@ class SongAdapter(val playlistTitle: String, var songs: ArrayList<Song>, val con
 
         popupMenu.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.action_add_favourite -> {
-                    val res = Server.addSong("Favourites", song.id)
-                    while (res.get() == null) {
-                    }
-                    when {
-                        res.get() == "ok" -> Toast.makeText(context, context.getString(R.string.song_added, song.title, "Favourites"), Toast.LENGTH_SHORT).show()
-                        res.get().toString().contains("already in the playlist") -> Toast.makeText(context, context.getString(R.string.already_in, song.title, "Favourites"), Toast.LENGTH_SHORT).show()
-                        else -> Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                R.id.action_add_favourite -> Server.addSong(this, "Favourites", song.id)
+
                 R.id.action_add_playlist -> {
                     selectedView = view
                     selectedSong = song
                     Server.getPlaylists(this)
                 }
                 R.id.action_remove -> {
-                    val res = Server.removeSong(playlistTitle, song.id)
-                    while (res.get() == null) {
-                    }
-                    when {
-                        res.get() == "ok" -> {
-                            Toast.makeText(context, context.getString(R.string.song_removed, song.title, playlistTitle), Toast.LENGTH_SHORT).show()
-                            Server.getPlaylist(fragment, playlistTitle)
-                        }
-                        else -> Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
-                    }
+                    Server.removeSong(this, playlistTitle, song.id)
                 }
             }
             true
@@ -102,30 +85,64 @@ class SongAdapter(val playlistTitle: String, var songs: ArrayList<Song>, val con
     }
 
     override fun onTaskCompleted(result: TaskResult) {
-        if (result is TaskResult.ServerPlaylistResult) {
-            if (result.error == "") {
-                val menu = PopupMenu(context, selectedView)
-                result.result?.forEach {
-                    menu.menu.add(it.title)
-                }
-                menu.setOnMenuItemClickListener { item ->
-                    val res = Server.addSong(item.title.toString(), selectedSong.id)
-                    while (res.get() == null) {
+        when (result) {
+            is TaskResult.ServerPlaylistResult -> {
+                if (result.error == "") {
+                    val menu = PopupMenu(context, selectedView)
+                    result.result?.forEach {
+                        menu.menu.add(it.title)
                     }
-                    when {
-                        res.get() == "ok" -> Toast.makeText(context, context.getString(R.string.song_added, selectedSong.title, item.title), Toast.LENGTH_SHORT).show()
-                        res.get().toString().contains("already in the playlist") -> Toast.makeText(context, context.getString(R.string.already_in, selectedSong.title, item.title), Toast.LENGTH_SHORT).show()
-                        else -> Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
+                    menu.setOnMenuItemClickListener { item ->
+                        Server.addSong(this, item.title.toString(), selectedSong.id)
+                        true
                     }
-                    true
+                    (context as Activity)?.runOnUiThread {
+                        menu.show()
+                    }
+                } else
+                    (context as Activity)?.runOnUiThread {
+                        Toast.makeText(context, "${context.getString(R.string.error)}: ${result.error}", Toast.LENGTH_LONG).show()
+                    }
+            }
+
+            is TaskResult.OperationResult -> {
+                when (result.task) {
+                    "addSong" -> {
+                        when {
+                            result.error == "" ->
+                                if (result.title == "Favourites") {
+                                    (context as MainActivity).runOnUiThread {
+                                        Toast.makeText(context, context.getString(R.string.song_added, context.getString(R.string.Favourites)), Toast.LENGTH_SHORT).show()
+                                    }
+                                } else (context as MainActivity).runOnUiThread {
+                                    Toast.makeText(context, context.getString(R.string.song_added, result.title), Toast.LENGTH_SHORT).show()
+                                }
+
+                            result.error.contains("already in the playlist") -> {
+                                (context as MainActivity).runOnUiThread {
+                                    Toast.makeText(context, context.getString(R.string.already_in, result.title), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+
+                            else -> (context as MainActivity).runOnUiThread {
+                                Toast.makeText(context, "${context.getString(R.string.error)}: ${result.error}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+
+                    "removeSong" -> {
+                        if (result.error == "")
+                            (context as MainActivity).runOnUiThread {
+                                Toast.makeText(context, context.getString(R.string.song_removed, result.title), Toast.LENGTH_SHORT).show()
+                                Server.getPlaylist(fragment, playlistTitle)
+                            }
+                        else
+                            (context as MainActivity).runOnUiThread {
+                                Toast.makeText(context, "${context.getString(R.string.error)}: ${result.error}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
-                (context as Activity)?.runOnUiThread {
-                    menu.show()
-                }
-            } else
-                (context as Activity)?.runOnUiThread {
-                    Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
-                }
+            }
         }
     }
 

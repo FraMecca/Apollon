@@ -42,8 +42,9 @@
     <string name="action_remove">Ondoa</string>
     <string name="error">Kosa</string>
     <string name="playlist_deleted">Orodha ya kucheza %1$s imefutwa</string>
-    <string name="song_added">%1$s imeongezwa kwa %2$s</string>
-    <string name="already_in">%1$s tayari yuko %2$s</string>
-    <string name="song_removed">%1$s imeondolewa kutoka %2$s</string>
+    <string name="song_added">Wimbo imeongezwa kwa %1$s</string>
+    <string name="already_in">Wimbo tayari yuko %1$s</string>
+    <string name="song_removed">Wimbo imeondolewa kutoka %1$s</string>
     <string name="already_exists">%1$s tayari ipo</string>
+    <string name="playlist_renamed">orodha ya kucheza %1$s jina mpya</string>
 </resources>

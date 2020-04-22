@@ -9,17 +9,14 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.apollon.MainActivity
+import com.apollon.*
 import com.apollon.classes.Playlist
 import com.apollon.fragments.SongsFragment
 import com.squareup.picasso.Picasso
-import com.apollon.R
-import com.apollon.Server
 import com.apollon.fragments.PlayListsFragment
 
 
-
-class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, val fragment: PlayListsFragment) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable {
+class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, val fragment: PlayListsFragment) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable, TaskListener {
 
     private val filter = PlaylistFilter()
     private var filteredPlaylists = playlists
@@ -58,6 +55,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
             "album" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.album))
             "genre" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.genre))
             "favourites" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.favourites))
+            "playlist" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.playlist))
             else -> Picasso.get().load(playlist.img_url).into(holder.thumbnail)
         }
 
@@ -72,7 +70,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
         holder.itemView.setOnClickListener { (context as MainActivity).replaceFragment(target as Fragment) }
 
         //Custom playlist buttons
-        if(playlist is Playlist.Custom) {
+        if (playlist is Playlist.Custom) {
             val deleteButton = holder.itemView.findViewById<Button>(R.id.button_delete)
             val editButton = holder.itemView.findViewById<Button>(R.id.button_edit)
             deleteButton.visibility = View.VISIBLE
@@ -85,14 +83,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
                         .setMessage(context.getString(R.string.delete_message) + " ${playlist.title}?")
 
                         .setPositiveButton(context.getString(R.string.delete)) { dialog, _ ->
-                            val res = Server.removePlaylist(playlist.title)
-                            while (res.get() == null) {
-                            }
-                            if (res.get() == "ok") {
-                                Toast.makeText(context, context.getString(R.string.playlist_deleted, playlist.title), Toast.LENGTH_SHORT).show()
-                                (context as MainActivity).refreshFragment(fragment)
-                            } else
-                                Toast.makeText(context, "${context.getString(R.string.error)}: ${res.get()}", Toast.LENGTH_SHORT).show()
+                            Server.removePlaylist(this, playlist.title)
                             dialog.dismiss()
                         }
                         .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
@@ -103,7 +94,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
             }
 
             // edit click listener
-            editButton.setOnClickListener{
+            editButton.setOnClickListener {
                 val editView = LayoutInflater.from(context).inflate(R.layout.modify, null)
                 val editText = editView.findViewById<EditText>(R.id.edit_title)
                 editText.setText(playlist.title)
@@ -114,15 +105,39 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
                         .setMessage(context.getString(R.string.edit_playlist_message))
 
                         .setPositiveButton(context.getString(R.string.edit)) { dialog, _ ->
-                            Toast.makeText(context, "newname: ${editText.text}", Toast.LENGTH_SHORT).show()
+                            Server.renamePlaylist(this, playlist.title, editText.text.toString())
                             dialog.dismiss()
                         }
                         .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
-                            Toast.makeText(context, "u r safe: ${playlist.id}", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }
                         .create()
                         .show()
+            }
+        }
+    }
+
+    override fun onTaskCompleted(result: TaskResult) {
+        if (result is TaskResult.OperationResult) {
+            if (result.error == "") {
+                when(result.task){
+                    "removePlaylist" ->
+                        (context as MainActivity).runOnUiThread{
+                            Toast.makeText(context, context.getString(R.string.playlist_deleted, result.title), Toast.LENGTH_SHORT).show()
+                            context.refreshFragment(fragment)
+                        }
+
+                    "renamePlaylist" ->
+                        (context as MainActivity).runOnUiThread{
+                        Toast.makeText(context, context.getString(R.string.playlist_renamed, result.title), Toast.LENGTH_SHORT).show()
+                        context.refreshFragment(fragment)
+                    }
+                }
+
+            } else {
+                (context as MainActivity).runOnUiThread{
+                    Toast.makeText(context, "${context.getString(R.string.error)}: ${result.error}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -152,6 +167,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
             notifyDataSetChanged()
         }
     }
+
 }
 
 class PlaylistViewHolder(view: View) : RecyclerView.ViewHolder(view) {

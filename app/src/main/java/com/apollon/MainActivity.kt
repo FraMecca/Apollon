@@ -18,9 +18,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.apollon.fragments.LoginFragment
-import com.apollon.fragments.PlayListsFragment
 import com.apollon.fragments.PlayerFragment
-import com.squareup.picasso.Picasso
 
 class MainActivity : AppCompatActivity(), OnClickListener {
 
@@ -50,7 +48,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.e("ACTIVITY", "created" + this)
+        Log.e("ACTIVITY", "created$this")
         setContentView(R.layout.activity_main)
 
         val intent = Intent(this, PlayerService::class.java)

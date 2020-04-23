@@ -1,7 +1,7 @@
 package com.apollon.fragments
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -68,6 +68,7 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
         return mView
     }
     //New playlist button
+    @SuppressLint("InflateParams")
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.new_playlist_button -> {

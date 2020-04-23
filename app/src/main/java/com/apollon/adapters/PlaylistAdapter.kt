@@ -1,5 +1,8 @@
+@file:Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
+
 package com.apollon.adapters
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -14,9 +17,11 @@ import com.apollon.classes.Playlist
 import com.apollon.fragments.SongsFragment
 import com.squareup.picasso.Picasso
 import com.apollon.fragments.PlayListsFragment
+import java.util.*
+import kotlin.collections.ArrayList
 
 
-class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, val fragment: PlayListsFragment) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable, TaskListener {
+class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: Context, private val fragment: PlayListsFragment) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable, TaskListener {
 
     private val filter = PlaylistFilter()
     private var filteredPlaylists = playlists
@@ -32,6 +37,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
     }
 
     // Binds each playlist in the ArrayList to a view
+    @SuppressLint("InflateParams")
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         val playlist = filteredPlaylists[position]
 
@@ -119,28 +125,41 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
 
     override fun onTaskCompleted(result: TaskResult) {
         if (result is TaskResult.OperationResult) {
-            if (result.error == "") {
-                when(result.task){
-                    "removePlaylist" ->
-                        (context as MainActivity).runOnUiThread{
+            when (result.task) {
+                "removePlaylist" ->
+                    if (result.error == "")
+                        (context as MainActivity).runOnUiThread {
                             Toast.makeText(context, context.getString(R.string.playlist_deleted, result.title), Toast.LENGTH_SHORT).show()
                             context.refreshFragment(fragment)
                         }
+                    else
+                        (context as MainActivity).runOnUiThread {
+                            Toast.makeText(context, "${context.getString(R.string.error)}: ${result.error}", Toast.LENGTH_SHORT).show()
+                        }
 
-                    "renamePlaylist" ->
-                        (context as MainActivity).runOnUiThread{
-                        Toast.makeText(context, context.getString(R.string.playlist_renamed, result.title), Toast.LENGTH_SHORT).show()
-                        context.refreshFragment(fragment)
+                "renamePlaylist" ->
+                    when {
+                        result.error == "" ->
+                            (context as MainActivity).runOnUiThread {
+                                Toast.makeText(context, context.getString(R.string.playlist_renamed, result.title), Toast.LENGTH_SHORT).show()
+                                context.refreshFragment(fragment)
+                            }
+
+                        result.error.contains("same title") ->
+                            (context as MainActivity).runOnUiThread {
+                                Toast.makeText(context, context.getString(R.string.playlist_rename_fail, result.title), Toast.LENGTH_SHORT).show()
+                                context.refreshFragment(fragment)
+                            }
+
+                        else ->
+                            (context as MainActivity).runOnUiThread {
+                                Toast.makeText(context, "${context.getString(R.string.error)}: ${result.error}", Toast.LENGTH_SHORT).show()
+                            }
                     }
-                }
-
-            } else {
-                (context as MainActivity).runOnUiThread{
-                    Toast.makeText(context, "${context.getString(R.string.error)}: ${result.error}", Toast.LENGTH_SHORT).show()
-                }
             }
         }
     }
+
 
     override fun getFilter(): Filter {
         return filter
@@ -154,8 +173,8 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
             else {
                 val resList = ArrayList<Playlist>()
                 playlists.forEach {
-                    if (it.title.toLowerCase().contains(s.toString().toLowerCase()))
-                        resList.add(it)
+                if (it.title.toLowerCase(Locale.ROOT).contains(s.toString().toLowerCase(Locale.ROOT)))
+                resList.add(it)
                 }
                 res.values = resList
             }
@@ -167,7 +186,6 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, val context: Context, 
             notifyDataSetChanged()
         }
     }
-
 }
 
 class PlaylistViewHolder(view: View) : RecyclerView.ViewHolder(view) {

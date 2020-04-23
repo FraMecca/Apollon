@@ -47,4 +47,5 @@
     <string name="song_removed">Wimbo imeondolewa kutoka %1$s</string>
     <string name="already_exists">%1$s tayari ipo</string>
     <string name="playlist_renamed">orodha ya kucheza %1$s jina mpya</string>
+    <string name="playlist_rename_fail">Kuna orodha ya kucheza iitwayo %1$s tayari</string>
 </resources>

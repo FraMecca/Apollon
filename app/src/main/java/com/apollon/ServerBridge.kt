@@ -1,7 +1,6 @@
 package com.apollon
 
 import android.os.AsyncTask
-import android.service.voice.AlwaysOnHotwordDetector
 import java.net.HttpURLConnection
 import java.net.URL
 import android.util.Log
@@ -399,7 +398,7 @@ class RenamePlaylist(val listener: TaskListener, var oldTitle: String, var newTi
                 Server.dropPlaylist(oldTitle)
                 listener.onTaskCompleted(TaskResult.OperationResult("renamePlaylist", oldTitle))
             }
-            is RequestResult.Error -> listener.onTaskCompleted(TaskResult.OperationResult("renamePlaylist", oldTitle, resp.msg))
+            is RequestResult.Error -> listener.onTaskCompleted(TaskResult.OperationResult("renamePlaylist", newTitle, resp.msg))
 
         }
         Log.e("HTTP", "Finished RemovePlaylist")
@@ -473,8 +472,7 @@ class DoLogin : AsyncTask<Void, Int, Boolean>() {
     override fun doInBackground(vararg params: Void?): Boolean {
         Log.e("HTTP", "request: do-login")
 
-        val resp = makeRequest(hashMapOf("action" to "challenge-login"))
-        when (resp) {
+        when (val resp = makeRequest(hashMapOf("action" to "challenge-login"))) {
             is RequestResult.Ok -> result = true
             is RequestResult.Error -> {
                 result = false; msg = resp.msg

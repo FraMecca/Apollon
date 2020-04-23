@@ -1,8 +1,5 @@
 package com.apollon.fragments
 
-
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,16 +13,14 @@ import androidx.fragment.app.Fragment
 import com.apollon.DoLogin
 import com.apollon.MainActivity
 import com.apollon.R
-import com.apollon.Server
 import com.apollon.classes.Credentials
 
 
 class LoginFragment : Fragment() {
 
-    lateinit var mView: View
-    lateinit var loginButton: Button
+    private lateinit var mView: View
+    private lateinit var loginButton: Button
 
-    @SuppressLint("ResourceType")
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
@@ -62,19 +57,13 @@ class LoginFragment : Fragment() {
             Credentials.save(context!!, newUser, newPass, newServer, newProto, newPort)
             val l = DoLogin()
             l.execute()
-            while (l.done == false){ // TODO animation
+            while (!l.done){
                 Log.e("Trying login", l.done.toString())
             }
-            if(l.result == false){
+            if(!l.result){
                 Toast.makeText(context!!, l.msg, Toast.LENGTH_LONG).show()
                 Log.e("Login","Invalid Login")
             } else {
-                /*
-                val s = Server.getLyrics("Nirvana", "Lithium")
-                s.async.execute()
-                while(s.get() == null){}
-                Log.e("TEST-Lyrics", s.get().toString()) // Many lines
-                 */
                 (activity as MainActivity).replaceFragment(PlayListsFragment(), false)
             }
         }

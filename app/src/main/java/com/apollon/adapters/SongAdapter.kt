@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.apollon.adapters
 
 import android.app.Activity
@@ -96,11 +98,11 @@ class SongAdapter(val playlistTitle: String, var songs: ArrayList<Song>, val con
                         Server.addSong(this, item.title.toString(), selectedSong.id)
                         true
                     }
-                    (context as Activity)?.runOnUiThread {
+                    (context as Activity).runOnUiThread {
                         menu.show()
                     }
                 } else
-                    (context as Activity)?.runOnUiThread {
+                    (context as Activity).runOnUiThread {
                         Toast.makeText(context, "${context.getString(R.string.error)}: ${result.error}", Toast.LENGTH_LONG).show()
                     }
             }
@@ -153,9 +155,9 @@ class SongAdapter(val playlistTitle: String, var songs: ArrayList<Song>, val con
                 res.values = songs
             else {
                 val resList = ArrayList<Song>()
-                val query = s.toString().toLowerCase()
+                val query = s.toString().toLowerCase(Locale.ROOT)
                 songs.forEach {
-                    if (it.title.toLowerCase().contains(query) or it.artist.toLowerCase().contains(query))
+                    if (it.title.toLowerCase(Locale.ROOT).contains(query) or it.artist.toLowerCase(Locale.ROOT).contains(query))
                         resList.add(it)
                 }
                 res.values = resList

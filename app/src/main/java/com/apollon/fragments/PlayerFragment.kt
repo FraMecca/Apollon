@@ -1,9 +1,9 @@
+@file:Suppress("PrivatePropertyName")
+
 package com.apollon.fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -16,9 +16,6 @@ import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.apollon.*
-import com.apollon.classes.Song
-import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.player.*
 import kotlin.math.abs
 
 
@@ -42,7 +39,7 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
     var songDuration = 0
     var songUri = ""
 
-    @SuppressLint("ClickableViewAccessibility", "SourceLockedOrientationActivity")
+    @SuppressLint("SourceLockedOrientationActivity", "ClickableViewAccessibility")
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
@@ -69,9 +66,24 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
         qualityButton = mView.findViewById(R.id.button_quality)
         //quality button look
         when (Server.quality) {
-            "high" -> qualityButton.setBackgroundResource(R.drawable.hq_button_selector)
-            "medium" -> qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
-            "low" -> qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
+            "high" ->
+                if (qualityButton.tag == "inverted")
+                    qualityButton.setBackgroundResource(R.drawable.hq_button_selector_inverted)
+                else
+
+                    qualityButton.setBackgroundResource(R.drawable.hq_button_selector)
+            "medium" ->
+                if (qualityButton.tag == "inverted")
+                    qualityButton.setBackgroundResource(R.drawable.mq_button_selector_inverted)
+                else
+
+                    qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
+            "low" ->
+                if (qualityButton.tag == "inverted")
+                    qualityButton.setBackgroundResource(R.drawable.lq_button_selector_inverted)
+                else
+
+                    qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
         }
 
         mView.findViewById<Button>(R.id.button_previous).setOnClickListener(activity as MainActivity)
@@ -86,11 +98,7 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
         favouriteButton.setOnClickListener(this)
         qualityButton.setOnClickListener(this)
 
-        albumArt.setOnTouchListener(object : View.OnTouchListener {
-            override fun onTouch(v: View?, e: MotionEvent?): Boolean {
-                return gestureDetector.onTouchEvent(e)
-            }
-        })
+        albumArt.setOnTouchListener { _, e -> gestureDetector.onTouchEvent(e) }
 
         callback = Callback()
         (activity as MainActivity).mediaController.registerCallback(callback)
@@ -191,21 +199,31 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                             if (Server.quality != "low") {
                                 Server.quality = "low"
                                 (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
-                                qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
+                                if (qualityButton.tag == "inverted")
+                                    qualityButton.setBackgroundResource(R.drawable.lq_button_selector_inverted)
+                                else
+                                    qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
+
                             }
                         }
                         R.id.medium_quality -> {
                             if (Server.quality != "medium") {
                                 Server.quality = "medium"
                                 (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
-                                qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
+                                if (qualityButton.tag == "inverted")
+                                    qualityButton.setBackgroundResource(R.drawable.mq_button_selector_inverted)
+                                else
+                                    qualityButton.setBackgroundResource(R.drawable.mq_button_selector)
                             }
                         }
                         R.id.high_quality -> {
                             if (Server.quality != "high") {
                                 Server.quality = "high"
                                 (activity as MainActivity).player.changeQuality(seekBar.progress.toLong() * songDuration / 1000)
-                                qualityButton.setBackgroundResource(R.drawable.hq_button_selector)
+                                if (qualityButton.tag == "inverted")
+                                    qualityButton.setBackgroundResource(R.drawable.hq_button_selector_inverted)
+                                else
+                                    qualityButton.setBackgroundResource(R.drawable.hq_button_selector)
                             }
                         }
                     }
@@ -232,9 +250,15 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                     isFavourite = result.result!!.any { it.id == songUri }
                     activity?.runOnUiThread {
                         if (isFavourite)
-                            button_favourite.setBackgroundResource(R.drawable.favourite_button_selector)
+                            if (favouriteButton.tag == "inverted") {
+                                favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector_inverted)
+                            } else
+                                favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
                         else
-                            button_favourite.setBackgroundResource(R.drawable.favourite_not_button_selector)
+                            if (favouriteButton.tag == "inverted")
+                                favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector_inverted)
+                            else
+                                favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
                     }
                 } else
                     activity?.runOnUiThread {
@@ -265,7 +289,10 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                 when (result.task) {
                     "removeSong" -> {
                         if (result.error == "") {
-                            favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
+                            if (favouriteButton.tag == "inverted")
+                                favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector_inverted)
+                            else
+                                favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
                             isFavourite = false
                             activity?.runOnUiThread {
                                 Toast.makeText(context, context!!.getString(R.string.song_removed, context!!.getString(R.string.favourites)), Toast.LENGTH_SHORT).show()
@@ -277,7 +304,10 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                     }
                     "addSong" -> {
                         if (result.error == "") {
-                            favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
+                            if (favouriteButton.tag == "inverted")
+                                favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector_inverted)
+                            else
+                                favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
                             isFavourite = true
                             activity?.runOnUiThread {
                                 Toast.makeText(context, context!!.getString(R.string.song_added, context!!.getString(R.string.favourites)), Toast.LENGTH_SHORT).show()

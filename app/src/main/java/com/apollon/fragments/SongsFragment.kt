@@ -62,7 +62,7 @@ class SongsFragment : Fragment(), TaskListener {
         // Access the RecyclerView Adapter and load the data into it
         recyclerView.adapter = SongAdapter(playlist.title, songs, requireContext(), this)
         // Loads elements into the ArrayList
-        addSongs(playlist) // TODO, assert or something else, improve constraints
+        addSongs(playlist)
         return mView
     }
 

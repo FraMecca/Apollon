@@ -11,7 +11,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
-import android.icu.util.ULocale
 import android.media.*
 import android.os.*
 import android.support.v4.media.MediaMetadataCompat
@@ -158,7 +157,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     override fun onBufferingUpdate(mp: MediaPlayer, percent: Int) {
         //always returns the correct percentage w.r.t the entire duration of the song
         buffer = ((start + (percent.toFloat() / 100 * mediaPlayer!!.duration)) / (start + mediaPlayer!!.duration) * 100).toInt()
-        var b: Bundle = Bundle()
+        val b = Bundle()
         b.putInt("percent", buffer)
         Log.e("Buffered", buffer.toString())
         mediaSession.sendSessionEvent("Buffered", b)

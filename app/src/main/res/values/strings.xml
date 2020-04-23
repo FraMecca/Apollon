@@ -50,4 +50,5 @@
     <string name="mq" translatable="false">MQ</string>
     <string name="hq" translatable="false">HQ</string>
     <string name="playlist_renamed">Playlist %1$s renamed</string>
+    <string name="playlist_rename_fail">There is a playlist named %1$s already</string>
 </resources>

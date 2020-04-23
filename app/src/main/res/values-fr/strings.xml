@@ -47,4 +47,5 @@
     <string name="song_removed">Chanson retiré de %1$s</string>
     <string name="already_exists">%1$s existe déjà</string>
     <string name="playlist_renamed">Playlist %1$s renommée</string>
+    <string name="playlist_rename_fail">Il existe déjà une playlist nommée %1$s</string>
 </resources>

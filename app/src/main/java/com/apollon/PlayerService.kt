@@ -64,6 +64,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private var loopPlaylist = false
 
+    private var loopSong = false
+
     private var randomSelection = false
 
     private var playlist = ArrayList<Song>()
@@ -218,8 +220,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             val uu: String = str.url
             val f = FileExists(uu)
             f.execute()
-            while (!f.result) {
-            }
+            while (!f.result)
             source = uu
         } catch (ex: IOException) {
             Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT)
@@ -337,6 +338,8 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             }
 
             loopPlaylist -> initMedia(playlist, (songIndex + 1) % playlist.size)
+
+            loopSong -> mediaPlayer?.seekTo(0)
 
             else -> initMedia(playlist, minOf(songIndex + 1, playlist.size - 1))
         }
@@ -500,18 +503,21 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                 PlaybackStateCompat.REPEAT_MODE_ALL -> {
                     mediaPlayer?.isLooping = false
                     loopPlaylist = true
+                    loopSong = false
                     mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
                 }
 
                 PlaybackStateCompat.REPEAT_MODE_ONE -> {
-                    loopPlaylist = false
                     mediaPlayer?.isLooping = true
+                    loopPlaylist = false
+                    loopSong = true
                     mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE)
                 }
 
                 PlaybackStateCompat.REPEAT_MODE_NONE -> {
                     mediaPlayer?.isLooping = false
                     loopPlaylist = false
+                    loopSong = false
                     mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)
                 }
             }

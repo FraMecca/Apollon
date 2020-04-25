@@ -39,8 +39,6 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
         else
             Playlist.Begin()
 
-        loading = mView.findViewById(R.id.loading)
-
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String?): Boolean {
                 return false

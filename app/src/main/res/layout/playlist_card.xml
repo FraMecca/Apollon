@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <androidx.cardview.widget.CardView
@@ -21,7 +22,8 @@
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/card_image_height"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription" />
 
             <Button
                 android:id="@+id/button_delete"
@@ -30,7 +32,8 @@
                 android:layout_margin="@dimen/floating_button_playlist_margin"
                 android:layout_alignParentRight="true"
                 android:background="@drawable/delete_button_selector"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                tools:ignore="RtlHardcoded" />
 
             <Button
                 android:id="@+id/button_edit"
@@ -39,7 +42,8 @@
                 android:layout_margin="@dimen/floating_button_playlist_margin"
                 android:layout_toLeftOf="@+id/button_delete"
                 android:background="@drawable/edit_button_selector"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                tools:ignore="RtlHardcoded" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -57,7 +61,8 @@
                     android:gravity="left"
                     android:textSize="@dimen/playlist_title"
                     android:singleLine="true"
-                    android:ellipsize="marquee"/>
+                    android:ellipsize="marquee"
+                    tools:ignore="RtlHardcoded" />
 
                 <TextView
                     android:id="@+id/elements"
@@ -68,7 +73,8 @@
                     android:paddingHorizontal="@dimen/card_title_padding"
                     android:text=""
                     android:textSize="@dimen/songs_number"
-                    android:singleLine="true"/>
+                    android:singleLine="true"
+                    tools:ignore="RtlHardcoded" />
             </LinearLayout>
 
         </RelativeLayout>

@@ -45,4 +45,6 @@
     <dimen name="mini_player_text_margin">8dp</dimen>
     <dimen name="edit_margin">20dp</dimen>
     <dimen name="layout_top_margin">20dp</dimen>
+    <dimen name="player_control_margin_vertical">16dp</dimen>
+    <dimen name="player_margin_top">24dp</dimen>
 </resources>

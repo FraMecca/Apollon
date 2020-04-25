@@ -153,16 +153,20 @@ private class AllPlaylists(val listener: TaskListener) : AsyncTask<Void, Int, Un
         when (val resp = makeRequest(hashMapOf("action" to "list-playlists"))) {
             is RequestResult.Ok -> {
                 val j = resp.result
-                var img: String
+                var img = ""
                 val values = j["result"] as JSONArray
 
                 for (i in 0 until values.length()) {
                     val playlist: JSONObject = values[i] as JSONObject
                     if (playlist["title"] != "Favourites") {
-                        img = if ((playlist["uris"] as JSONArray).length() > 0)
-                            ((playlist["uris"] as JSONArray)[0] as JSONObject)["img"] as String
-                        else
-                            "playlist"
+                        //checks if the first song in the playlist has an image URL
+                        if ((playlist["uris"] as JSONArray).length() > 0) {
+                            var firstImg = ((playlist["uris"] as JSONArray)[0] as JSONObject)["img"].toString()
+                            img = if (firstImg.isNotEmpty())
+                                firstImg
+                            else
+                                "playlist"
+                        }
                         ret.add(Playlist.Custom(playlist["title"] as String, playlist["title"] as String, img, playlist["#nsongs"] as Int))
                     }
                 }
@@ -448,22 +452,6 @@ class FileExists(val uri: String) : AsyncTask<Void, Int, Boolean>() {
     }
 }
 
-/*class ConversionStatus(val uri: String) : OperationAsync() {
-    override fun doInBackground(vararg p0: Void?): String? {
-        result = when (val resp = makeRequest(hashMapOf("action" to "conversion-status", "uri" to uri.substring(baseurl().toString().length - 1)))) {
-            is RequestResult.Ok -> {
-                Log.e("JSON", resp.result.toString())
-                resp.result["result"] as String
-            }
-            is RequestResult.Error -> {
-                Log.e("JSON", resp.msg); resp.msg
-            }
-        }
-        Log.e("HTTP", "Finished conversionStatus")
-        return result
-    }
-}*/
-
 class DoLogin : AsyncTask<Void, Int, Boolean>() {
     var result: Boolean = false
     var done = false
@@ -600,10 +588,4 @@ object Server {
     fun dropPlaylist(title: String) {
         playlists.remove(title)
     }
-
-    /*fun getConversionStatus(uri: String): OperationResult {
-        val asyn = ConversionStatus(uri)
-        asyn.execute()
-        return OperationResult(asyn)
-    }*/
 }

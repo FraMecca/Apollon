@@ -33,7 +33,6 @@ class SongsFragment : Fragment(), TaskListener {
     ): View? {
         mView = inflater.inflate(R.layout.songs, container, false)
         playlist = arguments?.getSerializable("playlist") as Playlist
-        Log.e("PLAYLIST", playlist.id)
         val playlistThumbnail = mView.findViewById<ImageView>(R.id.playlist_thumbnail)
         val playlistToolbar = mView.findViewById<Toolbar>(R.id.playlist_toolbar)
         val search = mView.findViewById<SearchView>(R.id.search)
@@ -52,6 +51,9 @@ class SongsFragment : Fragment(), TaskListener {
         when (playlist.img_url) {
             "genre" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.genre))
             "favourites" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.favourites))
+            "playlist" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.playlist))
+            "artist" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.artist))
+            "album" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.album))
             else -> Picasso.get().load(playlist.img_url).into(playlistThumbnail)
         }
 

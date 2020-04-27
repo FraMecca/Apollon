@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment
 import com.apollon.*
 import kotlin.math.abs
 
-
 class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
     private lateinit var callback: Callback
@@ -40,13 +39,14 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
 
     @SuppressLint("SourceLockedOrientationActivity", "ClickableViewAccessibility")
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         (activity as MainActivity).miniPlayer.visibility = View.GONE
 
-        //Initialize gesture detection
+        // Initialize gesture detection
         gestureDetector = GestureDetector((activity as MainActivity).applicationContext, GListener())
 
         val mView = inflater.inflate(R.layout.player, container, false)
@@ -63,7 +63,7 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
         randomButton = mView.findViewById(R.id.button_random)
         favouriteButton = mView.findViewById(R.id.button_favourite)
         qualityButton = mView.findViewById(R.id.button_quality)
-        //quality button look
+        // quality button look
         when (Server.quality) {
             "high" ->
                 if (qualityButton.tag == "inverted")
@@ -151,15 +151,15 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
 
             R.id.button_repeat ->
                 when ((activity as MainActivity).mediaController.repeatMode) {
-                    //Loops playlist
+                    // Loops playlist
                     PlaybackStateCompat.REPEAT_MODE_NONE -> {
                         (activity as MainActivity).mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
                     }
-                    //Loops current song
+                    // Loops current song
                     PlaybackStateCompat.REPEAT_MODE_ALL -> {
                         (activity as MainActivity).mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE)
                     }
-                    //Doesn't loop
+                    // Doesn't loop
                     PlaybackStateCompat.REPEAT_MODE_ONE -> {
                         (activity as MainActivity).mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)
                     }
@@ -202,7 +202,6 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                                     qualityButton.setBackgroundResource(R.drawable.lq_button_selector_inverted)
                                 else
                                     qualityButton.setBackgroundResource(R.drawable.lq_button_selector)
-
                             }
                         }
                         R.id.medium_quality -> {
@@ -236,7 +235,6 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
         val songId = (activity as MainActivity).mediaController.metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
         if (isFavourite) {
             Server.removeSong(this, "Favourites", songId)
-
         } else {
             Server.addSong(this, "Favourites", songId)
         }
@@ -253,8 +251,7 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                                 favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector_inverted)
                             } else
                                 favouriteButton.setBackgroundResource(R.drawable.favourite_button_selector)
-                        else
-                            if (favouriteButton.tag == "inverted")
+                        else if (favouriteButton.tag == "inverted")
                                 favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector_inverted)
                             else
                                 favouriteButton.setBackgroundResource(R.drawable.favourite_not_button_selector)
@@ -374,7 +371,7 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             super.onMetadataChanged(metadata)
 
-            if (metadata != null) { //New or same currentSong
+            if (metadata != null) { // New or same currentSong
                 title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
                 artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
                 songDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
@@ -392,7 +389,7 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                 updateSeekBar()
             }
 
-            //Updates loop button
+            // Updates loop button
             when ((activity as MainActivity).mediaController.repeatMode) {
                 PlaybackStateCompat.REPEAT_MODE_ONE -> {
                     loopButton.setBackgroundResource(R.drawable.repeat_this_button_selector)
@@ -405,7 +402,7 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
                 }
             }
 
-            //Updates random button
+            // Updates random button
             if ((activity as MainActivity).mediaController.shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL) {
                 randomButton.setBackgroundResource(R.drawable.shuffle_button_selector)
             } else {
@@ -415,9 +412,9 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
     }
 
     inner class GListener : GestureDetector.SimpleOnGestureListener() {
-        private val SWIPE_MAX_OFF_PATH = 250 //How much you can derail from a straight line when swiping
-        private val SWIPE_MIN_DISTANCE = 120 //How long must the swipe be
-        private val SWIPE_MIN_VELOCITY = 120 //How quick must the swipe be
+        private val SWIPE_MAX_OFF_PATH = 250 // How much you can derail from a straight line when swiping
+        private val SWIPE_MIN_DISTANCE = 120 // How long must the swipe be
+        private val SWIPE_MIN_VELOCITY = 120 // How quick must the swipe be
 
         override fun onShowPress(p0: MotionEvent?) {}
 
@@ -430,13 +427,13 @@ class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener
         }
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velX: Float, velY: Float): Boolean {
-            //Check if user made a swipe-like motion
+            // Check if user made a swipe-like motion
             if (abs(e1!!.y - e2!!.y) <= SWIPE_MAX_OFF_PATH && abs(velX) > SWIPE_MIN_VELOCITY && abs(e1.x - e2.x) >= SWIPE_MIN_DISTANCE) {
-                //Right to left swipe
+                // Right to left swipe
                 if (e1.x >= e2.x) {
                     (activity as MainActivity).mediaController.transportControls.skipToNext()
                 }
-                //Left to right swipe
+                // Left to right swipe
                 else {
                     (activity as MainActivity).mediaController.transportControls.skipToPrevious()
                 }

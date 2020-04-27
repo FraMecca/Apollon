@@ -15,15 +15,15 @@ import com.apollon.MainActivity
 import com.apollon.R
 import com.apollon.classes.Credentials
 
-
 class LoginFragment : Fragment() {
 
     private lateinit var mView: View
     private lateinit var loginButton: Button
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         Credentials.init(context!!)
         mView = inflater.inflate(R.layout.login, container, false)
@@ -57,17 +57,16 @@ class LoginFragment : Fragment() {
             Credentials.save(context!!, newUser, newPass, newServer, newProto, newPort)
             val l = DoLogin()
             l.execute()
-            while (!l.done){
+            while (!l.done) {
                 Log.e("Trying login", l.done.toString())
             }
-            if(!l.result){
+            if (!l.result) {
                 Toast.makeText(context!!, l.msg, Toast.LENGTH_LONG).show()
-                Log.e("Login","Invalid Login")
+                Log.e("Login", "Invalid Login")
             } else {
                 (activity as MainActivity).replaceFragment(PlayListsFragment(), false)
             }
         }
         return mView
     }
-
 }

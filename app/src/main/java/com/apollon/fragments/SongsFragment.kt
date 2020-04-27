@@ -18,7 +18,6 @@ import com.apollon.classes.Playlist
 import com.apollon.classes.Song
 import com.squareup.picasso.Picasso
 
-
 class SongsFragment : Fragment(), TaskListener {
 
     private lateinit var mView: View
@@ -27,8 +26,9 @@ class SongsFragment : Fragment(), TaskListener {
     lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         mView = inflater.inflate(R.layout.songs, container, false)
         playlist = arguments?.getSerializable("playlist") as Playlist
@@ -97,7 +97,6 @@ class SongsFragment : Fragment(), TaskListener {
                     Toast.makeText(context, result.error, Toast.LENGTH_LONG).show()
                 }
         }
-
     }
 
     companion object {

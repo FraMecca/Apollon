@@ -8,16 +8,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.apollon.adapters.PlaylistAdapter
-import com.apollon.classes.Playlist
 import android.widget.EditText
 import android.widget.SearchView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.apollon.*
-
+import com.apollon.adapters.PlaylistAdapter
+import com.apollon.classes.Playlist
 
 class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
 
@@ -26,7 +25,10 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
     lateinit var recyclerView: RecyclerView
     private lateinit var selectedPlaylist: String
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         Log.e("PlaylistFragment", "OnCreateView")
         val mView = inflater.inflate(R.layout.playlists, container, false)
@@ -63,14 +65,14 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
 
         return mView
     }
-    //New playlist button
+    // New playlist button
     @SuppressLint("InflateParams")
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.new_playlist_button -> {
                 val editView = LayoutInflater.from(context).inflate(R.layout.modify, null)
 
-                //creates alert
+                // creates alert
                 AlertDialog.Builder(context, R.style.AlertStyle)
                         .setTitle(getString(R.string.new_playlist))
                         .setMessage(getString(R.string.edit_playlist_message))
@@ -93,7 +95,6 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
     // Adds playlists to the empty ArrayList
     private fun addPlaylists() {
         playlists.clear()
-
 
         when (playlist) {
             is Playlist.Begin -> {
@@ -142,7 +143,7 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
             is TaskResult.OperationResult -> {
                 when (result.task) {
                     "createPlaylist" -> {
-                        when{
+                        when {
                             result.error == "" -> {
                                 activity?.runOnUiThread {
                                     Toast.makeText(context, "Playlist $selectedPlaylist created", Toast.LENGTH_SHORT).show()

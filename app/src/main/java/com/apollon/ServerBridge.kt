@@ -1,10 +1,10 @@
 package com.apollon
 
 import android.os.AsyncTask
-import java.net.HttpURLConnection
-import java.net.URL
 import android.util.Log
 import com.apollon.classes.*
+import java.net.HttpURLConnection
+import java.net.URL
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -159,7 +159,7 @@ private class AllPlaylists(val listener: TaskListener) : AsyncTask<Void, Int, Un
                 for (i in 0 until values.length()) {
                     val playlist: JSONObject = values[i] as JSONObject
                     if (playlist["title"] != "Favourites") {
-                        //checks if the first song in the playlist has an image URL
+                        // checks if the first song in the playlist has an image URL
                         if ((playlist["uris"] as JSONArray).length() > 0) {
                             val firstImg = ((playlist["uris"] as JSONArray)[0] as JSONObject)["img"].toString()
                             img = if (firstImg.isNotEmpty())
@@ -182,7 +182,7 @@ private class AllPlaylists(val listener: TaskListener) : AsyncTask<Void, Int, Un
     }
 }
 
-private class SingleGenre(val listener: TaskListener, val name: String) : AsyncTask<Void, Int, Unit>() {//NOT WORKING
+private class SingleGenre(val listener: TaskListener, val name: String) : AsyncTask<Void, Int, Unit>() { // NOT WORKING
 
     override fun doInBackground(vararg params: Void?) {
         val ret = ArrayList<Playlist>()
@@ -212,7 +212,6 @@ private class SingleGenre(val listener: TaskListener, val name: String) : AsyncT
         Log.e("HTTP", "Finished SingleGenre")
     }
 }
-
 
 private class SingleAlbum(val listener: TaskListener, val uri: String) : AsyncTask<Void, Int, Unit>() {
 
@@ -388,7 +387,6 @@ class RemovePlaylist(private val listener: TaskListener, var title: String) : As
                 listener.onTaskCompleted(TaskResult.OperationResult("removePlaylist", title))
             }
             is RequestResult.Error -> listener.onTaskCompleted(TaskResult.OperationResult("removePlaylist", title, resp.msg))
-
         }
         Log.e("HTTP", "Finished RemovePlaylist")
     }
@@ -403,7 +401,6 @@ class RenamePlaylist(private val listener: TaskListener, private var oldTitle: S
                 listener.onTaskCompleted(TaskResult.OperationResult("renamePlaylist", oldTitle))
             }
             is RequestResult.Error -> listener.onTaskCompleted(TaskResult.OperationResult("renamePlaylist", newTitle, resp.msg))
-
         }
         Log.e("HTTP", "Finished RemovePlaylist")
     }
@@ -474,7 +471,6 @@ object Server {
     var allPlaylists: TaskResult.ServerPlaylistResult? = null
     var quality = "high"
 
-
     fun getArtist(listener: TaskListener, id: String) {
         if (artists.containsKey(id)) {
             listener.onTaskCompleted(artists[id] as TaskResult)
@@ -500,7 +496,6 @@ object Server {
             SingleAlbum(listener, id).execute()
         }
     }
-
 
     fun getAlbums(listener: TaskListener) {
         if (allAlbums == null) {

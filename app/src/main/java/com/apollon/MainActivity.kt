@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
@@ -16,6 +15,7 @@ import android.view.View.OnClickListener
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.apollon.fragments.LoginFragment
 import com.apollon.fragments.PlayerFragment
@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity(), OnClickListener {
             mediaController = player.getSessionController()
             callback = Callback()
             mediaController.registerCallback(callback)
-
 
             Log.e("MediaController", mediaController.toString())
         }
@@ -77,14 +76,14 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     fun replaceFragment(frag: Fragment, addToStack: Boolean = true) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.main, frag)
-        //adds the transaction to a stack so it can be re-executed by pressing the back button
+        // adds the transaction to a stack so it can be re-executed by pressing the back button
         if (addToStack)
             transaction.addToBackStack("ApollonStack")
         transaction.commit()
         supportFragmentManager.executePendingTransactions()
     }
 
-    fun refreshFragment(frag:Fragment){
+    fun refreshFragment(frag: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.detach(frag).attach(frag).commit()
         supportFragmentManager.executePendingTransactions()
@@ -118,18 +117,16 @@ class MainActivity : AppCompatActivity(), OnClickListener {
                 playButton.setBackgroundResource(R.drawable.pause_button_selector)
             else if (state?.state == PlaybackStateCompat.STATE_PAUSED)
                 playButton.setBackgroundResource(R.drawable.play_button_selector)
-
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
                 super.onMetadataChanged(metadata)
 
-                if (metadata != null) {   //No songs to play
+                if (metadata != null) { // No songs to play
                     title.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
                     artist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
                     albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
                 }
-
         }
     }
 }

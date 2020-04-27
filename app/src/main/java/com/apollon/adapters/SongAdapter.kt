@@ -13,10 +13,9 @@ import com.apollon.*
 import com.apollon.classes.PlaylistSong
 import com.apollon.classes.Song
 import com.apollon.fragments.PlayerFragment
+import com.apollon.fragments.SongsFragment
 import com.squareup.picasso.Picasso
 import java.util.*
-import com.apollon.fragments.SongsFragment
-
 
 class SongAdapter(private val playlistTitle: String, var songs: ArrayList<Song>, private val context: Context, private val fragment: SongsFragment) : RecyclerView.Adapter<SongViewHolder>(), TaskListener, Filterable {
 
@@ -43,14 +42,14 @@ class SongAdapter(private val playlistTitle: String, var songs: ArrayList<Song>,
         holder.title.isSelected = true
         holder.artist.isSelected = true
 
-        //Thumbnail download
+        // Thumbnail download
         if (song.img_url.isNotEmpty())
             Picasso.get().load(song.img_url).into(holder.thumbnail)
 
-        //Menu listener
+        // Menu listener
         holder.menu.setOnClickListener { showPopUpMenu(it, song) }
 
-        //CardView listener
+        // CardView listener
         holder.itemView.setOnClickListener {
             (context as MainActivity).replaceFragment(PlayerFragment())
             context.player.initMedia(songs, position)

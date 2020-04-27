@@ -4,12 +4,8 @@ package com.apollon
 
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.Intent
-import android.util.Log
-import com.apollon.classes.Song
-import java.io.IOException
-import kotlin.random.Random
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
@@ -19,15 +15,19 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import android.widget.*
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.apollon.classes.Song
 import com.apollon.classes.StreamingSong
 import com.squareup.picasso.Picasso
+import java.io.IOException
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlin.collections.ArrayList
+import kotlin.random.Random
 
 class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,
@@ -89,7 +89,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         stateBuilder = PlaybackStateCompat.Builder()
 
-        //Media session
+        // Media session
         mediaSession = MediaSessionCompat(baseContext, "MediaSession").apply {
 
             setPlaybackState(stateBuilder.build())
@@ -121,14 +121,14 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         mediaController.registerCallback(NotificationCallback())
 
-        //Notification channel
+        // Notification channel
         val channel = NotificationChannel(CHANNEL_ID, getString(R.string.player_notifications_channel), NotificationManager.IMPORTANCE_LOW)
         // Register the channel with the system
         val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 
-    //The system calls this method when an activity, requests the service be started
+    // The system calls this method when an activity, requests the service be started
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.e("PlayerService", this.toString())
         when (intent.action) {
@@ -142,7 +142,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     override fun onUnbind(intent: Intent?): Boolean {
         stopSelf()
-        //allow rebind
+        // allow rebind
         return false
     }
 
@@ -159,7 +159,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     override fun onBufferingUpdate(mp: MediaPlayer, percent: Int) {
-        //always returns the correct percentage w.r.t the entire duration of the song
+        // always returns the correct percentage w.r.t the entire duration of the song
         buffer = ((start + (percent.toFloat() / 100 * mediaPlayer!!.duration)) / (start + mediaPlayer!!.duration) * 100).toInt()
         val b = Bundle()
         b.putInt("percent", buffer)
@@ -168,7 +168,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     override fun onCompletion(mp: MediaPlayer) {
-        //Invoked when playback of a media source has completed.
+        // Invoked when playback of a media source has completed.
         if (songIndex == playlist.size - 1 && !loopPlaylist && !randomSelection) {
             mediaController.transportControls.stop()
         } else {
@@ -176,9 +176,9 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    //Handle errors
+    // Handle errors
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
-        //Invoked when there has been an error during an asynchronous operation
+        // Invoked when there has been an error during an asynchronous operation
         when (what) {
             MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK -> Log.d("MediaPlayer Error", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK $extra")
             MediaPlayer.MEDIA_ERROR_SERVER_DIED -> Log.d("MediaPlayer Error", "MEDIA ERROR SERVER DIED $extra")
@@ -188,23 +188,23 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     override fun onInfo(mp: MediaPlayer, what: Int, extra: Int): Boolean {
-        //Invoked to communicate some info.
+        // Invoked to communicate some info.
         return false
     }
 
     override fun onPrepared(mp: MediaPlayer) {
-        //Invoked when the media source is ready for playback.\
+        // Invoked when the media source is ready for playback.\
         Log.e("Player", "prepared")
         ready = true
         mediaController.transportControls.play()
     }
 
     override fun onSeekComplete(mp: MediaPlayer) {
-        //Invoked indicating the completion of a seek operation.
+        // Invoked indicating the completion of a seek operation.
     }
 
     override fun onAudioFocusChange(focusChange: Int) {
-        //Invoked when the audio focus of the system is updated.
+        // Invoked when the audio focus of the system is updated.
     }
 
     private fun setSongURL() {
@@ -228,13 +228,13 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     fun initMedia(playlist: ArrayList<Song>, songIndex: Int) {
-        //initialize the media player if null
+        // initialize the media player if null
         if (mediaPlayer == null)
             initMediaPlayer()
-        //if a new song is played or the media is not ready
+        // if a new song is played or the media is not ready
         if (this.playlist != playlist || this.songIndex != songIndex || !ready) {
-            //initialise parameters
-            //set starting point
+            // initialise parameters
+            // set starting point
             start = 0
             ready = false
             buffer = 0
@@ -242,9 +242,9 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             this.songIndex = songIndex
             if (mediaPlayer?.isLooping == true)
                 mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
-            //get a clean state
+            // get a clean state
             mediaPlayer?.reset()
-            //request song to server
+            // request song to server
             val s = SingleSong(playlist[songIndex].id)
             s.execute()
             while (true) {
@@ -258,12 +258,12 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             try {
                 val uu: String = str.url
 
-                //set other parameters
+                // set other parameters
                 mediaPlayer?.setDataSource(uu)
                 source = uu
                 mediaPlayer?.prepareAsync()
 
-                //MetaData builder with song information
+                // MetaData builder with song information
                 val builder: MediaMetadataCompat.Builder = songToMetaData(str)
                 if (!this::target.isInitialized) {
                     target = object : com.squareup.picasso.Target {
@@ -277,14 +277,14 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                         }
 
                         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                            //default bitmap
+                            // default bitmap
                             builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, BitmapFactory.decodeResource(resources, R.drawable.default_song))
                             mediaSession.setMetadata(builder.build())
                         }
                     }
                 }
 
-                //Loads bitmap in MetaData
+                // Loads bitmap in MetaData
                 if (playlist[songIndex].img_url.isNotEmpty())
                     Picasso.get().load(playlist[songIndex].img_url).into(target)
                 else {
@@ -313,7 +313,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     private fun initMediaPlayer() {
         mediaPlayer?.release()
         mediaPlayer = MediaPlayer()
-        //Set up MediaPlayer event listeners
+        // Set up MediaPlayer event listeners
         mediaPlayer?.setOnCompletionListener(this)
         mediaPlayer?.setOnErrorListener(this)
         mediaPlayer?.setOnPreparedListener(this)
@@ -376,13 +376,13 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             addAction(createAction(NEXT_ACTION, R.drawable.forward_noti, getString(R.string.next)))
 
-            //creates the same kind of intent android creates to start the application so that the activity is resumed instead of recreated
+            // creates the same kind of intent android creates to start the application so that the activity is resumed instead of recreated
             val notificationIntent = Intent(applicationContext, MainActivity::class.java)
             notificationIntent.action = Intent.ACTION_MAIN
             notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             setContentIntent(PendingIntent.getActivity(applicationContext, 2, notificationIntent, 0))
-            //prevents notification from being cancelled
+            // prevents notification from being cancelled
             setOngoing(true)
         }
         notificationManager.notify(1, builder.build())
@@ -448,9 +448,9 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
 
         override fun onSkipToPrevious() {
-            //If mediaPlayer is null nothing happens
+            // If mediaPlayer is null nothing happens
             when {
-                mediaPlayer?.currentPosition ?: 4001 > 4000 -> mediaPlayer?.seekTo(0) //if current position == null then 4001, if > 4000 then seek to 0
+                mediaPlayer?.currentPosition ?: 4001 > 4000 -> mediaPlayer?.seekTo(0) // if current position == null then 4001, if > 4000 then seek to 0
 
                 randomSelection -> {
                     var ran = songIndex
@@ -458,7 +458,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                     initMedia(playlist, ran)
                 }
 
-                loopPlaylist -> initMedia(playlist, (playlist.size + songIndex - 1) % playlist.size) //Kotlin module returns -1 instead of (size - 1)
+                loopPlaylist -> initMedia(playlist, (playlist.size + songIndex - 1) % playlist.size) // Kotlin module returns -1 instead of (size - 1)
 
                 else -> {
                     initMedia(playlist, maxOf(songIndex - 1, 0))

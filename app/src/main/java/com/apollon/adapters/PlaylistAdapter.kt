@@ -14,12 +14,11 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.apollon.*
 import com.apollon.classes.Playlist
+import com.apollon.fragments.PlayListsFragment
 import com.apollon.fragments.SongsFragment
 import com.squareup.picasso.Picasso
-import com.apollon.fragments.PlayListsFragment
 import java.util.*
 import kotlin.collections.ArrayList
-
 
 class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: Context, private val fragment: PlayListsFragment) : RecyclerView.Adapter<PlaylistViewHolder>(), Filterable, TaskListener {
 
@@ -41,7 +40,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         val playlist = filteredPlaylists[position]
 
-        //sets the correct title
+        // sets the correct title
         when (playlist) {
             is Playlist.AllArtists -> holder.title.text = context.getString(R.string.artists)
             is Playlist.AllAlbums -> holder.title.text = context.getString(R.string.albums)
@@ -55,7 +54,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
             }
         }
 
-        //Loads in the correct image
+        // Loads in the correct image
         when (playlist.img_url) {
             "artist" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.artist))
             "album" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.album))
@@ -65,7 +64,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
             else -> Picasso.get().load(playlist.img_url).into(holder.thumbnail)
         }
 
-        //CardView listener
+        // CardView listener
         val target = when (playlist) {
             is Playlist.Album -> SongsFragment.newInstance(playlist)
             is Playlist.Custom -> SongsFragment.newInstance(playlist)
@@ -75,15 +74,15 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
 
         holder.itemView.setOnClickListener { (context as MainActivity).replaceFragment(target as Fragment) }
 
-        //Custom playlist buttons
+        // Custom playlist buttons
         if (playlist is Playlist.Custom) {
             val deleteButton = holder.itemView.findViewById<Button>(R.id.button_delete)
             val editButton = holder.itemView.findViewById<Button>(R.id.button_edit)
             deleteButton.visibility = View.VISIBLE
             editButton.visibility = View.VISIBLE
-            //delete click listener
+            // delete click listener
             deleteButton.setOnClickListener {
-                //creates alert
+                // creates alert
                 AlertDialog.Builder(context, R.style.AlertStyle)
                         .setTitle(context.getString(R.string.delete_title))
                         .setMessage(context.getString(R.string.delete_message) + " ${playlist.title}?")
@@ -104,7 +103,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
                 val editView = LayoutInflater.from(context).inflate(R.layout.modify, null)
                 val editText = editView.findViewById<EditText>(R.id.edit_title)
                 editText.setText(playlist.title)
-                //creates alert
+                // creates alert
                 AlertDialog.Builder(context, R.style.AlertStyle)
                         .setView(editView)
                         .setTitle(context.getString(R.string.edit_title))
@@ -159,7 +158,6 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
             }
         }
     }
-
 
     override fun getFilter(): Filter {
         return filter

@@ -1,3 +1,5 @@
+@file:Suppress("ControlFlowWithEmptyBody", "PrivatePropertyName")
+
 package com.apollon
 
 import android.annotation.SuppressLint
@@ -218,9 +220,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         val str = s.get()
         try {
             val uu: String = str.url
-            val f = FileExists(uu)
-            f.execute()
-            while (!f.result)
             source = uu
         } catch (ex: IOException) {
             Toast.makeText(applicationContext, getString(R.string.unsupported_format), Toast.LENGTH_SHORT)
@@ -229,14 +228,14 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     fun initMedia(playlist: ArrayList<Song>, songIndex: Int) {
-        //set starting point
-        start = 0
         //initialize the media player if null
         if (mediaPlayer == null)
             initMediaPlayer()
         //if a new song is played or the media is not ready
         if (this.playlist != playlist || this.songIndex != songIndex || !ready) {
             //initialise parameters
+            //set starting point
+            start = 0
             ready = false
             buffer = 0
             this.playlist = playlist
@@ -258,10 +257,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             val str = s.get()
             try {
                 val uu: String = str.url
-                val f = FileExists(uu)
-                f.execute()
-                while (!f.result) {
-                }
 
                 //set other parameters
                 mediaPlayer?.setDataSource(uu)
@@ -269,7 +264,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
                 mediaPlayer?.prepareAsync()
 
                 //MetaData builder with song information
-                var builder: MediaMetadataCompat.Builder = songToMetaData(str)
+                val builder: MediaMetadataCompat.Builder = songToMetaData(str)
                 if (!this::target.isInitialized) {
                     target = object : com.squareup.picasso.Target {
                         override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {

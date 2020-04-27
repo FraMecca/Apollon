@@ -17,16 +17,14 @@ import android.widget.EditText
 import android.widget.SearchView
 import android.widget.Toast
 import com.apollon.*
-import pl.droidsonroids.gif.GifImageView
 
 
 class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
 
     private val playlists: ArrayList<Playlist> = ArrayList()
     lateinit var playlist: Playlist
-    lateinit var loading: GifImageView
     lateinit var recyclerView: RecyclerView
-    lateinit var selectedPlaylist: String
+    private lateinit var selectedPlaylist: String
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {

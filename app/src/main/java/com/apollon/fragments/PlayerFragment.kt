@@ -11,7 +11,6 @@ import android.os.Handler
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -21,21 +20,21 @@ import kotlin.math.abs
 
 class PlayerFragment : Fragment(), TaskListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
-    lateinit var callback: Callback
+    private lateinit var callback: Callback
     private var seekBarHandler = Handler()
     lateinit var albumArt: ImageView
     lateinit var title: TextView
     lateinit var artist: TextView
     lateinit var seekBar: SeekBar
-    lateinit var currentTime: TextView
+    private lateinit var currentTime: TextView
     lateinit var duration: TextView
     lateinit var playButton: Button
     lateinit var loopButton: Button
     lateinit var randomButton: Button
-    lateinit var favouriteButton: Button
-    lateinit var qualityButton: Button
-    lateinit var gestureDetector: GestureDetector
-    var isFavourite: Boolean = false
+    private lateinit var favouriteButton: Button
+    private lateinit var qualityButton: Button
+    private lateinit var gestureDetector: GestureDetector
+    private var isFavourite: Boolean = false
     var songDuration = 0
     var songUri = ""
 

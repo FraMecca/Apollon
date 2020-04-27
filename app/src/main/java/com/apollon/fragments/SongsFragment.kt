@@ -2,7 +2,6 @@ package com.apollon.fragments
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +21,7 @@ import com.squareup.picasso.Picasso
 
 class SongsFragment : Fragment(), TaskListener {
 
-    lateinit var mView: View
+    private lateinit var mView: View
     private val songs: ArrayList<Song> = ArrayList()
     lateinit var playlist: Playlist
     lateinit var recyclerView: RecyclerView

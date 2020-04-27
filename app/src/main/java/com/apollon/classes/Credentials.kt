@@ -8,9 +8,9 @@ import android.content.Context
 object Credentials{
     lateinit var server: String
     lateinit var user: String
-    lateinit var password: String
-    var proto: Int = -1
-    var port: Int = -1
+    private lateinit var password: String
+    private var proto: Int = -1
+    private var port: Int = -1
 
     fun init(context: Context){
         val prefs = context.getSharedPreferences("Apollon", 0)

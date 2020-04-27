@@ -18,7 +18,7 @@ fun makeRequest(m: Map<String, Any>): RequestResult {
     val params = hashMapOf<String, Any>("user" to user,
             "password" to pass)
 
-    m.forEach { (k, v) -> params.put(k, v) }
+    m.forEach { (k, v) -> params[k] = v }
     val data = JSONObject(params).toString()
     try {
         with(baseurl().openConnection() as HttpURLConnection) {
@@ -30,10 +30,10 @@ fun makeRequest(m: Map<String, Any>): RequestResult {
                 val llines = it.lines().toArray()
                 assert(llines.count() == 1)
                 val j = JSONObject(llines[0] as String)
-                if (j["response"] == "error")
-                    return RequestResult.Error(j["msg"] as String)
+                return if (j["response"] == "error")
+                    RequestResult.Error(j["msg"] as String)
                 else
-                    return RequestResult.Ok(j)
+                    RequestResult.Ok(j)
             }
         }
     } catch (e: Exception) {
@@ -161,7 +161,7 @@ private class AllPlaylists(val listener: TaskListener) : AsyncTask<Void, Int, Un
                     if (playlist["title"] != "Favourites") {
                         //checks if the first song in the playlist has an image URL
                         if ((playlist["uris"] as JSONArray).length() > 0) {
-                            var firstImg = ((playlist["uris"] as JSONArray)[0] as JSONObject)["img"].toString()
+                            val firstImg = ((playlist["uris"] as JSONArray)[0] as JSONObject)["img"].toString()
                             img = if (firstImg.isNotEmpty())
                                 firstImg
                             else
@@ -282,8 +282,8 @@ private class SingleArtist(val listener: TaskListener, val name: String) : Async
     }
 }
 
-class SingleSong(val uri: String) : AsyncTask<Void, Int, StreamingSong>() {
-    var result: StreamingSong? = null
+class SingleSong(private val uri: String) : AsyncTask<Void, Int, StreamingSong>() {
+    private var result: StreamingSong? = null
     var error = ""
 
     override fun doInBackground(vararg params: Void?): StreamingSong? {
@@ -314,7 +314,7 @@ class SingleSong(val uri: String) : AsyncTask<Void, Int, StreamingSong>() {
     }
 }
 
-class SinglePlaylist(val listener: TaskListener, val title: String) : AsyncTask<Void, Int, Unit>() {
+class SinglePlaylist(private val listener: TaskListener, val title: String) : AsyncTask<Void, Int, Unit>() {
 
     override fun doInBackground(vararg params: Void?) {
         val ret = ArrayList<Song>()
@@ -345,7 +345,7 @@ class SinglePlaylist(val listener: TaskListener, val title: String) : AsyncTask<
     }
 }
 
-class GetLyrics(val listener: TaskListener, val artist: String, val title: String) : AsyncTask<Void, Int, Unit>() {
+class GetLyrics(private val listener: TaskListener, val artist: String, val title: String) : AsyncTask<Void, Int, Unit>() {
 
     override fun doInBackground(vararg params: Void?) {
         lateinit var ret: List<String>
@@ -366,9 +366,9 @@ class GetLyrics(val listener: TaskListener, val artist: String, val title: Strin
     }
 }
 
-class CreatePlaylist(val listener: TaskListener, var title: String) : AsyncTask<Void, Int, Unit>() {
+class CreatePlaylist(private val listener: TaskListener, var title: String) : AsyncTask<Void, Int, Unit>() {
     override fun doInBackground(vararg p0: Void?) {
-        when (val resp = makeRequest(hashMapOf<String, Any>("action" to "new-playlist", "title" to title, "uris" to emptyList<String>()))) {
+        when (val resp = makeRequest(hashMapOf("action" to "new-playlist", "title" to title, "uris" to emptyList<String>()))) {
             is RequestResult.Ok -> {
                 Server.resetPlaylists()
                 listener.onTaskCompleted(TaskResult.OperationResult("createPlaylist", title))
@@ -379,7 +379,7 @@ class CreatePlaylist(val listener: TaskListener, var title: String) : AsyncTask<
     }
 }
 
-class RemovePlaylist(val listener: TaskListener, var title: String) : AsyncTask<Void, Int, Unit>() {
+class RemovePlaylist(private val listener: TaskListener, var title: String) : AsyncTask<Void, Int, Unit>() {
     override fun doInBackground(vararg p0: Void?) {
         when (val resp = makeRequest(hashMapOf("action" to "remove-playlist", "title" to title))) {
             is RequestResult.Ok -> {
@@ -394,7 +394,7 @@ class RemovePlaylist(val listener: TaskListener, var title: String) : AsyncTask<
     }
 }
 
-class RenamePlaylist(val listener: TaskListener, var oldTitle: String, var newTitle: String) : AsyncTask<Void, Int, Unit>() {
+class RenamePlaylist(private val listener: TaskListener, private var oldTitle: String, private var newTitle: String) : AsyncTask<Void, Int, Unit>() {
     override fun doInBackground(vararg p0: Void?) {
         when (val resp = makeRequest(hashMapOf("action" to "rename-playlist", "src" to oldTitle, "dst" to newTitle))) {
             is RequestResult.Ok -> {
@@ -409,7 +409,7 @@ class RenamePlaylist(val listener: TaskListener, var oldTitle: String, var newTi
     }
 }
 
-class AddSong(val listener: TaskListener, var title: String, var uri: String) : AsyncTask<Void, Int, Unit>() {
+class AddSong(private val listener: TaskListener, var title: String, private var uri: String) : AsyncTask<Void, Int, Unit>() {
     override fun doInBackground(vararg p0: Void?) {
         when (val resp = makeRequest(hashMapOf("action" to "modify-playlist", "playlist-action" to "add", "title" to title, "uris" to listOf(uri)))) {
             is RequestResult.Ok -> {
@@ -423,7 +423,7 @@ class AddSong(val listener: TaskListener, var title: String, var uri: String) : 
     }
 }
 
-class RemoveSong(val listener: TaskListener, var title: String, var uri: String) : AsyncTask<Void, Int, Unit>() {
+class RemoveSong(private val listener: TaskListener, var title: String, private var uri: String) : AsyncTask<Void, Int, Unit>() {
     override fun doInBackground(vararg p0: Void?) {
         when (val resp = makeRequest(hashMapOf("action" to "modify-playlist", "playlist-action" to "remove", "title" to title, "uris" to listOf(uri)))) {
             is RequestResult.Ok -> {
@@ -434,21 +434,6 @@ class RemoveSong(val listener: TaskListener, var title: String, var uri: String)
             is RequestResult.Error -> listener.onTaskCompleted(TaskResult.OperationResult("removeSong", title, resp.msg))
         }
         Log.e("HTTP", "Finished RemoveSong")
-    }
-}
-
-class FileExists(val uri: String) : AsyncTask<Void, Int, Boolean>() {
-    var result: Boolean = false
-
-    override fun doInBackground(vararg params: Void?): Boolean {
-        Log.e("HTTP", "request: file-exists")
-
-        with(baseurl().openConnection() as HttpURLConnection) {
-            requestMethod = "HEAD"
-            connect()
-        }
-        result = true
-        return result
     }
 }
 

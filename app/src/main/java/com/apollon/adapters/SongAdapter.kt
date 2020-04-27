@@ -18,12 +18,12 @@ import java.util.*
 import com.apollon.fragments.SongsFragment
 
 
-class SongAdapter(val playlistTitle: String, var songs: ArrayList<Song>, val context: Context, val fragment: SongsFragment) : RecyclerView.Adapter<SongViewHolder>(), TaskListener, Filterable {
+class SongAdapter(private val playlistTitle: String, var songs: ArrayList<Song>, private val context: Context, private val fragment: SongsFragment) : RecyclerView.Adapter<SongViewHolder>(), TaskListener, Filterable {
 
     private val filter = SongFilter()
     private var filteredSongs = songs
-    lateinit var selectedView: View
-    lateinit var selectedSong: Song
+    private lateinit var selectedView: View
+    private lateinit var selectedSong: Song
 
     // Gets the number of songs in the list
     override fun getItemCount(): Int {

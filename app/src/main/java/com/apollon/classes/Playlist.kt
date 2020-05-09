@@ -5,6 +5,7 @@ import java.io.Serializable
 sealed class Playlist(val id: String, val title: String, val img_url: String, val elements: Int) : Serializable {
 
     class Begin : Playlist("begin", "start screen", "https://cdn3.iconfinder.com/data/icons/66-cds-dvds/512/Icon_60-512.png", 0)
+    class AllSongs : Playlist("AllSongs", "", "all", 0)
     class AllAlbums : Playlist("AllAlbums", "", "album", 0)
     class AllArtists : Playlist("AllArtists", "", "artist", 0)
     class AllGenres : Playlist("AllGenres", "", "genre", 0)

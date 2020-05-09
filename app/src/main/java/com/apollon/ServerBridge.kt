@@ -59,6 +59,37 @@ fun baseurl(): URL {
     return URL(protoString, hostname, port, file)
 }
 
+private class AllSongs(val listener: TaskListener) : AsyncTask<Void, Int, Unit>() {
+
+    override fun doInBackground(vararg params: Void?) {
+        val ret = ArrayList<Song>()
+        Log.e("HTTP", "request: all-songs")
+
+        when (val resp = makeRequest(hashMapOf("action" to "all-songs"))) {
+            is RequestResult.Ok -> {
+                val j = resp.result
+                val songs = j["values"] as JSONArray
+
+                for (i in 0 until songs.length()) {
+                    val jsong = songs[i] as JSONObject
+                    Log.e("AllSongs", jsong.toString())
+                    val img = jsong["img"] as String
+                    if (img == "")
+                        ret.add(Song(jsong["uri"] as String, jsong["title"] as String, jsong["artist"] as String))
+                    else
+                        ret.add(Song(jsong["uri"] as String, jsong["title"] as String, jsong["artist"] as String, img))
+                }
+                val result = TaskResult.ServerSongsResult(ret)
+                Server.allSongs = result
+                listener.onTaskCompleted(result)
+            }
+            is RequestResult.Error -> {
+                listener.onTaskCompleted(TaskResult.ServerSongsResult(error = resp.msg))
+            }
+        }
+    }
+}
+
 private class AllAlbums(val listener: TaskListener) : AsyncTask<Void, Int, Unit>() {
 
     override fun doInBackground(vararg params: Void?) {
@@ -465,6 +496,7 @@ object Server {
     val albums = HashMap<String, TaskResult.ServerSongsResult>()
     val genres = HashMap<String, TaskResult.ServerPlaylistResult>()
     val playlists = HashMap<String, TaskResult.ServerSongsResult>()
+    var allSongs: TaskResult.ServerSongsResult? = null
     var allAlbums: TaskResult.ServerPlaylistResult? = null
     var allGenres: TaskResult.ServerPlaylistResult? = null
     var allArtists: TaskResult.ServerPlaylistResult? = null
@@ -494,6 +526,14 @@ object Server {
             listener.onTaskCompleted(albums[id] as TaskResult)
         } else {
             SingleAlbum(listener, id).execute()
+        }
+    }
+
+    fun getSongs(listener: TaskListener) {
+        if (allSongs == null) {
+            AllSongs(listener).execute()
+        } else {
+            listener.onTaskCompleted(allSongs!!)
         }
     }
 

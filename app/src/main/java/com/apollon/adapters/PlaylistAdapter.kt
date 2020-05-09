@@ -42,6 +42,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
 
         // sets the correct title
         when (playlist) {
+            is Playlist.AllSongs -> holder.title.text = context.getString(R.string.all)
             is Playlist.AllArtists -> holder.title.text = context.getString(R.string.artists)
             is Playlist.AllAlbums -> holder.title.text = context.getString(R.string.albums)
             is Playlist.AllGenres -> holder.title.text = context.getString(R.string.genres)
@@ -56,6 +57,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
 
         // Loads in the correct image
         when (playlist.img_url) {
+            "all" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.all))
             "artist" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.artist))
             "album" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.album))
             "genre" -> holder.thumbnail.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.genre))
@@ -66,6 +68,7 @@ class PlaylistAdapter(var playlists: ArrayList<Playlist>, private val context: C
 
         // CardView listener
         val target = when (playlist) {
+            is Playlist.AllSongs -> SongsFragment.newInstance(playlist)
             is Playlist.Album -> SongsFragment.newInstance(playlist)
             is Playlist.Custom -> SongsFragment.newInstance(playlist)
             is Playlist.Favourites -> SongsFragment.newInstance(playlist)

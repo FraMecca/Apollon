@@ -48,6 +48,7 @@ class SongsFragment : Fragment(), TaskListener {
             }
         })
         when (playlist.img_url) {
+            "all" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.all))
             "genre" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.genre))
             "favourites" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.favourites))
             "playlist" -> playlistThumbnail.setImageBitmap(BitmapFactory.decodeResource(context?.resources, R.drawable.playlist))
@@ -57,7 +58,10 @@ class SongsFragment : Fragment(), TaskListener {
         }
 
         (activity as MainActivity).setSupportActionBar(playlistToolbar)
-        playlistToolbar.title = playlist.title
+        if (playlist is Playlist.AllSongs)
+            playlistToolbar.title = context?.getString(R.string.all)
+        else
+            playlistToolbar.title = playlist.title
         // Creates a Grid Layout Manager
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         // Access the RecyclerView Adapter and load the data into it
@@ -72,6 +76,7 @@ class SongsFragment : Fragment(), TaskListener {
         val uri = playlist.id
         songs.clear()
         when (playlist) {
+            is Playlist.AllSongs -> Server.getSongs(this)
             is Playlist.Album -> Server.getAlbum(this, uri)
             is Playlist.Custom -> Server.getPlaylist(this, uri)
             is Playlist.Favourites -> Server.getPlaylist(this, uri)

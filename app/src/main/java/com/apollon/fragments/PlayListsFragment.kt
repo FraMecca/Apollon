@@ -98,6 +98,7 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
 
         when (playlist) {
             is Playlist.Begin -> {
+                playlists.add(Playlist.AllSongs())
                 playlists.add(Playlist.AllArtists())
                 playlists.add(Playlist.AllAlbums())
                 playlists.add(Playlist.AllGenres())
@@ -107,6 +108,9 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
             }
             is Playlist.Artist -> Server.getArtist(this, playlist.id)
             is Playlist.Album -> {
+                assert(false); return
+            }
+            is Playlist.AllSongs -> {
                 assert(false); return
             }
             is Playlist.Genre -> Server.getGenre(this, playlist.title)

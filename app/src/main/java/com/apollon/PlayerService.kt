@@ -427,7 +427,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             if (mediaPlayer?.isPlaying == true) {
                 mediaPlayer?.pause()
                 mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, getCurrentPosition().toLong(), 0F).build())
-                handler.postDelayed({ mediaController.transportControls.stop()}, 60000)
+                handler.postDelayed({ mediaController.transportControls.stop()}, 180000)
             }
         }
 

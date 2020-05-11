@@ -130,7 +130,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     // The system calls this method when an activity, requests the service be started
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.e("PlayerService", this.toString())
         when (intent.action) {
             PLAY_ACTION -> mediaSession.controller.transportControls.play()
             PAUSE_ACTION -> mediaSession.controller.transportControls.pause()
@@ -147,7 +146,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     override fun onDestroy() {
-        Log.e("DESTROY", "destroyed")
         notificationManager.cancelAll()
         mediaSession.release()
         mediaPlayer?.release()
@@ -163,7 +161,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
         buffer = ((start + (percent.toFloat() / 100 * mediaPlayer!!.duration)) / (start + mediaPlayer!!.duration) * 100).toInt()
         val b = Bundle()
         b.putInt("percent", buffer)
-        Log.e("Buffered", buffer.toString())
         mediaSession.sendSessionEvent("Buffered", b)
     }
 
@@ -194,7 +191,6 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     override fun onPrepared(mp: MediaPlayer) {
         // Invoked when the media source is ready for playback.\
-        Log.e("Player", "prepared")
         ready = true
         mediaController.transportControls.play()
     }
@@ -431,7 +427,7 @@ class PlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.O
             if (mediaPlayer?.isPlaying == true) {
                 mediaPlayer?.pause()
                 mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, getCurrentPosition().toLong(), 0F).build())
-                handler.postDelayed({ mediaController.transportControls.stop(); Log.e("PAUSE", "stopped") }, 60000)
+                handler.postDelayed({ mediaController.transportControls.stop()}, 60000)
             }
         }
 

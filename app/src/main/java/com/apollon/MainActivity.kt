@@ -9,7 +9,6 @@ import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Button
@@ -38,8 +37,6 @@ class MainActivity : AppCompatActivity(), OnClickListener {
             mediaController = player.getSessionController()
             callback = Callback()
             mediaController.registerCallback(callback)
-
-            Log.e("MediaController", mediaController.toString())
         }
 
         override fun onServiceDisconnected(name: ComponentName) {}
@@ -47,7 +44,6 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.e("ACTIVITY", "created$this")
         setContentView(R.layout.activity_main)
 
         val intent = Intent(this, PlayerService::class.java)

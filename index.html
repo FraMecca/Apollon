@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Apollon App</title>
 
 		<link rel="stylesheet" href="css/reset.css">
 		<link rel="stylesheet" href="css/reveal.css">
@@ -14,28 +14,195 @@
 		<link rel="stylesheet" href="lib/css/monokai.css">
 
 		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
 	</head>
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+              <section>Apollon</section>
+              <section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Perché Apollon?
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Confronto spotify apple music
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # il nostro target di utenti
+                  </textarea>
+                </section>
+              </section>
+
+              <section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Un media player tradizionale
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Schemi sul mediaplayer e gestione
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Audio manager
+                    # Audio focus
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Sfondo
+                    # Notifiche 
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # modi di navigare l'app e il catalog
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # miniplayer
+                  </textarea>
+                </section>
+                <section >
+                  <p data-template>
+                    Le risorse vengono liberate quando il player non è utilizzato per un minuto
+                  </textarea>
+                  <script src="https://gist.github.com/FraMecca/0395c9f879e0d399f6cfbc40b1921833.js"></script>
+                </section>
+              </section>
+
+              <section>
+                <section data-markdown>
+                  <textarea data-template>
+                    ## Più di un mediaplayer tradizionale:
+                     archittetura client - server
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    ## Complicazioni:
+                    * MediaPlayer implementa la gestione di stream via HTTP
+                    * non sempre è possibile fare seek del brano:
+                        1. controllare lo stato del buffer
+                        2. se il buffer non è sufficiente, fare una richiesta `HTTP Content-Range`
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    Tutte le richieste al server devono essere eseguite asincronamente
+                    in modo che non venga sacrificata l'interattività fra UI e utente
+                  </textarea>
+                </section>
+                <section>
+                  TaskListener e Server singleton
+                  <script src="https://gist.github.com/FraMecca/d81657262e0e9f5183d06e2804b03672.js"></script>
+                </section>
+                <section>
+                  AsyncTask
+                  <script src="https://gist.github.com/FraMecca/e599908de37fd071668635dc93bc9d3c.js"></script>
+                </section>
+              </section>
+
+              <section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Visualizzazione
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # UI: xml
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # adapters
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # cards
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # fragments
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # picasso e fetch immagini
+                  </textarea>
+                </section>
+              </section>
+
+              <section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Feature aggiuntive
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Lyrics
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Gestures
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Multilingua
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # UI adattativa allo schermo
+                  </textarea>
+                </section>
+              </section>
+
+              <section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Usare Kotlin per lo sviluppo
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Server
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Protocollo
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # kotlin:
+                    ## tool
+                    ## perché
+                  </textarea>
+                </section>
+              </section>
+
+
+            </div>
+        </div>
 
 		<script src="js/reveal.js"></script>
 
 		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
 			Reveal.initialize({
 				hash: true,
 				dependencies: [

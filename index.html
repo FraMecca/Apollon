@@ -94,6 +94,9 @@
                         2. se il buffer non è sufficiente, fare una richiesta `HTTP Content-Range`
                   </textarea>
                 </section>
+                <section>
+                  <script src="https://gist.github.com/FraMecca/5e631d8910e446eef1e2336dc6a818d5.js"></script>
+                </section>
                 <section data-markdown>
                   <textarea data-template>
                     Tutte le richieste al server devono essere eseguite asincronamente
@@ -136,10 +139,12 @@
                     # fragments
                   </textarea>
                 </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # picasso e fetch immagini
-                  </textarea>
+                <section >
+                  <p>
+                    Il fetch e caching delle immagini in rete, come cover-art e artisti, avviene utilizzando
+                    <a><href="https://square.github.io/picasso/">Picasso</href></a>
+                  </p>
+                  <script src="https://gist.github.com/FraMecca/d95d00ea80ff5ed6b63e20878c7c8656.js"></script>
                 </section>
               </section>
 
@@ -161,7 +166,10 @@
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Multilingua
+                    ## Multilingua
+                    * supporto a tre lingue: italiano (it_IT), francese (fr_FR), inglese (en_US)
+                    * ottenuto tramite `Locale resource-resolution` (api &gt=24)
+                    * Un file string.xml per ogni locale supportato 
                   </textarea>
                 </section>
                 <section data-markdown>

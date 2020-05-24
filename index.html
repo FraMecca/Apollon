@@ -1,38 +1,84 @@
 <!doctype html>
 <html>
-	<head>
+  <head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 		<title>Apollon App</title>
+        <link rel='shortcut icon' href='/img/Apollon.png' type='image/x-icon' />
 
 		<link rel="stylesheet" href="css/reset.css">
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+		<link rel="stylesheet" href="css/theme/Apollon.css">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/monokai.css">
+
 		<!-- Printing and PDF exports -->
-        <style>
-          #myFrame { width:100%; height:100%; }
-        </style>
-        
 	</head>
 	<body>
+    <style>
+      small {
+          font-size: 5px;
+      }
+      </style>
 		<div class="reveal">
 			<div class="slides">
-              <section>Apollon</section>
+              <section>
+                <img src = "img/logo.png">
+                <p style = "color: #e5c100">Borello Nazareno - Galatola Marco - Mecca Francesco</p>
+              </section>
               <section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Perché Apollon?
+                    # Cos'è Apollon?
+                    Un'applicazione che permette lo streaming e l'organizzazione della propria libreria musicale da PC a dispositivi Android
+
+                    Si divide in due parti, un client Android, sul quale si concentra la presentazione, ed un server PC, entrambi sviluppati in Kotlin
                   </textarea>
-                </section>
-                <section data-background-iframe="https://framecca.github.io/Apollon/table.html">
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # il nostro target di utenti
+                    ## Caratteristiche principali
+                    * Streaming in tre preset di qualità
+                    * Multiutente
+                    * Gestione playlist personalizzate
+                    * Possibilità di eseguire ricerche sulla propria libreria
+                    * Notifiche interattive
+                    * Supporto completo per quattro lingue: Inglese, Francese, Italiano e Swahili
+                    * Layout del player alternativo per schermi più lunghi
+                    * Condivisione tramite app esterne del brano in ascolto
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    <img class="left_img" src="img\ApolloCensored.png">
+                    <br>
+                    <h1>Perché Apollon?</h1>
+                    Il nome omaggia Apollo, dio greco della musica e della poesia, mentre il logo rappresenta la lira tipicamente associata alla divinità
+
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Confronto con Spotify ed Apple Music
+|                   | <img src="img\Spot.png"> | <img src="img/am2.jpg"> | <img src="img\Apollon.png"> |
+|:---------------------:|:------------------------:|:----------------------:|:---------------------------:|
+|    **Qualità** (kbps) |          [128/256](https://support.spotify.com/us/article/high-quality-streaming/)       |         [&le;256](https://www.theverge.com/2019/8/7/20758633/apple-digital-masters-itunes-rebrand-music-quality)            |[160, 256, 500](https://wiki.audacityteam.org/wiki/OGG)|
+|      **Censura**      |            Sì            |           Sì           |              No             |
+| **Gestione catalogo** |          Azienda         |         Azienda        |            Utente           |
+|        **DRM**        |            Sì            |           Sì           |              No             |
+|       **Costo**       |      Ads/Fee             |               Fee      |         Open Source         |
+                   </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Il nostro target di utenti
+                    Apollon si rivolge a quegli appassionati di musica
+                    che non vogliono rinunciare alla propria collezione anche lontano da casa
+                    
+                    Il backend si basa su MPD, un software Linux ampiamente diffuso come riproduttore fra 
+                    la comunità di audiofili
                   </textarea>
                 </section>
               </section>
@@ -40,40 +86,60 @@
               <section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Un media player tradizionale
+                    <h1>Come un media player tradizionale</h1>
+                    <img src="img\prova.png" class="left_img">
+                    <br>
+                    Vengono offerte tutte le funzionalità di un media player tradizionale:
+                    <ul>
+                        <li>Play\Pausa</li>
+                        <li> Skip</li>
+                        <li> Loop</li>
+                        <li> Riproduzione casuale</li>
+                        <li> Seek</li>
+                        <li> Riproduzione in background</li>
+                    </ul>
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Schemi sul mediaplayer e gestione
+                    # Schema media player
+                    <img src="img\prova.png">
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Audio manager
-                    # Audio focus
+                    # Audio manager e Audio focus
+                    <img src="img\prova.png">
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Sfondo
-                    # Notifiche 
+                    # Sfondo e Notifiche
+                    <img src="img\prova.png" class="left_img">
+                    <br>
+                    Quando un brano è in riproduzione viene generata una notifica interattiva contenente i metadati rilevanti
+                    Inoltre l'immagine associata viene impostata come sfondo della schermata di blocco
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # modi di navigare l'app e il catalog
+                    # Implementazione notifiche
+                    <img src="img\prova.png">
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # miniplayer
+                    # Miniplayer
+                    <img src="img\prova.png" class="left_img">
+                    <br>
+                    Il miniplayer permette un controllo basilare sulla riproduzione mentre si naviga l'applicazione
+                    <br><br>
+                    Al tocco si viene riportati al player esteso
                   </textarea>
                 </section>
                 <section >
-                  <p data-template>
-                    Le risorse vengono liberate quando il player non è utilizzato per un minuto
-                  </textarea>
+                    <h1>Ottimizzazione</h1>
+                    <p>Le risorse vengono liberate quando il player rimane inutilizzato per tre minuti</p>
                   <script src="https://gist.github.com/FraMecca/0395c9f879e0d399f6cfbc40b1921833.js"></script>
                 </section>
               </section>
@@ -81,101 +147,131 @@
               <section>
                 <section data-markdown>
                   <textarea data-template>
-                    ## Più di un mediaplayer tradizionale:
-                     archittetura client - server
-                  </textarea>
-                </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    ## Complicazioni:
-                    * MediaPlayer implementa la gestione di stream via HTTP
-                    * non sempre è possibile fare seek del brano:
-                        1. controllare lo stato del buffer
-                        2. se il buffer non è sufficiente, fare una richiesta `HTTP Content-Range`
-                  </textarea>
-                </section>
-                <section>
-                  <script src="https://gist.github.com/FraMecca/5e631d8910e446eef1e2336dc6a818d5.js"></script>
-                </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    Tutte le richieste al server devono essere eseguite asincronamente
-                    in modo che non venga sacrificata l'interattività fra UI e utente
-                  </textarea>
-                </section>
-                <section>
-                  TaskListener e Server singleton
-                  <script src="https://gist.github.com/FraMecca/d81657262e0e9f5183d06e2804b03672.js"></script>
-                </section>
-                <section>
-                  AsyncTask
-                  <script src="https://gist.github.com/FraMecca/e599908de37fd071668635dc93bc9d3c.js"></script>
-                </section>
-              </section>
-
-              <section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # Visualizzazione
-                  </textarea>
-                </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # UI: xml
-                  </textarea>
-                </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # adapters
-                  </textarea>
-                </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # cards
-                  </textarea>
-                </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # fragments
-                  </textarea>
-                </section>
-                <section >
-                  <p>
-                    Il fetch e caching delle immagini in rete, come cover-art e artisti, avviene utilizzando
-                    <a><href="https://square.github.io/picasso/">Picasso</href></a>
-                  </p>
-                  <script src="https://gist.github.com/FraMecca/d95d00ea80ff5ed6b63e20878c7c8656.js"></script>
-                </section>
-              </section>
-
-              <section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # Feature aggiuntive
+                    # Oltre un media player tradizionale
+                    Vengono offerte alcune funzionalità aggiuntive oltre a quelle descritte in precedenza:
+                    * Testo della canzone 
+                    * Supporto per le gesture
+                    * Multilingua
+                    * UI alternativa                    
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
                     # Lyrics
+                    <img src="img\prova.png" class="left_img">
+                    <br>
+                    Ottenute dal server da ChartLyrics, convertite in JSON ed inviate al client
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
                     # Gestures
+                    <img src="img\prova.png" class="left_img"><img src="img\prova.png" class="left_img">
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    ## Multilingua
-                    * supporto a tre lingue: italiano (it_IT), francese (fr_FR), inglese (en_US)
+                    # Implementazione Gestures
+                    <img src="img\prova.png">
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Multilingua
+                    * supporto per quattro lingue: Italiano (it_IT), Francese (fr_FR), Inglese (en_US) e Swahili (sw_UG)
                     * ottenuto tramite `Locale resource-resolution` (api &gt=24)
-                    * Un file string.xml per ogni locale supportato 
+                    * Un file string.xml per ogni lingua supportata
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # UI adattativa allo schermo
+                    # Layout player alternativo
+                    <img src="img\prova.png" style="margin-right=20px"><img src="img\prova.png">
                   </textarea>
+                </section>
+              </section>
+
+               <section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Architettura Client Server
+                    <img class="big_img" src="img\s_arch.png">
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Comunicare col server
+                    La comunicazione avviene tramite un Singleton che espone funzioni gestite da AsyncTask e mantiene una cache 
+                    dei risultati ricevuti
+                    <br><br>
+                    Ad ogni AsyncTask è assegnato un TaskListener, chiamato asincronicamente ad operazione conclusa, 
+                    il quale riceve un TaskResult (specifico per l'operazione) atto a modellare il risultato richiesto
+                    <br><br>
+                    Questo sistema fa sì che le operazioni di backend non blocchino la UI, preservando il più possibile l'interattività 
+                    con l'utente
+                  </textarea>
+                </section>
+                <section>
+                  <h3>AsyncTask</h3>
+                  <script src="https://gist.github.com/FraMecca/e599908de37fd071668635dc93bc9d3c.js"></script>
+                </section>
+                <section>
+                  <h3>TaskListener, TaskResult e Server singleton</h3>
+                  <script src="https://gist.github.com/FraMecca/d81657262e0e9f5183d06e2804b03672.js"></script>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Complicazioni sul seeking
+                    Non sempre è possibile fare seeking su un brano poiché la classe
+                    MediaPlayer implementa la gestione di streaming via HTTP mentre il server utilizza il transcoding on the fly
+                    <br><br>
+                    Questo fa sì che la dimensione effettiva del file muti nel tempo e perciò non possa essere nota a priori, 
+                    per risolvere il problema si adotta una soluzione in due step:
+                    * Controllare lo stato del buffer
+                    * Se il buffer non è sufficiente, fare una richiesta `HTTP Content-Range`
+                  </textarea>
+                </section>
+                <section>
+                  <h2>Implementazione seek</h2>
+                  <script src="https://gist.github.com/FraMecca/5e631d8910e446eef1e2336dc6a818d5.js"></script>
+                </section>
+              </section>
+            </section>
+
+              <section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Visualizzazione
+                    La parte di visualizzazione ha richiesto l'uso di varie componenti:
+                    * **Fragments** per mantenere il binding tra Activity e Service
+                    * **Adapter** per visualizzare liste modulari di elementi personalizzati tramite **Card**
+                    * **Picasso** per gestire immagini remote
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Fragment
+                    Ogni schermata è gestita da un fragment specifico invocato dall'Activity
+                    <br>
+                    I fragment sono inseriti in uno stack per permettere all'utente di tornare alle schermate precedenti
+                    <img src="img\prova.png">[REPLACE_FRAGMENT]                    
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    # Adapter e Card
+                    <img class="left_img" src="img\prova.png">
+                    <br><br>
+                    Adatper e Card gestiscono l'interfaccia dei fragment composti da liste di album o canzoni
+                  </textarea>
+                </section>
+                <section >
+                <h1>Picasso</h1>
+                  <p>
+                    Il download ed il caching delle immagini prese dalla rete, come cover-art ed artisti, avviene utilizzando
+                    la libreria <a><href="https://square.github.io/picasso/">Picasso</href></a>
+                  </p>
+                  <script src="https://gist.github.com/FraMecca/d95d00ea80ff5ed6b63e20878c7c8656.js"></script>
                 </section>
               </section>
 

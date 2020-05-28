@@ -274,28 +274,48 @@
                   <script src="https://gist.github.com/FraMecca/d95d00ea80ff5ed6b63e20878c7c8656.js"></script>
                 </section>
               </section>
-
               <section>
                 <section data-markdown>
+					<textarea data-template>
+                     ### Usare Kotlin per lo sviluppo
+ Kotlin ci ha permesso di usare con più facilità vari pattern architetturali e tecniche di programmazione funzionale.
+
+* Singleton: gestione della comunicazione col server
+* Companion Object: negli adapters
+* Sum Types: parametrizzazione dei fragments
+* Pattern Matching: semplifica la logica e la struttura del codice
+                  </textarea>
+                </section>
+                <section >
+                    <h4>Pattern matching e sealed classes</h4>
+                  <script src="https://gist.github.com/FraMecca/a615a249cbf85f60fb1e9399a1bc88c8.js"></script>
+                </section>
+                <section data-markdown>
                   <textarea data-template>
-					TODO: risolvi formattazione
-                    ### Usare Kotlin per lo sviluppo
-					Kotlin ci ha permesso di usare con più facilità vari pattern architetturali e tecniche di programmazione funzionale.
-					* Singleton: gestione della comunicazione col server
-					* Companion Object: negli adapters
-					* Sum Types: parametrizzazione dei fragments
-					* Pattern Matching: semplifica la logica e la struttura del codice
+					### Kotlin + MPD = Backend
+					Apollon comunica con un backend installato sul server dell'utente.
+Il backend si occupa di:
+ - leggere il database musicale di [MPD](https://en.wikipedia.org/wiki/Music_Player_Daemon)
+ - convertire i brani musicali richiesti e leggere i metadati
+ - comunicare attraverso un'api REST-like 
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Server
+                    ### API
+Quattro aree funzionali
+- Libreria: navigazione per album, genere, artista e ricerca
+- Playlists: creazione e modifica di playlist specifiche per ogni utente
+- Streaming: gestione del flusso di dati, qualita` dello stream, avanzamento, signaling delle risorse in uso
+- Handle per operazioni sui singoli oggetti del catalogo: artista, album, genere, brano, metadati
                   </textarea>
                 </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # Protocollo
-                  </textarea>
+                <section >
+				  <p>
+					Come nell'app, vengono utilizzati pattern architetturali tipici della programmazione ad oggetti e funzionale.
+					La logica del backend è codificata nei tipi <em>Response</em> e <em>Request</em> che tracciano il bordo dell'API.
+					</p>
+				  <script src="https://gist.github.com/FraMecca/7350f897349834942ed8a7dd2b81ca0a.js"></script>
                 </section>
               </section>
             </div>

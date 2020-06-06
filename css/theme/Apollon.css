@@ -4,6 +4,9 @@
  * By Hakim El Hattab, http://hakim.se
  */
 @import url(../../lib/font/source-sans-pro/source-sans-pro.css);
+@import url('https://cdn.rawgit.com/lonekorean/gist-syntax-themes/848d6580/stylesheets/monokai.css');
+
+
 section.has-light-background, section.has-light-background h1, section.has-light-background h2, section.has-light-background h3, section.has-light-background h4, section.has-light-background h5, section.has-light-background h6 {
   color: #222; }
 
@@ -18,6 +21,16 @@ section.has-light-background, section.has-light-background h1, section.has-light
 .big_img{
   max-width: 100%!important;
   max-height: 100%!important;
+}
+
+.small_img{
+  max-width: 35%!important;
+  max-height:35%!important;
+}
+
+.ros_img{
+  max-width: 33%!important;
+  max-height:33%!important;
 }
 
 body {

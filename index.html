@@ -31,7 +31,7 @@
               <section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Cos'è Apollon?
+                    ## Cos'è Apollon?
                     Un'applicazione che permette lo streaming e l'organizzazione della propria libreria musicale da PC a dispositivi Android
 
                     Si divide in due parti, un client Android, sul quale si concentra la presentazione, ed un server PC, entrambi sviluppati in Kotlin
@@ -54,14 +54,14 @@
                   <textarea data-template>
                     <img class="left_img" src="img\ApolloCensored.png">
                     <br>
-                    <h1>Perché Apollon?</h1>
+                    <h2>Perché Apollon?</h2>
                     Il nome omaggia Apollo, dio greco della musica e della poesia, mentre il logo rappresenta la lira tipicamente associata alla divinità
 
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Confronto con Spotify ed Apple Music
+                    ## Confronto con Spotify ed Apple Music
 |                   | <img src="img\Spot.png"> | <img src="img/am2.jpg"> | <img src="img\Apollon.png"> |
 |:---------------------:|:------------------------:|:----------------------:|:---------------------------:|
 |    **Qualità** (kbps) |          [128/256](https://support.spotify.com/us/article/high-quality-streaming/)       |         [&le;256](https://www.theverge.com/2019/8/7/20758633/apple-digital-masters-itunes-rebrand-music-quality)            |[160, 256, 500](https://wiki.audacityteam.org/wiki/OGG)|
@@ -73,7 +73,7 @@
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Il nostro target di utenti
+                    ## Il nostro target di utenti
                     Apollon si rivolge a quegli appassionati di musica
                     che non vogliono rinunciare alla propria collezione anche lontano da casa
                     
@@ -86,9 +86,9 @@
               <section>
                 <section data-markdown>
                   <textarea data-template>
-                    <h1>Come un media player tradizionale</h1>
-                    <img src="img\prova.png" class="left_img">
-                    <br>
+                    <h3>Come un media player tradizionale</h3>
+                    <img src="img\player.png" class="left_img small_img">
+                    <br><br>
                     Vengono offerte tutte le funzionalità di un media player tradizionale:
                     <ul>
                         <li>Play/Pause</li>
@@ -102,43 +102,44 @@
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Schema media player
-                    <img src="img\prova.png">
-                  </textarea>
-                </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # Audio manager e Audio focus
-                    <img src="img\prova.png">
-                  </textarea>
-                </section>
-                <section data-markdown>
-                  <textarea data-template>
-                    # Sfondo e Notifiche
-                    <img src="img\prova.png" class="left_img">
+                    ## Schema media player
                     <br>
+                    <img class="big_img" src="img\playerArch.png">
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    ## Audio manager e Audio focus
+                    <img src="img\prova.png">
+                  </textarea>
+                </section>
+                <section data-markdown>
+                  <textarea data-template>
+                    ## Sfondo e Notifiche
+                    <img src="img\notification.png" class="left_img small_img">
+                    <br><br>
                     Quando un brano è in riproduzione viene generata una notifica interattiva contenente i metadati rilevanti
                     Inoltre l'immagine associata viene impostata come sfondo della schermata di blocco
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Implementazione notifiche
+                    ## Implementazione notifiche
                     <img src="img\prova.png">
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Miniplayer
-                    <img src="img\prova.png" class="left_img">
-                    <br>
+                    ## Miniplayer
+                    <img src="img\miniplayer.png" class="left_img small_img">
+                    <br><br>
                     Il miniplayer permette un controllo basilare sulla riproduzione mentre si naviga l'applicazione
                     <br><br>
                     Al tocco si viene riportati al player esteso
                   </textarea>
                 </section>
                 <section >
-                    <h1>Ottimizzazione</h1>
+                    <h2>Ottimizzazione</h2>
                     <p>Le risorse vengono liberate quando il player rimane inutilizzato per tre minuti</p>
                   <script src="https://gist.github.com/FraMecca/0395c9f879e0d399f6cfbc40b1921833.js"></script>
                 </section>
@@ -147,7 +148,7 @@
               <section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Oltre un media player tradizionale
+                    ## Oltre un media player tradizionale
                     Vengono offerte alcune funzionalità aggiuntive oltre a quelle descritte in precedenza:
                     * Testo della canzone 
                     * Supporto per le gesture
@@ -157,27 +158,28 @@
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Lyrics
-                    <img src="img\prova.png" class="left_img">
+                    ### Lyrics
+                    <img src="img\lyrics.png" class="left_img small_img">
+                    <br>
                     <br>
                     Ottenute dal server da ChartLyrics, convertite in JSON ed inviate al client
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Gestures
-                    <img src="img\prova.png" class="left_img"><img src="img\prova.png" class="left_img">
+                    ## Gestures
+                    <img src="gifs\favourite.gif" class="ros_img" style="margin-right:160px"><img src="gifs\swipe.gif" class="ros_img">
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Implementazione Gestures
+                    ## Implementazione Gestures
                     <img src="img\prova.png">
                   </textarea>
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Multilingua
+                    ## Multilingua
                     * supporto per quattro lingue: Italiano (it_IT), Francese (fr_FR), Inglese (en_US) e Swahili (sw_UG)
                     * ottenuto tramite `Locale resource-resolution` (api &gt=24)
                     * Un file string.xml per ogni lingua supportata
@@ -185,8 +187,8 @@
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Layout player alternativo
-                    <img src="img\prova.png" style="margin-right=20px"><img src="img\prova.png">
+                    ### Layout player alternativo
+                    <img class="small_img" src="img\player.png" style="margin-right=20px"><img class="small_img" src="img\player_long.png">
                   </textarea>
                 </section>
               </section>
@@ -241,7 +243,7 @@
               <section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Visualizzazione
+                    ## Visualizzazione
                     La parte di visualizzazione ha richiesto l'uso di varie componenti:
                     * **Fragments** per mantenere il binding tra Activity e Service
                     * **Adapter** per visualizzare liste modulari di elementi personalizzati tramite **Card**
@@ -250,7 +252,7 @@
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Fragment
+                    ## Fragment
                     Ogni schermata è gestita da un fragment specifico invocato dall'Activity
                     <br>
                     I fragment sono inseriti in uno stack per permettere all'utente di tornare alle schermate precedenti
@@ -259,14 +261,15 @@
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    # Adapter e Card
-                    <img class="left_img" src="img\prova.png">
+                    ### Adapter e Card
+                    <img class="left_img small_img" src="img\albums.png">
+                    <img class="left_img small_img" src="img\songs.png">
                     <br><br>
                     Adatper e Card gestiscono l'interfaccia dei fragment composti da liste di album o canzoni
                   </textarea>
                 </section>
                 <section >
-                <h1>Picasso</h1>
+                <h2>Picasso</h2>
                   <p>
                     Il download ed il caching delle immagini prese dalla rete, come cover-art ed artisti, avviene utilizzando
                     la libreria <a><href="https://square.github.io/picasso/">Picasso</href></a>
@@ -292,8 +295,8 @@
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-					### Kotlin + MPD = Backend
-					Apollon comunica con un backend installato sul server dell'utente.
+					## Backend
+					Apollon comunica con un backend, scritto in Kotlin, installato sul server dell'utente.
 Il backend si occupa di:
  - leggere il database musicale di [MPD](https://en.wikipedia.org/wiki/Music_Player_Daemon)
  - convertire i brani musicali richiesti e leggere i metadati
@@ -302,7 +305,7 @@ Il backend si occupa di:
                 </section>
                 <section data-markdown>
                   <textarea data-template>
-                    ### API
+                    ## API
 Quattro aree funzionali
 - Libreria: navigazione per album, genere, artista e ricerca
 - Playlists: creazione e modifica di playlist specifiche per ogni utente

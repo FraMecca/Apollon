@@ -1,5 +1,8 @@
 package com.apollon.fragments
 
+import android.content.Context
+import android.content.Context.*
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,11 +12,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import com.apollon.DoLogin
 import com.apollon.MainActivity
 import com.apollon.R
 import com.apollon.classes.Credentials
+
 
 class LoginFragment : Fragment() {
 
@@ -55,18 +60,31 @@ class LoginFragment : Fragment() {
             val newServer = serverField.text.toString()
             val newProto = protocolField.selectedItemId.toInt()
             Credentials.save(context!!, newUser, newPass, newServer, newProto, newPort)
-            val l = DoLogin()
-            l.execute()
-            while (!l.done) {
-                Log.e("Trying login", l.done.toString())
-            }
-            if (!l.result) {
-                Toast.makeText(context!!, l.msg, Toast.LENGTH_LONG).show()
-                Log.e("Login", "Invalid Login")
+            if(!isNetworkAvailable()) {
+                val msg = R.string.no_connectivity
+                Toast.makeText(context!!, msg, Toast.LENGTH_LONG).show()
             } else {
-                (activity as MainActivity).replaceFragment(PlayListsFragment(), false)
+                val l = DoLogin()
+                l.execute()
+                while (!l.done) {
+                    Log.e("Trying login", l.done.toString())
+                }
+                if (!l.result) {
+                    Toast.makeText(context!!, l.msg, Toast.LENGTH_LONG).show()
+                    Log.e("Login", "Invalid Login")
+                } else {
+                    (activity as MainActivity).replaceFragment(PlayListsFragment(), false)
+                }
             }
         }
         return mView
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        // Used to check if the phone can starts connections
+        val connectivityManager =
+            activity?.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager?
+        val activeNetworkInfo = connectivityManager!!.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
 }

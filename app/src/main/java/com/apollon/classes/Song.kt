@@ -2,10 +2,13 @@ package com.apollon.classes
 
 import java.io.Serializable
 
-open class Song(val id: String, val title: String, val artist: String, var img_url: String) : Serializable {
+open class Song(val id: String, val title: String, val artist: String, var img_url: String, val index: Int) : Serializable {
+
+    constructor(id: String, title: String, artist: String, index: Int) :
+            this(id, title, artist, "", index)
 
     constructor(id: String, title: String, artist: String) :
-            this(id, title, artist, "")
+            this(id, title, artist, "", 0)
 
     override fun equals(other: Any?): Boolean {
         if (other !is Song)
@@ -18,4 +21,4 @@ open class Song(val id: String, val title: String, val artist: String, var img_u
     }
 }
 
-class PlaylistSong(id: String, title: String, artist: String, img_url: String) : Song(id, title, artist, img_url)
+class PlaylistSong(id: String, title: String, artist: String, img_url: String, index: Int) : Song(id, title, artist, img_url, index)

@@ -48,5 +48,5 @@
     <string name="already_exists">%1$s existe déjà</string>
     <string name="playlist_renamed">Playlist %1$s renommée</string>
     <string name="playlist_rename_fail">Il existe déjà une playlist nommée %1$s</string>
-    <string name="no_connectivity">"On dirait que vous n’êtes pas connecté à Internet. Essayez à nouveau plus tard."</string>
+    <string name="no_connectivity">"On dirait que vous n’êtes pas connecté à Internet. Essayez à nouveau plus tard"</string>
 </resources>

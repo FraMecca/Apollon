@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.SearchView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,8 +37,10 @@ class PlayListsFragment : Fragment(), TaskListener, View.OnClickListener {
         recyclerView = mView.findViewById(R.id.recycler_view)
         playlist = if (this.arguments != null && this.arguments!!.containsKey("playlist"))
             this.arguments!!.get("playlist") as Playlist
-        else
+        else {
+            search.isVisible = false
             Playlist.Begin()
+        }
 
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String?): Boolean {

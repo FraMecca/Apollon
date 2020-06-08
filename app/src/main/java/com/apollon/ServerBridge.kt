@@ -69,15 +69,14 @@ private class AllSongs(val listener: TaskListener) : AsyncTask<Void, Int, Unit>(
             is RequestResult.Ok -> {
                 val j = resp.result
                 val songs = j["values"] as JSONArray
-
                 for (i in 0 until songs.length()) {
                     val jsong = songs[i] as JSONObject
                     Log.e("AllSongs", jsong.toString())
                     val img = jsong["img"] as String
                     if (img == "")
-                        ret.add(Song(jsong["uri"] as String, jsong["title"] as String, jsong["artist"] as String))
+                        ret.add(Song(jsong["uri"] as String, jsong["title"] as String, jsong["artist"] as String, i))
                     else
-                        ret.add(Song(jsong["uri"] as String, jsong["title"] as String, jsong["artist"] as String, img))
+                        ret.add(Song(jsong["uri"] as String, jsong["title"] as String, jsong["artist"] as String, img, i))
                 }
                 val result = TaskResult.ServerSongsResult(ret)
                 Server.allSongs = result
@@ -263,9 +262,9 @@ private class SingleAlbum(val listener: TaskListener, val uri: String) : AsyncTa
 
                     val uri = jsong["uri"] as String
                     if (img == "")
-                        ret.add(Song(uri, title, artist))
+                        ret.add(Song(uri, title, artist, i))
                     else
-                        ret.add(Song(uri, title, artist, img))
+                        ret.add(Song(uri, title, artist, img, i))
                 }
                 val result = TaskResult.ServerSongsResult(ret)
                 Server.albums[uri] = result
@@ -361,7 +360,10 @@ class SinglePlaylist(private val listener: TaskListener, val title: String) : As
                     val artist: String = jsong["artist"] as String
                     val uri = jsong["uri"] as String
                     val img = jsong["img"] as String
-                    ret.add(PlaylistSong(uri, title, artist, img))
+                    if (img == "")
+                        ret.add(Song(uri, title, artist, i))
+                    else
+                        ret.add(Song(uri, title, artist, img, i))
                 }
 
                 val result = TaskResult.ServerSongsResult(ret)

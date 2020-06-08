@@ -52,7 +52,7 @@ class SongAdapter(private val playlistTitle: String, var songs: ArrayList<Song>,
         // CardView listener
         holder.itemView.setOnClickListener {
             (context as MainActivity).replaceFragment(PlayerFragment())
-            context.player.initMedia(songs, position)
+            context.player.initMedia(songs, filteredSongs[position].index)
         }
     }
 

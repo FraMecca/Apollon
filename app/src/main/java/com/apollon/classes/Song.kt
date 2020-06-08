@@ -7,9 +7,6 @@ open class Song(val id: String, val title: String, val artist: String, var img_u
     constructor(id: String, title: String, artist: String, index: Int) :
             this(id, title, artist, "", index)
 
-    constructor(id: String, title: String, artist: String) :
-            this(id, title, artist, "", 0)
-
     override fun equals(other: Any?): Boolean {
         if (other !is Song)
             return false
